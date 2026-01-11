@@ -1,0 +1,112 @@
+{
+  "_source": "Based on Common Sense Advisory Global Digital Transformation model - https://csa-research.com/Blogs-Events/Blog/Why-Do-Firms-Still-Fail-at-Global-Digital-Transformation",
+  "size": 800,
+  "startAngle": -90,
+  "center": {
+    "label": "Global Digital & Experience",
+    "radius": 100,
+    "color": "#E88C2A",
+    "borderWidth": 4,
+    "borderColor": "#ffffff",
+    "fontSize": 12,
+    "fontColor": "#ffffff",
+    "visible": true
+  },
+  "scale": {
+    "min": 1,
+    "max": 5,
+    "rings": 5
+  },
+  "segments": [
+    {
+      "name": "Business Models",
+      "color": "#4A6FA5",
+      "facets": [
+        { "name": "Revenue streams", "score": 3 },
+        { "name": "Value proposition", "score": 4 }
+      ]
+    },
+    {
+      "name": "Strategy",
+      "color": "#5A5A5A",
+      "facets": [
+        { "name": "Digital vision", "score": 4 },
+        { "name": "Roadmap alignment", "score": 3 }
+      ]
+    },
+    {
+      "name": "Corporate Culture",
+      "color": "#D4A84B",
+      "facets": [
+        { "name": "Innovation mindset", "score": 2 },
+        { "name": "Leadership buy-in", "score": 4 }
+      ]
+    },
+    {
+      "name": "Change Management",
+      "color": "#E07B39",
+      "facets": [
+        { "name": "Communication", "score": 3 },
+        { "name": "Training programs", "score": 2 }
+      ]
+    },
+    {
+      "name": "Processes",
+      "color": "#6AAF50",
+      "facets": [
+        { "name": "Automation level", "score": 3 },
+        { "name": "Process optimization", "score": 4 }
+      ]
+    },
+    {
+      "name": "Business Assets",
+      "color": "#3A9B8C",
+      "facets": [
+        { "name": "Data assets", "score": 4 },
+        { "name": "Technology stack", "score": 3 }
+      ]
+    },
+    {
+      "name": "Partnerships & Channels",
+      "color": "#8B6914",
+      "facets": [
+        { "name": "Partner ecosystem", "score": 2 },
+        { "name": "Channel integration", "score": 3 }
+      ]
+    },
+    {
+      "name": "Supporting Ecosystems",
+      "color": "#7B5BA6",
+      "facets": [
+        { "name": "Vendor relationships", "score": 3 },
+        { "name": "Platform connectivity", "score": 4 }
+      ]
+    }
+  ],
+  "style": {
+    "fontFamily": "Verdana, sans-serif",
+
+    "_comment_segments": "--- Segment Styles ---",
+    "segmentFontSize": 20,
+    "showSegmentDividers": true,
+    "segmentDividerWidth": 4,
+    "segmentDividerColor": "#ffffff",
+
+    "_comment_facets": "--- Facet Styles ---",
+    "facetFontSize": 14,
+    "facetFontColor": "#000000",
+    "facetOpacity": 0.85,
+    "showFacetPoints": false,
+    "facetPointStyle": "circle",
+
+    "_comment_rings": "--- Ring/Scale Styles ---",
+    "showRings": true,
+    "ringColor": "#cccccc",
+    "ringWidth": 1,
+    "ringStyle": "dashed",
+    "showScoreLabels": true,
+    "scoreLabelFontSize": 10,
+    "scoreLabelColor": "#333",
+    "scoreLabelStrokeColor": "#ffffff"
+  }
+}

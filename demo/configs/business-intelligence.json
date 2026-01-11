@@ -1,0 +1,97 @@
+{
+  "_source": "Based on comingskills.com https://www.facebook.com/photo.php?fbid=170741351938098&id=104903348521899&set=a.104919431853624",
+  "size": 800,
+  "startAngle": -90,
+  "center": {
+    "label": "Business & Intelligence",
+    "radius": 100,
+    "color": "#2C3E50",
+    "borderWidth": 0,
+    "borderColor": "#ffffff",
+    "fontSize": 12,
+    "fontColor": "#ffffff",
+    "visible": true
+  },
+  "scale": {
+    "min": 1,
+    "max": 5,
+    "rings": 5
+  },
+  "segments": [
+    {
+      "name": "Data Modernization",
+      "color": "#3498DB",
+      "facets": [
+        { "name": "Legacy migration", "score": 3 }
+      ]
+    },
+    {
+      "name": "Data Warehouse",
+      "color": "#1ABC9C",
+      "facets": [
+        { "name": "Architecture", "score": 4 }
+      ]
+    },
+    {
+      "name": "Data Discovery",
+      "color": "#F39C12",
+      "facets": [
+        { "name": "Search capabilities", "score": 3 }
+      ]
+    },
+    {
+      "name": "Master Data",
+      "color": "#F5B041",
+      "facets": [
+        { "name": "Data quality", "score": 4 }
+      ]
+    },
+    {
+      "name": "Self Service BI",
+      "color": "#9B59B6",
+      "facets": [
+        { "name": "User adoption", "score": 2 }
+      ]
+    },
+    {
+      "name": "Data Integration",
+      "color": "#27AE60",
+      "facets": [
+        { "name": "ETL pipelines", "score": 4 }
+      ]
+    },
+    {
+      "name": "Data Governance",
+      "color": "#E67E22",
+      "facets": [
+        { "name": "Policies", "score": 3 }
+      ]
+    }
+  ],
+  "style": {
+    "fontFamily": "Verdana, sans-serif",
+
+    "_comment_segments": "--- Segment Styles ---",
+    "segmentFontSize": 22,
+    "showSegmentDividers": true,
+    "segmentDividerWidth": 6,
+    "segmentDividerColor": "#ffffff",
+
+    "_comment_facets": "--- Facet Styles ---",
+    "facetFontSize": 16,
+    "facetFontColor": "#000000",
+    "facetOpacity": 0.9,
+    "showFacetPoints": false,
+    "facetPointStyle": "none",
+
+    "_comment_rings": "--- Ring/Scale Styles ---",
+    "showRings": true,
+    "ringColor": "#ffffff",
+    "ringWidth": 1,
+    "ringStyle": "dashed",
+    "showScoreLabels": true,
+    "scoreLabelFontSize": 12,
+    "scoreLabelColor": "#ffffff",
+    "scoreLabelStrokeColor": "#33333380"
+  }
+}

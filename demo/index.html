@@ -1,0 +1,397 @@
+<!--
+  Radial Diagram Generator - Interactive Demo
+
+  @license MIT
+  @copyright 2026 CGA Management Ltd
+  @see https://www.cgamanagement.co.uk/category/tools
+
+  This source code is licensed under the MIT license found in the
+  LICENSE file in the root directory of this source tree.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Radial Diagram Generator</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f5f5f5;
+      color: #333;
+    }
+    h1 {
+      margin: 0 0 20px;
+      font-size: 24px;
+    }
+    .container {
+      display: flex;
+      gap: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .editor-panel {
+      flex: 1;
+      min-width: 400px;
+    }
+    .preview-panel {
+      flex: 1;
+      min-width: 400px;
+    }
+    textarea {
+      width: 100%;
+      height: 600px;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 12px;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      resize: vertical;
+    }
+    .preview-container {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 20px;
+      text-align: center;
+      transition: background-color 0.3s;
+    }
+    .preview-container.dark {
+      border-color: #444;
+    }
+    .source-link {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #666;
+      text-align: center;
+    }
+    .source-link a {
+      color: #4a90d9;
+      text-decoration: none;
+    }
+    .source-link a:hover {
+      text-decoration: underline;
+    }
+    .preview-container svg {
+      max-width: 100%;
+      height: auto;
+    }
+    .buttons {
+      margin: 10px 0;
+      display: flex;
+      gap: 10px;
+    }
+    button {
+      padding: 8px 16px;
+      font-size: 14px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      background: #4a90d9;
+      color: white;
+    }
+    button:hover {
+      background: #357abd;
+    }
+    button.secondary {
+      background: #666;
+    }
+    button.secondary:hover {
+      background: #555;
+    }
+    select {
+      padding: 8px 12px;
+      font-size: 14px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: white;
+      cursor: pointer;
+    }
+    select:hover {
+      border-color: #4a90d9;
+    }
+    .error {
+      color: #c00;
+      font-size: 12px;
+      margin-top: 8px;
+    }
+    .help {
+      font-size: 12px;
+      color: #666;
+      margin-top: 8px;
+    }
+    footer {
+      max-width: 1400px;
+      margin: 40px auto 20px;
+      padding-top: 20px;
+      border-top: 1px solid #ddd;
+      text-align: center;
+      font-size: 13px;
+      color: #666;
+    }
+    footer a {
+      color: #4a90d9;
+      text-decoration: none;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>Radial Diagram Generator</h1>
+
+  <div class="container">
+    <div class="editor-panel">
+      <h3>Configuration (JSON)</h3>
+      <textarea id="config-editor" spellcheck="false"></textarea>
+      <div class="buttons">
+        <button onclick="renderDiagram()">Render</button>
+        <select id="example-selector" onchange="loadExample(this.value)">
+          <option value="">-- Load Example --</option>
+          <option value="example">Basic Example</option>
+          <option value="digital-transformation">Digital Transformation</option>
+          <option value="business-intelligence">Business Intelligence</option>
+          <option value="digital-maturity">Digital Maturity Assessment</option>
+          <option value="pmo-maturity">PMO Maturity (PMOMEM)</option>
+          <option value="brokers-ireland-maturity">Brokers Ireland Maturity</option>
+        </select>
+        <button class="secondary" onclick="downloadSVG()">Download SVG</button>
+        <button class="secondary" onclick="downloadPNG()">Download PNG</button>
+      </div>
+      <div id="error" class="error"></div>
+      <div class="help">
+        Edit the JSON configuration - diagram updates automatically.
+        Scores range from 1-5 (or as defined in scale). Set score to null to hide fill.
+      </div>
+    </div>
+
+    <div class="preview-panel">
+      <h3>Preview</h3>
+      <div class="preview-container" id="preview">
+        <p style="color: #999;">Click "Render" to generate diagram</p>
+      </div>
+      <div id="source-link" class="source-link"></div>
+    </div>
+  </div>
+
+  <footer>
+    Built by <a href="https://cgamanagement.co.uk/category/tools/" target="_blank" rel="noopener">CGA Management Ltd</a> as part of our work with clients.
+    Licensed under MIT.
+  </footer>
+
+  <script type="module">
+    // Import from the library
+    import { SVGRenderer } from '../dist/renderers/svg.js';
+
+    // Global state
+    let currentSVG = '';
+    let renderTimeout = null;
+
+    // Debounce function - waits for pause in typing before rendering
+    function debounce(func, delay) {
+      return function(...args) {
+        clearTimeout(renderTimeout);
+        renderTimeout = setTimeout(() => func.apply(this, args), delay);
+      };
+    }
+
+    // Initialize - ES modules are deferred, so DOM is already ready
+    const editor = document.getElementById('config-editor');
+    editor.addEventListener('input', debounce(renderDiagram, 300));
+    loadExample('example');
+
+    async function loadExample(name) {
+      if (!name) return;
+      try {
+        const response = await fetch(`configs/${name}.json`);
+        const exampleConfig = await response.json();
+        document.getElementById('config-editor').value = JSON.stringify(exampleConfig, null, 2);
+        document.getElementById('example-selector').value = name;
+        renderDiagram();
+      } catch (e) {
+        document.getElementById('error').textContent = 'Failed to load config: ' + e.message;
+      }
+    }
+
+    function renderDiagram() {
+      const errorEl = document.getElementById('error');
+      const previewEl = document.getElementById('preview');
+
+      try {
+        const configText = document.getElementById('config-editor').value;
+        const config = JSON.parse(configText);
+
+        const renderer = new SVGRenderer(config);
+        currentSVG = renderer.render();
+
+        previewEl.innerHTML = currentSVG;
+        errorEl.textContent = '';
+
+        // Update preview background to match config
+        const bgColor = config.style?.backgroundColor || '#ffffff';
+        previewEl.style.backgroundColor = bgColor;
+        // Add dark class for better border contrast on dark backgrounds
+        const isDark = isColorDark(bgColor);
+        previewEl.classList.toggle('dark', isDark);
+
+        // Display source link if available
+        const sourceLinkEl = document.getElementById('source-link');
+        if (config._source) {
+          const urlMatch = config._source.match(/https?:\/\/[^\s]+/);
+          if (urlMatch) {
+            const url = urlMatch[0];
+            const text = config._source.replace(url, '').replace(/\s*-\s*$/, '').trim();
+            sourceLinkEl.innerHTML = `${text} <a href="${url}" target="_blank" rel="noopener">${url}</a>`;
+          } else {
+            sourceLinkEl.textContent = config._source;
+          }
+        } else {
+          sourceLinkEl.textContent = '';
+        }
+      } catch (e) {
+        errorEl.textContent = 'Error: ' + e.message;
+      }
+    }
+
+    function isColorDark(color) {
+      // Convert hex to RGB and check luminance
+      // Supports #rgb, #rrggbb, #rrggbbaa formats
+      let hex = color.replace('#', '');
+      if (hex.length === 3) {
+        // Expand shorthand (#rgb -> #rrggbb)
+        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+      }
+      if (hex.length < 6) return false;
+      const r = parseInt(hex.substring(0, 2), 16);
+      const g = parseInt(hex.substring(2, 4), 16);
+      const b = parseInt(hex.substring(4, 6), 16);
+      const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+      return luminance < 0.5;
+    }
+
+    function downloadSVG() {
+      if (!currentSVG) {
+        alert('Please render a diagram first');
+        return;
+      }
+
+      const blob = new Blob([currentSVG], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'radial-diagram.svg';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function downloadPNG() {
+      if (!currentSVG) {
+        alert('Please render a diagram first');
+        return;
+      }
+
+      // Get background color and size from config
+      let bgColor = '#ffffff';
+      let size = 800;
+      try {
+        const config = JSON.parse(document.getElementById('config-editor').value);
+        bgColor = config.style?.backgroundColor || '#ffffff';
+        size = config.size || 800;
+      } catch (e) {
+        // Use defaults if config parsing fails
+      }
+
+      try {
+        // Get the rendered SVG element and serialize it properly
+        const svgEl = document.querySelector('#preview svg');
+        if (!svgEl) {
+          alert('No SVG found. Please render a diagram first.');
+          return;
+        }
+
+        // Clone and prepare SVG for export
+        const svgClone = svgEl.cloneNode(true);
+        svgClone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+
+        // Serialize to string
+        const serializer = new XMLSerializer();
+        const svgString = serializer.serializeToString(svgClone);
+
+        // Create canvas and draw SVG
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+
+        // Use blob URL approach for better compatibility
+        const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+        const svgUrl = URL.createObjectURL(svgBlob);
+
+        img.onload = function() {
+          try {
+            // Set canvas size (use config size + padding, scaled 2x)
+            const scale = 2;
+            const canvasSize = (size + 140) * scale; // 140 = padding * 2
+            canvas.width = canvasSize;
+            canvas.height = canvasSize;
+
+            // Fill background
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw SVG
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            // Revoke the blob URL
+            URL.revokeObjectURL(svgUrl);
+
+            // Download as PNG
+            canvas.toBlob(function(blob) {
+              if (!blob) {
+                alert('Failed to generate PNG. Try downloading as SVG instead.');
+                return;
+              }
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'radial-diagram.png';
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+            }, 'image/png');
+          } catch (err) {
+            console.error('PNG render error:', err);
+            URL.revokeObjectURL(svgUrl);
+            alert('Failed to render PNG: ' + err.message);
+          }
+        };
+
+        img.onerror = function(e) {
+          console.error('Image load error:', e);
+          URL.revokeObjectURL(svgUrl);
+          alert('Failed to load SVG for PNG conversion. Try downloading as SVG instead.');
+        };
+
+        img.src = svgUrl;
+      } catch (err) {
+        console.error('PNG export error:', err);
+        alert('Failed to export PNG: ' + err.message);
+      }
+    }
+
+    // Expose functions to window for onclick handlers
+    window.loadExample = loadExample;
+    window.renderDiagram = renderDiagram;
+    window.downloadSVG = downloadSVG;
+    window.downloadPNG = downloadPNG;
+  </script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+{
+  "_source": "Basic example demonstrating various segment and facet configurations",
+  "size": 800,
+  "startAngle": -90,
+  "center": {
+    "label": "Diagram Hub",
+    "radius": 100,
+    "color": "#702082",
+    "borderWidth": 8,
+    "borderColor": "#ffffff",
+    "fontSize": 14,
+    "fontColor": "#ffffff",
+    "visible": true
+  },
+  "scale": {
+    "min": 1,
+    "max": 5,
+    "rings": 5
+  },
+  "segments": [
+    {
+      "name": "Segment 1",
+      "color": "#E6A817",
+      "facets": [
+        { "name": "Section 1", "score": 3 }
+      ]
+    },
+    {
+      "name": "Segment 2",
+      "color": "#7B2D42",
+      "facets": [
+        { "name": "Section 1", "score": 4 },
+        { "name": "Section 2", "score": 2 }
+      ]
+    },
+    {
+      "name": "Segment 3",
+      "color": "#C41E3A",
+      "facets": [
+        { "name": "Section 1", "score": 3 },
+        { "name": "Section 2", "score": 2 },
+        { "name": "Section 3", "score": 4 }
+      ]
+    },
+    {
+      "name": "Segment 4",
+      "color": "#7CB342",
+      "facets": [
+        { "name": "Section 1", "score": 2 },
+        { "name": "Section 2", "score": 1 },
+        { "name": "Section 3", "score": 4 },
+        { "name": "Section 4", "score": 3 }
+      ]
+    },
+    {
+      "name": "Segment 5",
+      "color": "#E65100",
+      "facets": [
+        { "name": "Section 1", "score": 5 },
+        { "name": "Section 2", "score": 3 },
+        { "name": "Section 3", "score": 4 },
+        { "name": "Section 4", "score": 2 },
+        { "name": "Section 5", "score": 3 }
+      ]
+    },
+    {
+      "name": "Segment 6",
+      "color": "#5C6BC0",
+      "facets": [
+        { "name": "Section 1", "score": 3 },
+        { "name": "Section 2", "score": 4 },
+        { "name": "Section 3", "score": 2 },
+        { "name": "Section 4", "score": 5 },
+        { "name": "Section 5", "score": 1 },
+        { "name": "Section 6", "score": 4 }
+      ]
+    }
+  ],
+  "style": {
+    "fontFamily": "Verdana, sans-serif",
+
+    "_comment_segments": "--- Segment Styles ---",
+    "segmentFontSize": 28,
+    "showSegmentDividers": true,
+    "segmentDividerWidth": 8,
+    "segmentDividerColor": "#ffffff",
+
+    "_comment_facets": "--- Facet Styles ---",
+    "facetFontSize": 18,
+    "facetFontColor": "#000000",
+    "facetOpacity": 0.8,
+    "showFacetPoints": false,
+    "_facetPointStyle_options": "circle | dot | none",
+    "facetPointStyle": "circle",
+
+    "_comment_rings": "--- Ring/Scale Styles ---",
+    "showRings": true,
+    "ringColor": "#fff",
+    "ringWidth": 1,
+    "_ringStyle_options": "solid | dashed",
+    "ringStyle": "dashed",
+    "showScoreLabels": true,
+    "scoreLabelFontSize": 10,
+    "scoreLabelColor": "#000",
+    "scoreLabelStrokeColor": "#33333300"
+  }
+}

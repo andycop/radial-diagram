@@ -1,0 +1,120 @@
+{
+  "_source": "Based on PMO Maturity Evolution Model (PMOMEM) by PMO Global Institute - https://pmoglobalinstitute.org/pmo-maturity-evolution-model-pmomem-pmo-maturity-model-and-assessment/",
+  "size": 800,
+  "startAngle": -112.5,
+  "center": {
+    "label": "PMO Maturity & Evolution Model",
+    "radius": 100,
+    "color": "#2D2D2D",
+    "borderWidth": 0,
+    "borderColor": "#ffffff",
+    "fontSize": 10,
+    "fontColor": "#ffffff",
+    "visible": true
+  },
+  "scale": {
+    "min": 1,
+    "max": 5,
+    "rings": 5
+  },
+  "segments": [
+    {
+      "name": "Management & Leadership",
+      "color": "#00838F",
+      "facets": [
+        { "name": "Executive engagement", "score": 3 },
+        { "name": "Governance structure", "score": 3 }
+      ]
+    },
+    {
+      "name": "Resource Management",
+      "color": "#43A047",
+      "facets": [
+        { "name": "Capacity management", "score": 4 },
+        { "name": "Staffing levels", "score": 4 }
+      ]
+    },
+    {
+      "name": "Financial Management",
+      "color": "#1E88E5",
+      "facets": [
+        { "name": "Budget controls", "score": 2 },
+        { "name": "Cost tracking", "score": 2 }
+      ]
+    },
+    {
+      "name": "Strategy & Framework",
+      "color": "#5E35B1",
+      "facets": [
+        { "name": "Process documentation", "score": 3 },
+        { "name": "Audit compliance", "score": 3 }
+      ]
+    },
+    {
+      "name": "Stakeholder Engagement",
+      "color": "#FDD835",
+      "facets": [
+        { "name": "Engagement plan", "score": 3 },
+        { "name": "Leadership support", "score": 3 }
+      ]
+    },
+    {
+      "name": "Performance Management",
+      "color": "#FB8C00",
+      "facets": [
+        { "name": "Reporting tools", "score": 2 },
+        { "name": "KPIs & dashboards", "score": 2 }
+      ]
+    },
+    {
+      "name": "Service Integration",
+      "color": "#E91E63",
+      "facets": [
+        { "name": "Process integration", "score": 3 },
+        { "name": "Tool management", "score": 3 }
+      ]
+    },
+    {
+      "name": "Value Generation",
+      "color": "#E53935",
+      "facets": [
+        { "name": "Business case alignment", "score": 3 },
+        { "name": "Benefits tracking", "score": 3 }
+      ]
+    }
+  ],
+  "style": {
+    "backgroundColor": "#1a1a1a",
+    "fontFamily": "Verdana, sans-serif",
+
+    "_comment_segments": "--- Segment Styles ---",
+    "segmentFontSize": 18,
+    "showSegmentDividers": true,
+    "segmentDividerWidth": 3,
+    "segmentDividerColor": "#1a1a1a",
+
+    "_comment_facets": "--- Facet Styles ---",
+    "facetFontSize": 12,
+    "facetFontColor": "#ffffff",
+    "facetOpacity": 0.85,
+    "showFacetPoints": false,
+    "facetPointStyle": "circle",
+
+    "_comment_rings": "--- Ring/Scale Styles ---",
+    "showRings": true,
+    "ringColor": "#444444",
+    "ringWidth": 1,
+    "ringStyle": "dashed",
+    "showScoreLabels": true,
+    "scoreLabelFontSize": 10,
+    "scoreLabelColor": "#ffffff",
+    "scoreLabelStrokeColor": "#00000080"
+  },
+  "_levels": {
+    "1": "Inception",
+    "2": "Evolution",
+    "3": "Precision",
+    "4": "Controlled",
+    "5": "Constant Improvement"
+  }
+}

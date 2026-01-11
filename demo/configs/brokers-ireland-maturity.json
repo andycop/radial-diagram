@@ -1,0 +1,88 @@
+{
+  "_source": "Based on Digital Maturity Assessment - https://brokersireland.ie/wp-content/uploads/2020/12/Digital-Maturity-Assessment-1.pdf",
+  "size": 800,
+  "startAngle": 0,
+  "center": {
+    "label": "Digital Maturity & Assessment",
+    "radius": 110,
+    "color": "#4A2872",
+    "borderWidth": 0,
+    "borderColor": "#ffffff",
+    "fontSize": 14,
+    "fontColor": "#ffffff",
+    "visible": true
+  },
+  "scale": {
+    "min": 1,
+    "max": 1,
+    "rings": 1
+  },
+  "segments": [
+    {
+      "name": "Culture",
+      "color": "#7B4FA0",
+      "facets": [
+        { "name": "Risk Maturity", "score": 1 },
+        { "name": "Transparency", "score": 1 },
+        { "name": "Experimentation", "score": 1 },
+        { "name": "Diversity & Inclusion", "score": 1 }
+      ]
+    },
+    {
+      "name": "Technology",
+      "color": "#F5A623",
+      "facets": [
+        { "name": "Data Driven", "score": 1 },
+        { "name": "Problem Centric", "score": 1 },
+        { "name": "Efficiency Driven", "score": 1 },
+        { "name": "API Centric", "score": 1 }
+      ]
+    },
+    {
+      "name": "Capabilities",
+      "color": "#3AAFA9",
+      "facets": [
+        { "name": "Talent Retention & Acquisition", "score": 1 },
+        { "name": "Digital Workplace", "score": 1 },
+        { "name": "Learning & Development", "score": 1 },
+        { "name": "R&D Centric", "score": 1 }
+      ]
+    },
+    {
+      "name": "Sustainable Operating Model",
+      "color": "#7CB342",
+      "facets": [
+        { "name": "Future-Proofing", "score": 1 },
+        { "name": "Agile Leadership", "score": 1 },
+        { "name": "Ecosystem Collaboration", "score": 1 },
+        { "name": "Customer Centric", "score": 1 }
+      ]
+    }
+  ],
+  "style": {
+    "fontFamily": "Verdana, sans-serif",
+
+    "_comment_segments": "--- Segment Styles ---",
+    "segmentFontSize": 24,
+    "showSegmentDividers": true,
+    "segmentDividerWidth": 12,
+    "segmentDividerColor": "#ffffff",
+
+    "_comment_facets": "--- Facet Styles ---",
+    "facetFontSize": 12,
+    "facetFontColor": "#ffffff",
+    "facetOpacity": 1,
+    "showFacetPoints": false,
+    "facetPointStyle": "none",
+
+    "_comment_rings": "--- Ring/Scale Styles ---",
+    "showRings": false,
+    "ringColor": "#cccccc",
+    "ringWidth": 1,
+    "ringStyle": "solid",
+    "showScoreLabels": false,
+    "scoreLabelFontSize": 10,
+    "scoreLabelColor": "#333333",
+    "scoreLabelStrokeColor": "#ffffff"
+  }
+}

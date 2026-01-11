@@ -1,0 +1,55 @@
+{
+  "name": "radial-diagram",
+  "version": "1.0.0",
+  "description": "Configurable circular/radial diagram generator",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build",
+    "dev": "tsc --watch & live-server --port=3000 --host=0.0.0.0 --open=/demo/",
+    "demo": "live-server --port=3000 --host=0.0.0.0 --open=/demo/",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "diagram",
+    "svg",
+    "radial",
+    "circular",
+    "radar-chart",
+    "wheel-chart",
+    "maturity-model",
+    "capability-assessment"
+  ],
+  "author": "CGA Management Ltd",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/andycop/radial-diagram.git"
+  },
+  "homepage": "https://www.cgamanagement.co.uk/category/tools",
+  "bugs": {
+    "url": "https://github.com/andycop/radial-diagram/issues"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2",
+    "typescript": "^5.3.0",
+    "vitest": "^4.0.16"
+  }
+}

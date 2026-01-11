@@ -1,0 +1,108 @@
+{
+  "_source": "Based on Digital Maturity Assessment frameworks - https://www.grantthornton.co.uk/insights/assessing-your-digital-maturity-model/",
+  "size": 800,
+  "startAngle": -90,
+  "center": {
+    "label": "Digital Maturity & Assessment",
+    "radius": 110,
+    "color": "#4A2C6A",
+    "borderWidth": 0,
+    "borderColor": "#ffffff",
+    "fontSize": 11,
+    "fontColor": "#ffffff",
+    "visible": true
+  },
+  "scale": {
+    "min": 1,
+    "max": 5,
+    "rings": 5
+  },
+  "segments": [
+    {
+      "name": "Technology",
+      "color": "#8BCFDE",
+      "facets": [
+        { "name": "Cyber security & governance", "score": 3 },
+        { "name": "Intelligent automation", "score": 4 },
+        { "name": "Enabled DevOps", "score": 2 },
+        { "name": "Optimised infrastructure", "score": 3 }
+      ]
+    },
+    {
+      "name": "Customer",
+      "color": "#512178",
+      "facets": [
+        { "name": "Customer engagement", "score": 4 },
+        { "name": "Customer experience", "score": 3 },
+        { "name": "Customer insights", "score": 4 },
+        { "name": "Customer trust", "score": 5 }
+      ]
+    },
+    {
+      "name": "Culture",
+      "color": "#DFDAD5",
+      "facets": [
+        { "name": "Organisational adaptability", "score": 3 },
+        { "name": "Communication & collaboration", "score": 4 },
+        { "name": "Experimentation", "score": 2 },
+        { "name": "Diversity & inclusion", "score": 4 }
+      ]
+    },
+    {
+      "name": "Sustainable Operating Model",
+      "color": "#00ADC6",
+      "facets": [
+        { "name": "Agile processes", "score": 3 },
+        { "name": "Intelligent workflows", "score": 2 },
+        { "name": "Integrated channels", "score": 4 },
+        { "name": "Ecosystem partnerships", "score": 3 }
+      ]
+    },
+    {
+      "name": "Capabilities",
+      "color": "#8E6EA8",
+      "facets": [
+        { "name": "Digital workplace", "score": 4 },
+        { "name": "Digital skills", "score": 3 },
+        { "name": "Learning & development", "score": 2 },
+        { "name": "Talent retention", "score": 4 }
+      ]
+    },
+    {
+      "name": "Data",
+      "color": "#D4CCC3",
+      "facets": [
+        { "name": "Data strategy & governance", "score": 3 },
+        { "name": "Data science & big data", "score": 2 },
+        { "name": "Analytics & visualisation", "score": 4 },
+        { "name": "Data platforms", "score": 3 }
+      ]
+    }
+  ],
+  "style": {
+    "fontFamily": "Verdana, sans-serif",
+
+    "_comment_segments": "--- Segment Styles ---",
+    "segmentFontSize": 24,
+    "showSegmentDividers": true,
+    "segmentDividerWidth": 4,
+    "segmentDividerColor": "#ffffff",
+
+    "_comment_facets": "--- Facet Styles ---",
+    "facetFontSize": 11,
+    "facetFontColor": "#000000",
+    "facetOpacity": 0.85,
+    "showFacetPoints": true,
+    "facetPointStyle": "circle",
+
+    "_comment_rings": "--- Ring/Scale Styles ---",
+    "showRings": true,
+    "ringColor": "#cccccc",
+    "ringWidth": 1,
+    "ringStyle": "dashed",
+    "showScoreLabels": true,
+    "scoreLabelFontSize": 10,
+    "scoreLabelColor": "#333333",
+    "scoreLabelStrokeColor": "#ffffff"
+  }
+}
