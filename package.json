@@ -8,7 +8,8 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
     }
   },
   "engines": {
@@ -42,7 +43,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/andycop/radial-diagram.git"
+    "url": "git+https://github.com/andycop/radial-diagram.git"
   },
   "homepage": "https://www.cgamanagement.co.uk/category/tools",
   "bugs": {

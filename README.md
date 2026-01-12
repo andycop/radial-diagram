@@ -199,15 +199,120 @@ The diagram is configured via JSON. See `demo/configs/example.json` for a comple
 
 ## Programmatic Usage
 
+### TypeScript/ESM
+
 ```typescript
-import { SVGRenderer, DiagramConfig } from 'radial-diagram';
+import { SVGRenderer, type DiagramConfig } from 'radial-diagram';
 
 const config: DiagramConfig = {
-  // ... your configuration
+  size: 800,
+  startAngle: -90,  // Start at top
+
+  center: {
+    label: "Core",
+    radius: 60,
+    color: "#8B3A62"
+  },
+
+  scale: {
+    min: 1,
+    max: 5,
+    rings: 5
+  },
+
+  segments: [
+    {
+      name: "Strategy",
+      color: "#3b82f6",
+      facets: [
+        { name: "Vision", score: 4.2 },
+        { name: "Planning", score: 3.8 }
+      ]
+    },
+    {
+      name: "Technology",
+      color: "#10b981",
+      facets: [
+        { name: "Infrastructure", score: 4.5 },
+        { name: "Security", score: 3.9 }
+      ]
+    }
+  ],
+
+  style: {
+    backgroundColor: '#ffffff',
+    fontFamily: 'Inter, sans-serif',
+    showRings: true
+  }
 };
 
+// Create renderer and generate SVG
 const renderer = new SVGRenderer(config);
-const svg = renderer.render();
+const svg = renderer.render(); // Returns SVG string
+```
+
+### Using Helper Functions
+
+```typescript
+import { createConfig, renderDiagram, validateConfig } from 'radial-diagram';
+
+// Create config with defaults
+const config = createConfig({
+  size: 800,
+  segments: [
+    {
+      name: "Strategy",
+      color: "#3b82f6",
+      facets: [{ name: "Vision", score: 4.2 }]
+    }
+  ]
+});
+
+// Validate configuration
+const validation = validateConfig(config);
+if (!validation.valid) {
+  console.error('Configuration errors:', validation.errors);
+}
+
+// Render directly
+const svg = renderDiagram(config);
+```
+
+### Available Exports
+
+```typescript
+// Classes
+import { SVGRenderer } from 'radial-diagram';
+
+// Types (use with 'type' keyword)
+import type {
+  DiagramConfig,
+  Segment,
+  Facet,
+  CenterConfig,
+  ScaleConfig,
+  StyleConfig,
+  ValidationResult
+} from 'radial-diagram';
+
+// Helper functions
+import {
+  createConfig,      // Create config with defaults
+  validateConfig,    // Validate configuration
+  renderDiagram,     // Convenience function to render
+  DEFAULT_STYLE,     // Default style configuration
+  DEFAULT_SCALE      // Default scale configuration
+} from 'radial-diagram';
+
+// Geometry utilities (advanced usage)
+import {
+  polarToCartesian,
+  segmentPath,
+  facetAngles,
+  scoreToRadius,
+  ringRadii,
+  segmentAngle
+} from 'radial-diagram';
 ```
 
 ## License
