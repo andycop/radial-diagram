@@ -20,7 +20,8 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npm run build:standalone",
+    "build:standalone": "node scripts/build-standalone.js",
     "prepublishOnly": "npm run build",
     "dev": "tsc --watch & live-server --port=3000 --host=0.0.0.0 --open=/demo/",
     "demo": "live-server --port=3000 --host=0.0.0.0 --open=/demo/",

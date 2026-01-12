@@ -26,6 +26,18 @@ npm run demo
 
 Open <http://localhost:3000> (redirects to the demo page).
 
+## Standalone Version
+
+A self-contained single-file HTML version is available at [`demo/radial-diagram.html`](demo/radial-diagram.html). This file has no dependencies and can be hosted anywhere or opened directly from the filesystem.
+
+The standalone file is auto-generated from the source files. To rebuild after making changes:
+
+```bash
+npm run build:standalone
+```
+
+This runs automatically as part of `npm run build`.
+
 ## Development
 
 ```bash
