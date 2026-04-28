@@ -1,14 +1,14 @@
 {
   "_source": "Based on PMO Maturity Evolution Model (PMOMEM) by PMO Global Institute - https://pmoglobalinstitute.org/pmo-maturity-evolution-model-pmomem-pmo-maturity-model-and-assessment/",
-  "size": 800,
+  "size": 900,
   "startAngle": -112.5,
   "center": {
     "label": "PMO Maturity\n& Evolution Model",
-    "radius": 100,
+    "radius": 110,
     "color": "#2D2D2D",
     "borderWidth": 0,
     "borderColor": "#ffffff",
-    "fontSize": 10,
+    "fontSize": 12,
     "fontColor": "#ffffff",
     "visible": true
   },
@@ -19,7 +19,7 @@
   },
   "segments": [
     {
-      "name": "Management & Leadership",
+      "name": "Management\n& Leadership",
       "color": "#00838F",
       "facets": [
         { "name": "Executive engagement", "score": 3 },
@@ -43,7 +43,7 @@
       ]
     },
     {
-      "name": "Strategy & Framework",
+      "name": "Strategy\n& Framework",
       "color": "#5E35B1",
       "facets": [
         { "name": "Process documentation", "score": 3 },
@@ -63,7 +63,7 @@
       "color": "#FB8C00",
       "facets": [
         { "name": "Reporting tools", "score": 2 },
-        { "name": "KPIs & dashboards", "score": 2 }
+        { "name": "KPIs\n& dashboards", "score": 2 }
       ]
     },
     {
@@ -88,7 +88,8 @@
     "fontFamily": "Verdana, sans-serif",
 
     "_comment_segments": "--- Segment Styles ---",
-    "segmentFontSize": 18,
+    "segmentLabelPosition": "inner",
+    "segmentFontSize": 16,
     "showSegmentDividers": true,
     "segmentDividerWidth": 3,
     "segmentDividerColor": "#1a1a1a",

@@ -146,9 +146,10 @@ The diagram is configured via JSON. See `demo/configs/example.json` for a comple
 
 #### Segment Labels
 
-| Property         | Type   | Default | Description             |
-| ---------------- | ------ | ------- | ----------------------- |
-| `segmentFontSize`| number | 28      | Segment label font size |
+| Property                | Type   | Default   | Description                                                          |
+| ----------------------- | ------ | --------- | -------------------------------------------------------------------- |
+| `segmentFontSize`       | number | 28        | Segment label font size                                              |
+| `segmentLabelPosition`  | string | `outer`   | Where the labelled colour band sits: `outer` (around the wheel) or `inner` (around the centre hub). See [Multi-line labels and label position](#multi-line-labels-and-label-position). |
 
 #### General
 
@@ -156,6 +157,50 @@ The diagram is configured via JSON. See `demo/configs/example.json` for a comple
 | ----------------- | ------ | ------------------- | ---------------------------------------- |
 | `fontFamily`      | string | `Arial, sans-serif` | Font family for all labels               |
 | `backgroundColor` | string |                     | Background color (transparent if not set)|
+
+## Multi-line labels and label position
+
+### Line breaks with `\n`
+
+`\n` produces a line break in:
+
+- `center.label` — centre hub text stacks vertically.
+- `segment.name` — dimension/segment labels stack along the radius of the
+  label band, each line on its own curved arc. The band grows by one
+  line-height for each extra line.
+- `facet.name` — facet labels stack as `<tspan>` rows under the existing
+  rotation.
+
+Segment arc text on a single line stays curved; multi-line dimension labels
+keep the curve on each individual line.
+
+### Inner vs outer label position
+
+`style.segmentLabelPosition` decides where the labelled colour band sits:
+
+- `outer` (default) — the band sits outside the wheel. Best for assessment
+  diagrams where the wedge area shows scoring.
+- `inner` — the band sits between the centre hub and the facet area, with ring
+  dividers on both edges. Best for framework-style diagrams where the
+  dimensions wrap the centre hub. Note that the inner band visually overlays
+  the inner part of the wedge, so partial score fills (low scores) may be
+  hidden behind it.
+
+## Upgrading from 1.x
+
+The centre hub no longer splits its label on `&`. Previously
+`"PMO Maturity & Evolution"` would render as two lines (`"PMO Maturity"` /
+`"& Evolution"`); now it renders as a single line.
+
+To preserve the old two-line layout, replace `& ` with `\n& ` in the centre
+label (and in any segment or facet name where you want a break):
+
+```diff
+- "label": "PMO Maturity & Evolution"
++ "label": "PMO Maturity\n& Evolution"
+```
+
+All bundled demo configs are already migrated.
 
 ## Example Configuration
 

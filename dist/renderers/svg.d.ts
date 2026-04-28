@@ -32,6 +32,14 @@ export declare class SVGRenderer {
     private renderFacetLabels;
     private renderSegmentLabels;
     private renderSegmentLabelsInner;
+    /** Scale segment font size to fit the longest single line within a segment's arc. */
+    private scaleSegmentFontSize;
+    /**
+     * Emit one or more textPath rows for a segment label. When `name` contains
+     * `\n`, each line is rendered on its own arc at a different radius within
+     * the band, stacked along the radial axis.
+     */
+    private emitSegmentLabelLines;
     private renderSegmentLabelsOuter;
 }
 /**

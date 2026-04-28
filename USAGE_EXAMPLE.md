@@ -124,6 +124,66 @@ if (!validation.valid) {
 }
 ```
 
+## Multi-line labels and inner label band
+
+`\n` produces line breaks in `center.label`, segment names and facet names.
+Combine with `style.segmentLabelPosition: 'inner'` for framework-style
+diagrams where dimensions wrap the centre hub:
+
+```typescript
+import { SVGRenderer, type DiagramConfig } from 'radial-diagram';
+
+const config: DiagramConfig = {
+  size: 900,
+  startAngle: -90,
+  center: {
+    label: "Capability\nFramework",   // \n stacks the hub label
+    radius: 110,
+    color: "#2D2D2D"
+  },
+  scale: { min: 1, max: 5, rings: 5 },
+  segments: [
+    {
+      name: "Strategy\n& Roadmap",     // \n stacks the dimension label
+      color: "#5E35B1",
+      facets: [
+        { name: "Planning\nhorizon", score: 4 },   // \n stacks the facet label
+        { name: "Vision",            score: 3 }
+      ]
+    },
+    {
+      name: "Delivery",
+      color: "#43A047",
+      facets: [
+        { name: "Cadence", score: 3 },
+        { name: "Quality\n& assurance", score: 4 }
+      ]
+    }
+  ],
+  style: {
+    backgroundColor: "#1a1a1a",
+    segmentLabelPosition: "inner",   // band sits around the centre hub
+    showSegmentDividers: true,
+    segmentDividerColor: "#1a1a1a"
+  }
+};
+
+const svg = new SVGRenderer(config).render();
+```
+
+The dimension band auto-sizes to the largest line count across all segment
+names, so single-line dimensions sit centred in a slightly thicker band.
+
+## Upgrading from 1.x
+
+The centre hub no longer splits its `label` on `&` — `&` now renders as a
+literal character. Replace any `& ` line breaks with `\n& `:
+
+```diff
+- center: { label: "PMO Maturity & Evolution" }
++ center: { label: "PMO Maturity\n& Evolution" }
+```
+
 ## Type Definitions
 
 All TypeScript types are exported:

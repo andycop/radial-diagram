@@ -583,6 +583,39 @@ const html = `<!DOCTYPE html>
         return this.renderSegmentLabelsOuter();
       }
 
+      scaleSegmentFontSize(segments, segAngle, textRadius, baseFontSize) {
+        const arcLength = textRadius * (segAngle - 6) * (Math.PI / 180);
+        const longestLineLength = Math.max(...segments.flatMap(s => s.name.split('\\n').map(l => l.length)));
+        const estTextWidth = (longestLineLength + 1) * baseFontSize * 0.6;
+        return estTextWidth > arcLength ? Math.floor(baseFontSize * (arcLength / estTextWidth)) : baseFontSize;
+      }
+
+      emitSegmentLabelLines(defs, texts, pathIdBase, segStart, segEnd, midAngle, textRadius, fontSize, rawName) {
+        const segAngle = segEnd - segStart;
+        const safe = rawName.replace(/&/g, '&amp;');
+        const lines = safe.split('\\n');
+        const lineHeight = fontSize * 1.2;
+        const normalizedMid = ((midAngle % 360) + 360) % 360;
+        const useClockwise = normalizedMid < 15 || normalizedMid > 165;
+        const sign = useClockwise ? -1 : 1;
+        const largeArc = segAngle - 6 > 180 ? 1 : 0;
+        lines.forEach((line, idx) => {
+          const offset = sign * (idx - (lines.length - 1) / 2) * lineHeight;
+          const lineRadius = textRadius + offset;
+          const linePathId = \`\${pathIdBase}-\${idx}\`;
+          if (useClockwise) {
+            const s = polarToCartesian(this.cx, this.cy, lineRadius, segStart + 3);
+            const e = polarToCartesian(this.cx, this.cy, lineRadius, segEnd - 3);
+            defs.push(\`<path id="\${linePathId}" d="M \${s.x} \${s.y} A \${lineRadius} \${lineRadius} 0 \${largeArc} 1 \${e.x} \${e.y}" fill="none" />\`);
+          } else {
+            const s = polarToCartesian(this.cx, this.cy, lineRadius, segEnd - 3);
+            const e = polarToCartesian(this.cx, this.cy, lineRadius, segStart + 3);
+            defs.push(\`<path id="\${linePathId}" d="M \${s.x} \${s.y} A \${lineRadius} \${lineRadius} 0 \${largeArc} 0 \${e.x} \${e.y}" fill="none" />\`);
+          }
+          texts.push(\`<text class="segment-label" fill="white" style="font-size: \${fontSize}px"><textPath href="#\${linePathId}" startOffset="50%" text-anchor="middle">\${line}</textPath></text>\`);
+        });
+      }
+
       renderSegmentLabelsInner() {
         const { segments, startAngle, style, center } = this.config;
         const segAngle = segmentAngle(segments.length);
@@ -592,15 +625,13 @@ const html = `<!DOCTYPE html>
         const texts = [];
         const baseFontSize = style.segmentFontSize || 28;
         const phi = 1.618;
-        const arcThickness = (baseFontSize * phi) + baseFontSize;
+        const maxLines = Math.max(...segments.map(s => s.name.split('\\n').length));
+        const arcThickness = (baseFontSize * phi) + baseFontSize + (maxLines - 1) * baseFontSize * 1.2;
         const dividerWidth = style.segmentDividerWidth || 4;
         const innerLabelRadius = center.radius + (dividerWidth / 2);
         const outerLabelRadius = innerLabelRadius + arcThickness;
         const textRadius = innerLabelRadius + (arcThickness / 2);
-        const arcLength = textRadius * (segAngle - 6) * (Math.PI / 180);
-        const maxNameLength = Math.max(...segments.map(s => s.name.length));
-        const estTextWidth = (maxNameLength + 1) * baseFontSize * 0.6;
-        const scaledFontSize = estTextWidth > arcLength ? Math.floor(baseFontSize * (arcLength / estTextWidth)) : baseFontSize;
+        const scaledFontSize = this.scaleSegmentFontSize(segments, segAngle, textRadius, baseFontSize);
 
         segments.forEach((segment, i) => {
           const segStart = startAngle + i * segAngle;
@@ -614,21 +645,7 @@ const html = `<!DOCTYPE html>
             const outer = polarToCartesian(this.cx, this.cy, outerLabelRadius, segStart);
             dividers.push(\`<line x1="\${inner.x}" y1="\${inner.y}" x2="\${outer.x}" y2="\${outer.y}" stroke="\${style.segmentDividerColor}" stroke-width="\${style.segmentDividerWidth}" />\`);
           }
-          const safeName = segment.name.replace(/&/g, '&amp;');
-          const normalizedMid = ((midAngle % 360) + 360) % 360;
-          const useClockwise = normalizedMid < 15 || normalizedMid > 165;
-          if (useClockwise) {
-            const start = polarToCartesian(this.cx, this.cy, textRadius, segStart + 3);
-            const end = polarToCartesian(this.cx, this.cy, textRadius, segEnd - 3);
-            const largeArc = segAngle - 6 > 180 ? 1 : 0;
-            defs.push(\`<path id="\${pathId}" d="M \${start.x} \${start.y} A \${textRadius} \${textRadius} 0 \${largeArc} 1 \${end.x} \${end.y}" fill="none" />\`);
-          } else {
-            const start = polarToCartesian(this.cx, this.cy, textRadius, segEnd - 3);
-            const end = polarToCartesian(this.cx, this.cy, textRadius, segStart + 3);
-            const largeArc = segAngle - 6 > 180 ? 1 : 0;
-            defs.push(\`<path id="\${pathId}" d="M \${start.x} \${start.y} A \${textRadius} \${textRadius} 0 \${largeArc} 0 \${end.x} \${end.y}" fill="none" />\`);
-          }
-          texts.push(\`<text class="segment-label" fill="white" style="font-size: \${scaledFontSize}px"><textPath href="#\${pathId}" startOffset="50%" text-anchor="middle">\${safeName}</textPath></text>\`);
+          this.emitSegmentLabelLines(defs, texts, pathId, segStart, segEnd, midAngle, textRadius, scaledFontSize, segment.name);
         });
         const ringDividers = style.showSegmentDividers
           ? [
@@ -648,15 +665,13 @@ const html = `<!DOCTYPE html>
         const texts = [];
         const baseFontSize = style.segmentFontSize || 28;
         const phi = 1.618;
-        const arcThickness = (baseFontSize * phi) + baseFontSize;
+        const maxLines = Math.max(...segments.map(s => s.name.split('\\n').length));
+        const arcThickness = (baseFontSize * phi) + baseFontSize + (maxLines - 1) * baseFontSize * 1.2;
         const dividerWidth = style.segmentDividerWidth || 4;
         const innerLabelRadius = this.outerRadius + (dividerWidth / 2);
         const outerLabelRadius = innerLabelRadius + arcThickness;
         const textRadius = innerLabelRadius + (arcThickness / 2);
-        const arcLength = textRadius * (segAngle - 6) * (Math.PI / 180);
-        const maxNameLength = Math.max(...segments.map(s => s.name.length));
-        const estTextWidth = (maxNameLength + 1) * baseFontSize * 0.6;
-        const scaledFontSize = estTextWidth > arcLength ? Math.floor(baseFontSize * (arcLength / estTextWidth)) : baseFontSize;
+        const scaledFontSize = this.scaleSegmentFontSize(segments, segAngle, textRadius, baseFontSize);
 
         segments.forEach((segment, i) => {
           const segStart = startAngle + i * segAngle;
@@ -670,21 +685,7 @@ const html = `<!DOCTYPE html>
             const outer = polarToCartesian(this.cx, this.cy, outerLabelRadius, segStart);
             dividers.push(\`<line x1="\${inner.x}" y1="\${inner.y}" x2="\${outer.x}" y2="\${outer.y}" stroke="\${style.segmentDividerColor}" stroke-width="\${style.segmentDividerWidth}" />\`);
           }
-          const safeName = segment.name.replace(/&/g, '&amp;');
-          const normalizedMid = ((midAngle % 360) + 360) % 360;
-          const useClockwise = normalizedMid < 15 || normalizedMid > 165;
-          if (useClockwise) {
-            const start = polarToCartesian(this.cx, this.cy, textRadius, segStart + 3);
-            const end = polarToCartesian(this.cx, this.cy, textRadius, segEnd - 3);
-            const largeArc = segAngle - 6 > 180 ? 1 : 0;
-            defs.push(\`<path id="\${pathId}" d="M \${start.x} \${start.y} A \${textRadius} \${textRadius} 0 \${largeArc} 1 \${end.x} \${end.y}" fill="none" />\`);
-          } else {
-            const start = polarToCartesian(this.cx, this.cy, textRadius, segEnd - 3);
-            const end = polarToCartesian(this.cx, this.cy, textRadius, segStart + 3);
-            const largeArc = segAngle - 6 > 180 ? 1 : 0;
-            defs.push(\`<path id="\${pathId}" d="M \${start.x} \${start.y} A \${textRadius} \${textRadius} 0 \${largeArc} 0 \${end.x} \${end.y}" fill="none" />\`);
-          }
-          texts.push(\`<text class="segment-label" fill="white" style="font-size: \${scaledFontSize}px"><textPath href="#\${pathId}" startOffset="50%" text-anchor="middle">\${safeName}</textPath></text>\`);
+          this.emitSegmentLabelLines(defs, texts, pathId, segStart, segEnd, midAngle, textRadius, scaledFontSize, segment.name);
         });
 
         const ringDivider = style.showSegmentDividers

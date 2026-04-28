@@ -278,17 +278,15 @@ export class SVGRenderer {
         // to the centre hub edge instead of the outer wheel edge.
         const baseFontSize = style.segmentFontSize || 28;
         const phi = 1.618;
-        const arcThickness = (baseFontSize * phi) + baseFontSize;
+        const maxLines = Math.max(...segments.map((s) => s.name.split('\n').length));
+        // Single-line band uses golden-ratio padding around the line.
+        // Each extra line adds one line-height (1.2× fontSize).
+        const arcThickness = (baseFontSize * phi) + baseFontSize + (maxLines - 1) * baseFontSize * 1.2;
         const dividerWidth = style.segmentDividerWidth || 4;
         const innerLabelRadius = center.radius + (dividerWidth / 2);
         const outerLabelRadius = innerLabelRadius + arcThickness;
         const textRadius = innerLabelRadius + (arcThickness / 2);
-        const arcLength = textRadius * (segAngle - 6) * (Math.PI / 180);
-        const maxNameLength = Math.max(...segments.map((s) => s.name.length));
-        const estTextWidth = (maxNameLength + 1) * baseFontSize * 0.6;
-        const scaledFontSize = estTextWidth > arcLength
-            ? Math.floor(baseFontSize * (arcLength / estTextWidth))
-            : baseFontSize;
+        const scaledFontSize = this.scaleSegmentFontSize(segments, segAngle, textRadius, baseFontSize);
         segments.forEach((segment, i) => {
             const segStart = startAngle + i * segAngle;
             const segEnd = segStart + segAngle;
@@ -303,22 +301,7 @@ export class SVGRenderer {
                 const outer = polarToCartesian(this.cx, this.cy, outerLabelRadius, segStart);
                 dividers.push(`<line x1="${inner.x}" y1="${inner.y}" x2="${outer.x}" y2="${outer.y}" stroke="${style.segmentDividerColor}" stroke-width="${style.segmentDividerWidth}" />`);
             }
-            const safeName = segment.name.replace(/&/g, '&amp;');
-            const normalizedMid = ((midAngle % 360) + 360) % 360;
-            const useClockwise = normalizedMid < 15 || normalizedMid > 165;
-            if (useClockwise) {
-                const start = polarToCartesian(this.cx, this.cy, textRadius, segStart + 3);
-                const end = polarToCartesian(this.cx, this.cy, textRadius, segEnd - 3);
-                const largeArc = segAngle - 6 > 180 ? 1 : 0;
-                defs.push(`<path id="${pathId}" d="M ${start.x} ${start.y} A ${textRadius} ${textRadius} 0 ${largeArc} 1 ${end.x} ${end.y}" fill="none" />`);
-            }
-            else {
-                const start = polarToCartesian(this.cx, this.cy, textRadius, segEnd - 3);
-                const end = polarToCartesian(this.cx, this.cy, textRadius, segStart + 3);
-                const largeArc = segAngle - 6 > 180 ? 1 : 0;
-                defs.push(`<path id="${pathId}" d="M ${start.x} ${start.y} A ${textRadius} ${textRadius} 0 ${largeArc} 0 ${end.x} ${end.y}" fill="none" />`);
-            }
-            texts.push(`<text class="segment-label" fill="white" style="font-size: ${scaledFontSize}px"><textPath href="#${pathId}" startOffset="50%" text-anchor="middle">${safeName}</textPath></text>`);
+            this.emitSegmentLabelLines(defs, texts, pathId, segStart, segEnd, midAngle, textRadius, scaledFontSize, segment.name);
         });
         // Ring dividers on both edges of the inner band: one between the band and
         // the centre hub, one between the band and the facet area.
@@ -330,6 +313,49 @@ export class SVGRenderer {
             : '';
         return `<defs>${defs.join('\n')}</defs>\n<g class="segment-label-backgrounds">${backgrounds.join('\n')}</g>\n${ringDividers}\n<g class="segment-label-dividers">${dividers.join('\n')}</g>\n<g class="segment-labels">${texts.join('\n')}</g>`;
     }
+    /** Scale segment font size to fit the longest single line within a segment's arc. */
+    scaleSegmentFontSize(segments, segAngle, textRadius, baseFontSize) {
+        const arcLength = textRadius * (segAngle - 6) * (Math.PI / 180);
+        const longestLineLength = Math.max(...segments.flatMap((s) => s.name.split('\n').map((l) => l.length)));
+        const estTextWidth = (longestLineLength + 1) * baseFontSize * 0.6;
+        return estTextWidth > arcLength
+            ? Math.floor(baseFontSize * (arcLength / estTextWidth))
+            : baseFontSize;
+    }
+    /**
+     * Emit one or more textPath rows for a segment label. When `name` contains
+     * `\n`, each line is rendered on its own arc at a different radius within
+     * the band, stacked along the radial axis.
+     */
+    emitSegmentLabelLines(defs, texts, pathIdBase, segStart, segEnd, midAngle, textRadius, fontSize, rawName) {
+        const segAngle = segEnd - segStart;
+        const safe = rawName.replace(/&/g, '&amp;');
+        const lines = safe.split('\n');
+        const lineHeight = fontSize * 1.2;
+        const normalizedMid = ((midAngle % 360) + 360) % 360;
+        const useClockwise = normalizedMid < 15 || normalizedMid > 165;
+        // Top-half segments (clockwise arcs) read with the visually-first line at
+        // the larger radius (outer edge); bottom-half segments (counter-clockwise
+        // arcs) read with it at the smaller radius (closer to the hub).
+        const sign = useClockwise ? -1 : 1;
+        const largeArc = segAngle - 6 > 180 ? 1 : 0;
+        lines.forEach((line, idx) => {
+            const offset = sign * (idx - (lines.length - 1) / 2) * lineHeight;
+            const lineRadius = textRadius + offset;
+            const linePathId = `${pathIdBase}-${idx}`;
+            if (useClockwise) {
+                const s = polarToCartesian(this.cx, this.cy, lineRadius, segStart + 3);
+                const e = polarToCartesian(this.cx, this.cy, lineRadius, segEnd - 3);
+                defs.push(`<path id="${linePathId}" d="M ${s.x} ${s.y} A ${lineRadius} ${lineRadius} 0 ${largeArc} 1 ${e.x} ${e.y}" fill="none" />`);
+            }
+            else {
+                const s = polarToCartesian(this.cx, this.cy, lineRadius, segEnd - 3);
+                const e = polarToCartesian(this.cx, this.cy, lineRadius, segStart + 3);
+                defs.push(`<path id="${linePathId}" d="M ${s.x} ${s.y} A ${lineRadius} ${lineRadius} 0 ${largeArc} 0 ${e.x} ${e.y}" fill="none" />`);
+            }
+            texts.push(`<text class="segment-label" fill="white" style="font-size: ${fontSize}px"><textPath href="#${linePathId}" startOffset="50%" text-anchor="middle">${line}</textPath></text>`);
+        });
+    }
     renderSegmentLabelsOuter() {
         const { segments, startAngle, style } = this.config;
         const segAngle = segmentAngle(segments.length);
@@ -337,22 +363,18 @@ export class SVGRenderer {
         const backgrounds = [];
         const dividers = [];
         const texts = [];
-        // Calculate arc thickness using golden ratio: fontSize * phi + fontSize
+        // Calculate arc thickness using golden ratio: fontSize * phi + fontSize.
+        // Each extra line of text adds one line-height (1.2× fontSize).
         const baseFontSize = style.segmentFontSize || 28;
         const phi = 1.618;
-        const arcThickness = (baseFontSize * phi) + baseFontSize;
+        const maxLines = Math.max(...segments.map((s) => s.name.split('\n').length));
+        const arcThickness = (baseFontSize * phi) + baseFontSize + (maxLines - 1) * baseFontSize * 1.2;
         const dividerWidth = style.segmentDividerWidth || 4;
         // Position arc with divider gap, vertically center text
         const innerLabelRadius = this.outerRadius + (dividerWidth / 2);
         const outerLabelRadius = innerLabelRadius + arcThickness;
         const textRadius = innerLabelRadius + (arcThickness / 2); // Vertically centered
-        // Calculate font size to fit longest segment name
-        const arcLength = textRadius * (segAngle - 6) * (Math.PI / 180);
-        const maxNameLength = Math.max(...segments.map(s => s.name.length));
-        const estTextWidth = (maxNameLength + 1) * baseFontSize * 0.6; // +1 char padding, 0.6 width estimate
-        const scaledFontSize = estTextWidth > arcLength
-            ? Math.floor(baseFontSize * (arcLength / estTextWidth))
-            : baseFontSize;
+        const scaledFontSize = this.scaleSegmentFontSize(segments, segAngle, textRadius, baseFontSize);
         segments.forEach((segment, i) => {
             const segStart = startAngle + i * segAngle;
             const segEnd = segStart + segAngle;
@@ -367,27 +389,7 @@ export class SVGRenderer {
                 const outer = polarToCartesian(this.cx, this.cy, outerLabelRadius, segStart);
                 dividers.push(`<line x1="${inner.x}" y1="${inner.y}" x2="${outer.x}" y2="${outer.y}" stroke="${style.segmentDividerColor}" stroke-width="${style.segmentDividerWidth}" />`);
             }
-            // Escape & for valid XML
-            const safeName = segment.name.replace(/&/g, '&amp;');
-            // Determine if text should go clockwise or counter-clockwise for readability
-            // Counter-clockwise for segments on the east side (15°-165°), clockwise otherwise
-            const normalizedMid = ((midAngle % 360) + 360) % 360;
-            const useClockwise = normalizedMid < 15 || normalizedMid > 165;
-            if (useClockwise) {
-                // Clockwise arc for most segments
-                const start = polarToCartesian(this.cx, this.cy, textRadius, segStart + 3);
-                const end = polarToCartesian(this.cx, this.cy, textRadius, segEnd - 3);
-                const largeArc = segAngle - 6 > 180 ? 1 : 0;
-                defs.push(`<path id="${pathId}" d="M ${start.x} ${start.y} A ${textRadius} ${textRadius} 0 ${largeArc} 1 ${end.x} ${end.y}" fill="none" />`);
-            }
-            else {
-                // Counter-clockwise arc for east side segments (30°-150°)
-                const start = polarToCartesian(this.cx, this.cy, textRadius, segEnd - 3);
-                const end = polarToCartesian(this.cx, this.cy, textRadius, segStart + 3);
-                const largeArc = segAngle - 6 > 180 ? 1 : 0;
-                defs.push(`<path id="${pathId}" d="M ${start.x} ${start.y} A ${textRadius} ${textRadius} 0 ${largeArc} 0 ${end.x} ${end.y}" fill="none" />`);
-            }
-            texts.push(`<text class="segment-label" fill="white" style="font-size: ${scaledFontSize}px"><textPath href="#${pathId}" startOffset="50%" text-anchor="middle">${safeName}</textPath></text>`);
+            this.emitSegmentLabelLines(defs, texts, pathId, segStart, segEnd, midAngle, textRadius, scaledFontSize, segment.name);
         });
         // Add divider ring between main segments and label arc
         const ringDivider = style.showSegmentDividers
