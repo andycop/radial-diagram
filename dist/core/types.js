@@ -29,6 +29,7 @@ export const DEFAULT_STYLE = {
     hubFontColor: '#ffffff',
     segmentFontSize: 28,
     facetFontSize: 11,
+    segmentLabelPosition: 'outer',
 };
 /** Default scale configuration */
 export const DEFAULT_SCALE = {

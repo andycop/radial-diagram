@@ -31,6 +31,8 @@ export declare class SVGRenderer {
     private renderCenterHub;
     private renderFacetLabels;
     private renderSegmentLabels;
+    private renderSegmentLabelsInner;
+    private renderSegmentLabelsOuter;
 }
 /**
  * Convenience function to render a diagram from config

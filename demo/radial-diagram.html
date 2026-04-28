@@ -438,22 +438,17 @@
         } else {
           elements.push(`<circle cx="${this.cx}" cy="${this.cy}" r="${center.radius}" fill="${center.color}" />`);
         }
-        const lines = center.label.split('&').map(s => s.trim());
+        const lines = center.label.split('\n').map(s => s.trim());
         const availableWidth = center.radius * 1.6;
-        const maxLineLength = Math.max(...lines.map((l, idx) => l.length + (lines.length > 1 && idx === 1 ? 2 : 0)));
+        const maxLineLength = Math.max(...lines.map(l => l.length));
         const scaledFontSize = Math.floor(availableWidth / (maxLineLength * 0.6));
         const lineHeight = scaledFontSize * 1.2;
-        if (lines.length === 1) {
-          const safeLabel = center.label.replace(/&/g, '&amp;');
-          elements.push(`<text x="${this.cx}" y="${this.cy}" class="center-label" style="font-size: ${scaledFontSize}px" dominant-baseline="middle">${safeLabel}</text>`);
-        } else {
-          const startY = this.cy - ((lines.length - 1) * lineHeight) / 2;
-          lines.forEach((line, i) => {
-            const y = startY + i * lineHeight;
-            const text = i === 1 ? `&amp; ${line}` : line;
-            elements.push(`<text x="${this.cx}" y="${y}" class="center-label" style="font-size: ${scaledFontSize}px" dominant-baseline="middle">${text}</text>`);
-          });
-        }
+        const startY = this.cy - ((lines.length - 1) * lineHeight) / 2;
+        lines.forEach((line, i) => {
+          const safe = line.replace(/&/g, '&amp;');
+          const y = startY + i * lineHeight;
+          elements.push(`<text x="${this.cx}" y="${y}" class="center-label" style="font-size: ${scaledFontSize}px" dominant-baseline="middle">${safe}</text>`);
+        });
         return `<g class="center-hub">${elements.join('\n')}</g>`;
       }
 
@@ -477,13 +472,87 @@
             const rotation = midAngle + rotationOffset;
             const pos = polarToCartesian(this.cx, this.cy, labelRadius, midAngle);
             const safeName = facet.name.replace(/&/g, '&amp;');
-            elements.push(`<text x="${pos.x}" y="${pos.y}" class="facet-label" text-anchor="${anchor}" dominant-baseline="middle" transform="rotate(${rotation}, ${pos.x}, ${pos.y})">${safeName}</text>`);
+            const lines = safeName.split('\n');
+            let inner;
+            if (lines.length === 1) {
+              inner = safeName;
+            } else {
+              const firstDy = -((lines.length - 1) * 0.6);
+              inner = lines.map((line, i) => {
+                const dy = i === 0 ? `${firstDy}em` : '1.2em';
+                return `<tspan x="${pos.x}" dy="${dy}">${line}</tspan>`;
+              }).join('');
+            }
+            elements.push(`<text x="${pos.x}" y="${pos.y}" class="facet-label" text-anchor="${anchor}" dominant-baseline="middle" transform="rotate(${rotation}, ${pos.x}, ${pos.y})">${inner}</text>`);
           });
         });
         return `<g class="facet-labels">${elements.join('\n')}</g>`;
       }
 
       renderSegmentLabels() {
+        if ((this.config.style.segmentLabelPosition || 'outer') === 'inner') {
+          return this.renderSegmentLabelsInner();
+        }
+        return this.renderSegmentLabelsOuter();
+      }
+
+      renderSegmentLabelsInner() {
+        const { segments, startAngle, style, center } = this.config;
+        const segAngle = segmentAngle(segments.length);
+        const defs = [];
+        const backgrounds = [];
+        const dividers = [];
+        const texts = [];
+        const baseFontSize = style.segmentFontSize || 28;
+        const phi = 1.618;
+        const arcThickness = (baseFontSize * phi) + baseFontSize;
+        const dividerWidth = style.segmentDividerWidth || 4;
+        const innerLabelRadius = center.radius + (dividerWidth / 2);
+        const outerLabelRadius = innerLabelRadius + arcThickness;
+        const textRadius = innerLabelRadius + (arcThickness / 2);
+        const arcLength = textRadius * (segAngle - 6) * (Math.PI / 180);
+        const maxNameLength = Math.max(...segments.map(s => s.name.length));
+        const estTextWidth = (maxNameLength + 1) * baseFontSize * 0.6;
+        const scaledFontSize = estTextWidth > arcLength ? Math.floor(baseFontSize * (arcLength / estTextWidth)) : baseFontSize;
+
+        segments.forEach((segment, i) => {
+          const segStart = startAngle + i * segAngle;
+          const segEnd = segStart + segAngle;
+          const midAngle = (segStart + segEnd) / 2;
+          const pathId = `segment-path-${i}`;
+          const bgPath = segmentPath(this.cx, this.cy, innerLabelRadius, outerLabelRadius, segStart, segEnd);
+          backgrounds.push(`<path d="${bgPath}" fill="${segment.color}" />`);
+          if (style.showSegmentDividers) {
+            const inner = polarToCartesian(this.cx, this.cy, innerLabelRadius, segStart);
+            const outer = polarToCartesian(this.cx, this.cy, outerLabelRadius, segStart);
+            dividers.push(`<line x1="${inner.x}" y1="${inner.y}" x2="${outer.x}" y2="${outer.y}" stroke="${style.segmentDividerColor}" stroke-width="${style.segmentDividerWidth}" />`);
+          }
+          const safeName = segment.name.replace(/&/g, '&amp;');
+          const normalizedMid = ((midAngle % 360) + 360) % 360;
+          const useClockwise = normalizedMid < 15 || normalizedMid > 165;
+          if (useClockwise) {
+            const start = polarToCartesian(this.cx, this.cy, textRadius, segStart + 3);
+            const end = polarToCartesian(this.cx, this.cy, textRadius, segEnd - 3);
+            const largeArc = segAngle - 6 > 180 ? 1 : 0;
+            defs.push(`<path id="${pathId}" d="M ${start.x} ${start.y} A ${textRadius} ${textRadius} 0 ${largeArc} 1 ${end.x} ${end.y}" fill="none" />`);
+          } else {
+            const start = polarToCartesian(this.cx, this.cy, textRadius, segEnd - 3);
+            const end = polarToCartesian(this.cx, this.cy, textRadius, segStart + 3);
+            const largeArc = segAngle - 6 > 180 ? 1 : 0;
+            defs.push(`<path id="${pathId}" d="M ${start.x} ${start.y} A ${textRadius} ${textRadius} 0 ${largeArc} 0 ${end.x} ${end.y}" fill="none" />`);
+          }
+          texts.push(`<text class="segment-label" fill="white" style="font-size: ${scaledFontSize}px"><textPath href="#${pathId}" startOffset="50%" text-anchor="middle">${safeName}</textPath></text>`);
+        });
+        const ringDividers = style.showSegmentDividers
+          ? [
+              `<circle cx="${this.cx}" cy="${this.cy}" r="${innerLabelRadius}" fill="none" stroke="${style.segmentDividerColor}" stroke-width="${dividerWidth}" />`,
+              `<circle cx="${this.cx}" cy="${this.cy}" r="${outerLabelRadius}" fill="none" stroke="${style.segmentDividerColor}" stroke-width="${dividerWidth}" />`
+            ].join('\n')
+          : '';
+        return `<defs>${defs.join('\n')}</defs>\n<g class="segment-label-backgrounds">${backgrounds.join('\n')}</g>\n${ringDividers}\n<g class="segment-label-dividers">${dividers.join('\n')}</g>\n<g class="segment-labels">${texts.join('\n')}</g>`;
+      }
+
+      renderSegmentLabelsOuter() {
         const { segments, startAngle, style } = this.config;
         const segAngle = segmentAngle(segments.length);
         const defs = [];

@@ -97,6 +97,8 @@ export interface StyleConfig {
     facetFontSize?: number;
     /** Font color for facet labels */
     facetFontColor?: string;
+    /** Where to render segment (dimension) labels: 'outer' = curved arc band outside the wheel; 'inner' = curved arc on top of the wedge near the centre hub */
+    segmentLabelPosition?: 'outer' | 'inner';
 }
 export interface DiagramConfig {
     /** Center hub configuration */

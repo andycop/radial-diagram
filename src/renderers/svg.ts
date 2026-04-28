@@ -302,30 +302,23 @@ export class SVGRenderer {
       );
     }
 
-    // Hub label (split into lines if contains &)
-    const lines = center.label.split('&').map((s) => s.trim());
+    // Hub label (split on \n for multiple lines)
+    const lines = center.label.split('\n').map((s) => s.trim());
 
     // Auto-scale font to fit hub (scales up or down)
     const availableWidth = center.radius * 1.6; // Use 80% of diameter
-    const maxLineLength = Math.max(...lines.map((l, idx) => l.length + (lines.length > 1 && idx === 1 ? 2 : 0))); // +2 for "& "
+    const maxLineLength = Math.max(...lines.map((l) => l.length));
     const scaledFontSize = Math.floor(availableWidth / (maxLineLength * 0.6));
     const lineHeight = scaledFontSize * 1.2;
 
-    if (lines.length === 1) {
-      const safeLabel = center.label.replace(/&/g, '&amp;');
+    const startY = this.cy - ((lines.length - 1) * lineHeight) / 2;
+    lines.forEach((line, i) => {
+      const safe = line.replace(/&/g, '&amp;');
+      const y = startY + i * lineHeight;
       elements.push(
-        `<text x="${this.cx}" y="${this.cy}" class="center-label" style="font-size: ${scaledFontSize}px" dominant-baseline="middle">${safeLabel}</text>`
+        `<text x="${this.cx}" y="${y}" class="center-label" style="font-size: ${scaledFontSize}px" dominant-baseline="middle">${safe}</text>`
       );
-    } else {
-      const startY = this.cy - ((lines.length - 1) * lineHeight) / 2;
-      lines.forEach((line, i) => {
-        const y = startY + i * lineHeight;
-        const text = i === 1 ? `&amp; ${line}` : line;
-        elements.push(
-          `<text x="${this.cx}" y="${y}" class="center-label" style="font-size: ${scaledFontSize}px" dominant-baseline="middle">${text}</text>`
-        );
-      });
-    }
+    });
 
     return `<g class="center-hub">${elements.join('\n')}</g>`;
   }
@@ -359,10 +352,24 @@ export class SVGRenderer {
         const rotation = midAngle + rotationOffset;
         const pos = polarToCartesian(this.cx, this.cy, labelRadius, midAngle);
 
-        // Escape & for valid XML
+        // Escape & for valid XML, then split on \n for multi-line labels
         const safeName = facet.name.replace(/&/g, '&amp;');
+        const lines = safeName.split('\n');
+        let inner: string;
+        if (lines.length === 1) {
+          inner = safeName;
+        } else {
+          // Vertically centre the block: first line offset up by half the block height
+          const firstDy = -((lines.length - 1) * 0.6);
+          inner = lines
+            .map((line, i) => {
+              const dy = i === 0 ? `${firstDy}em` : '1.2em';
+              return `<tspan x="${pos.x}" dy="${dy}">${line}</tspan>`;
+            })
+            .join('');
+        }
         elements.push(
-          `<text x="${pos.x}" y="${pos.y}" class="facet-label" text-anchor="${anchor}" dominant-baseline="middle" transform="rotate(${rotation}, ${pos.x}, ${pos.y})">${safeName}</text>`
+          `<text x="${pos.x}" y="${pos.y}" class="facet-label" text-anchor="${anchor}" dominant-baseline="middle" transform="rotate(${rotation}, ${pos.x}, ${pos.y})">${inner}</text>`
         );
       });
     });
@@ -371,6 +378,99 @@ export class SVGRenderer {
   }
 
   private renderSegmentLabels(): string {
+    if ((this.config.style.segmentLabelPosition || 'outer') === 'inner') {
+      return this.renderSegmentLabelsInner();
+    }
+    return this.renderSegmentLabelsOuter();
+  }
+
+  private renderSegmentLabelsInner(): string {
+    const { segments, startAngle, style, center } = this.config;
+    const segAngle = segmentAngle(segments.length);
+    const defs: string[] = [];
+    const backgrounds: string[] = [];
+    const dividers: string[] = [];
+    const texts: string[] = [];
+
+    // Same band sizing as the outer mode (golden-ratio thickness), but anchored
+    // to the centre hub edge instead of the outer wheel edge.
+    const baseFontSize = style.segmentFontSize || 28;
+    const phi = 1.618;
+    const arcThickness = (baseFontSize * phi) + baseFontSize;
+    const dividerWidth = style.segmentDividerWidth || 4;
+
+    const innerLabelRadius = center.radius + (dividerWidth / 2);
+    const outerLabelRadius = innerLabelRadius + arcThickness;
+    const textRadius = innerLabelRadius + (arcThickness / 2);
+
+    const arcLength = textRadius * (segAngle - 6) * (Math.PI / 180);
+    const maxNameLength = Math.max(...segments.map((s) => s.name.length));
+    const estTextWidth = (maxNameLength + 1) * baseFontSize * 0.6;
+    const scaledFontSize = estTextWidth > arcLength
+      ? Math.floor(baseFontSize * (arcLength / estTextWidth))
+      : baseFontSize;
+
+    segments.forEach((segment, i) => {
+      const segStart = startAngle + i * segAngle;
+      const segEnd = segStart + segAngle;
+      const midAngle = (segStart + segEnd) / 2;
+      const pathId = `segment-path-${i}`;
+
+      // Solid coloured arc band sitting on the wedge's inner edge
+      const bgPath = segmentPath(
+        this.cx, this.cy,
+        innerLabelRadius, outerLabelRadius,
+        segStart, segEnd
+      );
+      backgrounds.push(`<path d="${bgPath}" fill="${segment.color}" />`);
+
+      // Radial dividers between segments along the band
+      if (style.showSegmentDividers) {
+        const inner = polarToCartesian(this.cx, this.cy, innerLabelRadius, segStart);
+        const outer = polarToCartesian(this.cx, this.cy, outerLabelRadius, segStart);
+        dividers.push(
+          `<line x1="${inner.x}" y1="${inner.y}" x2="${outer.x}" y2="${outer.y}" stroke="${style.segmentDividerColor}" stroke-width="${style.segmentDividerWidth}" />`
+        );
+      }
+
+      const safeName = segment.name.replace(/&/g, '&amp;');
+      const normalizedMid = ((midAngle % 360) + 360) % 360;
+      const useClockwise = normalizedMid < 15 || normalizedMid > 165;
+
+      if (useClockwise) {
+        const start = polarToCartesian(this.cx, this.cy, textRadius, segStart + 3);
+        const end = polarToCartesian(this.cx, this.cy, textRadius, segEnd - 3);
+        const largeArc = segAngle - 6 > 180 ? 1 : 0;
+        defs.push(
+          `<path id="${pathId}" d="M ${start.x} ${start.y} A ${textRadius} ${textRadius} 0 ${largeArc} 1 ${end.x} ${end.y}" fill="none" />`
+        );
+      } else {
+        const start = polarToCartesian(this.cx, this.cy, textRadius, segEnd - 3);
+        const end = polarToCartesian(this.cx, this.cy, textRadius, segStart + 3);
+        const largeArc = segAngle - 6 > 180 ? 1 : 0;
+        defs.push(
+          `<path id="${pathId}" d="M ${start.x} ${start.y} A ${textRadius} ${textRadius} 0 ${largeArc} 0 ${end.x} ${end.y}" fill="none" />`
+        );
+      }
+
+      texts.push(
+        `<text class="segment-label" fill="white" style="font-size: ${scaledFontSize}px"><textPath href="#${pathId}" startOffset="50%" text-anchor="middle">${safeName}</textPath></text>`
+      );
+    });
+
+    // Ring dividers on both edges of the inner band: one between the band and
+    // the centre hub, one between the band and the facet area.
+    const ringDividers = style.showSegmentDividers
+      ? [
+          `<circle cx="${this.cx}" cy="${this.cy}" r="${innerLabelRadius}" fill="none" stroke="${style.segmentDividerColor}" stroke-width="${dividerWidth}" />`,
+          `<circle cx="${this.cx}" cy="${this.cy}" r="${outerLabelRadius}" fill="none" stroke="${style.segmentDividerColor}" stroke-width="${dividerWidth}" />`,
+        ].join('\n')
+      : '';
+
+    return `<defs>${defs.join('\n')}</defs>\n<g class="segment-label-backgrounds">${backgrounds.join('\n')}</g>\n${ringDividers}\n<g class="segment-label-dividers">${dividers.join('\n')}</g>\n<g class="segment-labels">${texts.join('\n')}</g>`;
+  }
+
+  private renderSegmentLabelsOuter(): string {
     const { segments, startAngle, style } = this.config;
     const segAngle = segmentAngle(segments.length);
     const defs: string[] = [];
