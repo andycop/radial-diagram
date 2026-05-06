@@ -420,7 +420,7 @@ export class SVGRenderer {
         innerLabelRadius, outerLabelRadius,
         segStart, segEnd
       );
-      backgrounds.push(`<path d="${bgPath}" fill="${segment.color}" />`);
+      backgrounds.push(`<path d="${bgPath}" fill="${segment.labelColor || segment.color}" />`);
 
       // Radial dividers between segments along the band
       if (style.showSegmentDividers) {
@@ -552,7 +552,7 @@ export class SVGRenderer {
         segStart, segEnd
       );
       backgrounds.push(
-        `<path d="${bgPath}" fill="${segment.color}" />`
+        `<path d="${bgPath}" fill="${segment.labelColor || segment.color}" />`
       );
 
       // Segment divider line (same as main segments)

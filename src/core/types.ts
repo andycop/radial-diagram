@@ -23,6 +23,8 @@ export interface Segment {
   name: string;
   /** Segment fill color (hex or CSS color) */
   color: string;
+  /** Override fill for the dimension label band. Falls back to `color` when unset. */
+  labelColor?: string;
   /** Facets within this segment */
   facets: Facet[];
 }

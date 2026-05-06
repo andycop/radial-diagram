@@ -294,7 +294,7 @@ export class SVGRenderer {
             const pathId = `segment-path-${i}`;
             // Solid coloured arc band sitting on the wedge's inner edge
             const bgPath = segmentPath(this.cx, this.cy, innerLabelRadius, outerLabelRadius, segStart, segEnd);
-            backgrounds.push(`<path d="${bgPath}" fill="${segment.color}" />`);
+            backgrounds.push(`<path d="${bgPath}" fill="${segment.labelColor || segment.color}" />`);
             // Radial dividers between segments along the band
             if (style.showSegmentDividers) {
                 const inner = polarToCartesian(this.cx, this.cy, innerLabelRadius, segStart);
@@ -382,7 +382,7 @@ export class SVGRenderer {
             const pathId = `segment-path-${i}`;
             // Background arc segment
             const bgPath = segmentPath(this.cx, this.cy, innerLabelRadius, outerLabelRadius, segStart, segEnd);
-            backgrounds.push(`<path d="${bgPath}" fill="${segment.color}" />`);
+            backgrounds.push(`<path d="${bgPath}" fill="${segment.labelColor || segment.color}" />`);
             // Segment divider line (same as main segments)
             if (style.showSegmentDividers) {
                 const inner = polarToCartesian(this.cx, this.cy, innerLabelRadius, segStart);

@@ -176,6 +176,65 @@ const html = `<!DOCTYPE html>
       .container { flex-direction: column; }
       .editor-panel, .preview-panel { min-width: 100%; }
     }
+    .docs {
+      max-width: 1400px;
+      margin: 30px auto 0;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 0;
+    }
+    .docs > summary {
+      cursor: pointer;
+      padding: 14px 20px;
+      font-weight: 600;
+      font-size: 15px;
+      list-style: none;
+      user-select: none;
+    }
+    .docs > summary::-webkit-details-marker { display: none; }
+    .docs > summary::before {
+      content: '▸';
+      display: inline-block;
+      margin-right: 8px;
+      transition: transform 0.15s;
+    }
+    .docs[open] > summary::before { transform: rotate(90deg); }
+    .docs-body { padding: 0 20px 20px; font-size: 13px; line-height: 1.5; }
+    .docs-body h3 { margin: 18px 0 6px; font-size: 14px; }
+    .docs-body h4 { margin: 14px 0 4px; font-size: 13px; color: #555; font-weight: 600; }
+    .docs-body p { margin: 4px 0 8px; }
+    .docs-body table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 6px 0 10px;
+      font-size: 12px;
+    }
+    .docs-body th, .docs-body td {
+      text-align: left;
+      padding: 6px 10px;
+      border-bottom: 1px solid #eee;
+      vertical-align: top;
+    }
+    .docs-body th {
+      background: #fafafa;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .docs-body code {
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      background: #f4f4f4;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 11.5px;
+    }
+    .docs-body pre {
+      background: #f4f4f4;
+      padding: 10px 12px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 11.5px;
+    }
   </style>
 </head>
 <body>
@@ -204,6 +263,126 @@ const html = `<!DOCTYPE html>
       </div>
     </div>
   </div>
+
+  <details class="docs">
+    <summary>Configuration reference</summary>
+    <div class="docs-body">
+      <p>The diagram is configured via a single JSON object. Edit the textarea above to try any of these options live.</p>
+
+      <h3>Top-level</h3>
+      <table>
+        <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+        <tr><td><code>size</code></td><td>number</td><td>Diagram width &amp; height in pixels.</td></tr>
+        <tr><td><code>startAngle</code></td><td>number</td><td>Angle (degrees) where the first segment begins. <code>-90</code> is the top.</td></tr>
+        <tr><td><code>center</code></td><td>object</td><td>Centre hub configuration. See below.</td></tr>
+        <tr><td><code>scale</code></td><td>object</td><td>Score scale (min, max, ring count).</td></tr>
+        <tr><td><code>segments</code></td><td>array</td><td>The dimensions / wedges. Each contains facets.</td></tr>
+        <tr><td><code>style</code></td><td>object</td><td>All visual styling options.</td></tr>
+      </table>
+
+      <h3>center</h3>
+      <table>
+        <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        <tr><td><code>label</code></td><td>string</td><td>—</td><td>Hub text. Use <code>\\n</code> for line breaks.</td></tr>
+        <tr><td><code>radius</code></td><td>number</td><td>—</td><td>Hub radius in pixels.</td></tr>
+        <tr><td><code>color</code></td><td>string</td><td>—</td><td>Fill colour. Hex (with optional alpha, e.g. <code>#1a1a1aaa</code>) or <code>transparent</code>.</td></tr>
+        <tr><td><code>borderWidth</code></td><td>number</td><td><code>0</code></td><td>Hub border stroke width.</td></tr>
+        <tr><td><code>borderColor</code></td><td>string</td><td><code>#ffffff</code></td><td>Hub border stroke colour.</td></tr>
+        <tr><td><code>visible</code></td><td>boolean</td><td><code>true</code></td><td>Set to <code>false</code> to hide the hub entirely.</td></tr>
+        <tr><td><code>fontSize</code></td><td>number</td><td>—</td><td>Override <code>style.hubFontSize</code> for this diagram.</td></tr>
+        <tr><td><code>fontColor</code></td><td>string</td><td>—</td><td>Override <code>style.hubFontColor</code>.</td></tr>
+      </table>
+
+      <h3>scale</h3>
+      <table>
+        <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        <tr><td><code>min</code></td><td>number</td><td><code>1</code></td><td>Minimum score value.</td></tr>
+        <tr><td><code>max</code></td><td>number</td><td><code>5</code></td><td>Maximum score value.</td></tr>
+        <tr><td><code>rings</code></td><td>number</td><td><code>5</code></td><td>Number of concentric rings drawn for the score scale.</td></tr>
+      </table>
+
+      <h3>segments[]</h3>
+      <table>
+        <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+        <tr><td><code>name</code></td><td>string</td><td>Dimension label. Use <code>\\n</code> for line breaks; multi-line labels stack along the band radius.</td></tr>
+        <tr><td><code>color</code></td><td>string</td><td>Wedge fill colour.</td></tr>
+        <tr><td><code>labelColor</code></td><td>string</td><td>Optional. Override fill for the dimension label band only. Falls back to <code>color</code> when unset.</td></tr>
+        <tr><td><code>facets</code></td><td>array</td><td>Sub-segments inside this dimension.</td></tr>
+      </table>
+
+      <h3>segments[].facets[]</h3>
+      <table>
+        <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+        <tr><td><code>name</code></td><td>string</td><td>Facet label. Use <code>\\n</code> for line breaks.</td></tr>
+        <tr><td><code>score</code></td><td>number</td><td>Score within <code>scale.min</code>–<code>scale.max</code>. Set to <code>null</code> to hide the fill.</td></tr>
+        <tr><td><code>description</code></td><td>string</td><td>Optional tooltip text.</td></tr>
+      </table>
+
+      <h3>style</h3>
+
+      <h4>Segment labels</h4>
+      <table>
+        <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        <tr><td><code>segmentFontSize</code></td><td>number</td><td><code>28</code></td><td>Font size for dimension labels.</td></tr>
+        <tr><td><code>segmentLabelPosition</code></td><td>string</td><td><code>outer</code></td><td><code>outer</code> (default) puts the labelled colour band outside the wheel. <code>inner</code> puts it around the centre hub — best for framework-style diagrams.</td></tr>
+      </table>
+
+      <h4>Segment dividers</h4>
+      <table>
+        <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        <tr><td><code>showSegmentDividers</code></td><td>boolean</td><td><code>true</code></td><td>Show divider lines between segments &amp; on band edges.</td></tr>
+        <tr><td><code>segmentDividerWidth</code></td><td>number</td><td><code>2</code></td><td>Divider stroke width.</td></tr>
+        <tr><td><code>segmentDividerColor</code></td><td>string</td><td><code>#ffffff</code></td><td>Divider stroke colour.</td></tr>
+      </table>
+
+      <h4>Hub text</h4>
+      <table>
+        <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        <tr><td><code>hubFontSize</code></td><td>number</td><td><code>14</code></td><td>Hub label font size.</td></tr>
+        <tr><td><code>hubFontColor</code></td><td>string</td><td><code>#ffffff</code></td><td>Hub label colour.</td></tr>
+      </table>
+
+      <h4>Facets</h4>
+      <table>
+        <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        <tr><td><code>facetFontSize</code></td><td>number</td><td><code>11</code></td><td>Facet label font size.</td></tr>
+        <tr><td><code>facetFontColor</code></td><td>string</td><td>—</td><td>Facet label colour. Hex with alpha supported.</td></tr>
+        <tr><td><code>facetOpacity</code></td><td>number</td><td><code>1</code></td><td>Opacity of the score-fill area (0–1).</td></tr>
+        <tr><td><code>showFacetPoints</code></td><td>boolean</td><td><code>true</code></td><td>Show point markers at the score level.</td></tr>
+        <tr><td><code>facetPointStyle</code></td><td>string</td><td><code>circle</code></td><td><code>circle</code>, <code>dot</code>, or <code>none</code>.</td></tr>
+      </table>
+
+      <h4>Rings &amp; score labels</h4>
+      <table>
+        <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        <tr><td><code>showRings</code></td><td>boolean</td><td><code>true</code></td><td>Show concentric ring circles.</td></tr>
+        <tr><td><code>ringColor</code></td><td>string</td><td><code>#cccccc</code></td><td>Ring colour.</td></tr>
+        <tr><td><code>ringWidth</code></td><td>number</td><td><code>1</code></td><td>Ring stroke width.</td></tr>
+        <tr><td><code>ringStyle</code></td><td>string</td><td><code>dashed</code></td><td><code>solid</code> or <code>dashed</code>.</td></tr>
+        <tr><td><code>showScoreLabels</code></td><td>boolean</td><td><code>false</code></td><td>Show numeric score labels (1, 2, …).</td></tr>
+        <tr><td><code>scoreLabelFontSize</code></td><td>number</td><td><code>14</code></td><td>Score label font size.</td></tr>
+        <tr><td><code>scoreLabelColor</code></td><td>string</td><td><code>#ffffff</code></td><td>Score label fill colour.</td></tr>
+        <tr><td><code>scoreLabelStrokeColor</code></td><td>string</td><td><code>#333333</code></td><td>Score label outline colour.</td></tr>
+      </table>
+
+      <h4>General</h4>
+      <table>
+        <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        <tr><td><code>fontFamily</code></td><td>string</td><td><code>Arial, sans-serif</code></td><td>Font family for all text.</td></tr>
+        <tr><td><code>backgroundColor</code></td><td>string</td><td>—</td><td>Page background. Transparent if not set.</td></tr>
+      </table>
+
+      <h3>Multi-line labels</h3>
+      <p><code>\\n</code> produces a line break in <code>center.label</code>, segment names, and facet names. Centre hub and facet labels stack vertically; segment labels stack along the radius of the label band, each line on its own curved arc.</p>
+
+      <h3>Inner vs outer label position</h3>
+      <p><code>style.segmentLabelPosition</code> controls where the dimension labels sit:</p>
+      <ul>
+        <li><code>"outer"</code> (default) — the labelled colour band sits outside the wheel. Best for assessments where the wedge area visualises scoring.</li>
+        <li><code>"inner"</code> — the labelled band sits between the centre hub and the facet area, with ring dividers on both edges. Best for framework-style diagrams. Note: the inner band visually overlays the inner part of the wedge, so partial score fills may be hidden behind it.</li>
+      </ul>
+    </div>
+  </details>
 
   <footer>
     Built by <a href="https://cgamanagement.co.uk/category/tools/" target="_blank" rel="noopener">CGA Management Ltd</a>.
@@ -639,7 +818,7 @@ const html = `<!DOCTYPE html>
           const midAngle = (segStart + segEnd) / 2;
           const pathId = \`segment-path-\${i}\`;
           const bgPath = segmentPath(this.cx, this.cy, innerLabelRadius, outerLabelRadius, segStart, segEnd);
-          backgrounds.push(\`<path d="\${bgPath}" fill="\${segment.color}" />\`);
+          backgrounds.push(\`<path d="\${bgPath}" fill="\${segment.labelColor || segment.color}" />\`);
           if (style.showSegmentDividers) {
             const inner = polarToCartesian(this.cx, this.cy, innerLabelRadius, segStart);
             const outer = polarToCartesian(this.cx, this.cy, outerLabelRadius, segStart);
@@ -679,7 +858,7 @@ const html = `<!DOCTYPE html>
           const midAngle = (segStart + segEnd) / 2;
           const pathId = \`segment-path-\${i}\`;
           const bgPath = segmentPath(this.cx, this.cy, innerLabelRadius, outerLabelRadius, segStart, segEnd);
-          backgrounds.push(\`<path d="\${bgPath}" fill="\${segment.color}" />\`);
+          backgrounds.push(\`<path d="\${bgPath}" fill="\${segment.labelColor || segment.color}" />\`);
           if (style.showSegmentDividers) {
             const inner = polarToCartesian(this.cx, this.cy, innerLabelRadius, segStart);
             const outer = polarToCartesian(this.cx, this.cy, outerLabelRadius, segStart);

@@ -81,11 +81,12 @@ The diagram is configured via JSON. See `demo/configs/example.json` for a comple
 
 ### Segments (`segments[]`)
 
-| Property | Type   | Description                             |
-| -------- | ------ | --------------------------------------- |
-| `name`   | string | Segment label (displayed on outer ring) |
-| `color`  | string | Segment fill color                      |
-| `facets` | array  | Facets within this segment              |
+| Property     | Type   | Description                                                                          |
+| ------------ | ------ | ------------------------------------------------------------------------------------ |
+| `name`       | string | Segment label (displayed on outer ring)                                              |
+| `color`      | string | Segment fill color                                                                   |
+| `labelColor` | string | Optional. Override fill for the dimension label band. Falls back to `color` if unset. |
+| `facets`     | array  | Facets within this segment                                                           |
 
 ### Facets (`segments[].facets[]`)
 

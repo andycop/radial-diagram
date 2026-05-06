@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.1.0
+
+### Added
+
+- **`segment.labelColor`** (optional). Overrides the fill of that segment's
+  dimension label band. Falls back to `segment.color` when unset, so existing
+  configs render unchanged. Useful for giving labels a darker/lighter band than
+  the wedge for legibility.
+
 ## 2.0.0
 
 ### Breaking changes
