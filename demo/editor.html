@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<!--
+  Radial Diagram - Form-driven editor.
+  Sibling to demo/index.html. Loads the renderer module from ../dist/.
+  Serve from the project root (e.g. `npm run demo`) so the import path
+  resolves; visit /demo/editor.html.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Radial Diagram - Editor</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 16px;
+      background: #f5f5f5;
+      color: #222;
+      font-size: 14px;
+    }
+    h1 { margin: 0 0 12px; font-size: 22px; }
+    .layout {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 16px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+
+    /* Form panel */
+    .form-panel {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      max-height: calc(100vh - 100px);
+      overflow-y: auto;
+    }
+    .form-panel details {
+      border-bottom: 1px solid #eee;
+    }
+    .form-panel details:last-child { border-bottom: 0; }
+    .form-panel summary {
+      cursor: pointer;
+      padding: 10px 14px;
+      font-weight: 600;
+      font-size: 13px;
+      list-style: none;
+      user-select: none;
+      background: #fafafa;
+    }
+    .form-panel summary::-webkit-details-marker { display: none; }
+    .form-panel summary::before {
+      content: '▸';
+      display: inline-block;
+      width: 14px;
+      transition: transform 0.15s;
+      color: #888;
+    }
+    .form-panel details[open] > summary::before { transform: rotate(90deg); }
+    .section-body { padding: 8px 14px 12px; }
+
+    .row { display: grid; grid-template-columns: 110px 1fr; gap: 8px; align-items: center; margin: 5px 0; }
+    .row > label { font-size: 12px; color: #444; }
+    .row input[type="text"],
+    .row input[type="number"],
+    .row select,
+    .row textarea {
+      width: 100%;
+      padding: 4px 6px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      font: inherit;
+      font-size: 12px;
+    }
+    .row textarea { resize: vertical; min-height: 36px; font-family: inherit; }
+    .row input[type="color"] { width: 40px; height: 28px; padding: 0; border: 1px solid #ccc; border-radius: 3px; cursor: pointer; vertical-align: middle; }
+    .row input[type="checkbox"] { margin: 0; }
+    .color-pair { display: flex; gap: 6px; align-items: center; }
+    .color-pair input[type="text"] { flex: 1; font-family: 'Monaco', 'Menlo', monospace; }
+
+    /* Segments */
+    .seg-card {
+      border: 1px solid #e0e0e0;
+      border-left: 4px solid #999;
+      border-radius: 3px;
+      margin: 6px 0;
+      background: #fdfdfd;
+    }
+    .seg-card > summary {
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .seg-card .section-body { padding: 6px 10px 10px; }
+    .seg-card .actions { margin: 6px 0 0; display: flex; gap: 6px; flex-wrap: wrap; }
+    .facet-list { margin-top: 8px; padding-left: 0; list-style: none; }
+    .facet-row {
+      display: grid;
+      grid-template-columns: 1fr 60px auto;
+      gap: 6px;
+      margin: 4px 0;
+      padding: 4px;
+      background: #f7f7f7;
+      border-radius: 3px;
+      align-items: center;
+    }
+    .facet-row textarea { min-height: 28px; font-size: 12px; }
+    .facet-row .score-cell { display: flex; gap: 4px; align-items: center; }
+    .facet-row input[type="number"] { width: 50px; }
+
+    button {
+      padding: 4px 10px;
+      font-size: 12px;
+      border: 1px solid #bbb;
+      background: white;
+      color: #333;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    button:hover { background: #f0f0f0; }
+    button.primary { background: #4a90d9; color: white; border-color: #4a90d9; }
+    button.primary:hover { background: #357abd; }
+    button.danger { color: #c00; border-color: #e0a0a0; }
+    button.danger:hover { background: #ffe8e8; }
+    button.tiny { padding: 2px 6px; font-size: 11px; }
+
+    .toolbar {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      padding: 10px 14px;
+      border-bottom: 1px solid #eee;
+      background: white;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    /* Preview panel */
+    .preview-panel { display: flex; flex-direction: column; gap: 12px; }
+    .preview-container {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 16px;
+      text-align: center;
+      min-height: 400px;
+    }
+    .preview-container svg { max-width: 100%; height: auto; }
+    .json-panel {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .json-panel summary {
+      cursor: pointer;
+      padding: 8px 14px;
+      font-weight: 600;
+      font-size: 13px;
+      list-style: none;
+    }
+    .json-panel summary::-webkit-details-marker { display: none; }
+    .json-panel textarea {
+      width: 100%;
+      min-height: 280px;
+      padding: 10px;
+      border: 0;
+      border-top: 1px solid #eee;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 11px;
+      resize: vertical;
+    }
+    .error { color: #c00; padding: 6px 14px; font-size: 12px; }
+    .help { font-size: 11px; color: #888; margin-top: 4px; }
+
+    /* Docs panel (mirrors the textarea-standalone reference) */
+    .docs {
+      max-width: 1400px;
+      margin: 16px auto 0;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .docs > summary {
+      cursor: pointer;
+      padding: 14px 20px;
+      font-weight: 600;
+      font-size: 15px;
+      list-style: none;
+      user-select: none;
+    }
+    .docs > summary::-webkit-details-marker { display: none; }
+    .docs > summary::before {
+      content: '▸';
+      display: inline-block;
+      margin-right: 8px;
+      transition: transform 0.15s;
+    }
+    .docs[open] > summary::before { transform: rotate(90deg); }
+    .docs-body { padding: 0 20px 20px; font-size: 13px; line-height: 1.5; }
+    .docs-body h3 { margin: 18px 0 6px; font-size: 14px; }
+    .docs-body h4 { margin: 14px 0 4px; font-size: 13px; color: #555; font-weight: 600; }
+    .docs-body p { margin: 4px 0 8px; }
+    .docs-body table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 6px 0 10px;
+      font-size: 12px;
+    }
+    .docs-body th, .docs-body td {
+      text-align: left;
+      padding: 6px 10px;
+      border-bottom: 1px solid #eee;
+      vertical-align: top;
+    }
+    .docs-body th {
+      background: #fafafa;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .docs-body code {
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      background: #f4f4f4;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 11.5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Radial Diagram - Editor</h1>
+
+  <div class="layout">
+    <div class="form-panel">
+      <div class="toolbar">
+        <button class="primary" id="btn-render">Render</button>
+        <button id="btn-import-file">Import JSON…</button>
+        <button id="btn-download-svg">Download SVG</button>
+        <button id="btn-download-png">Download PNG</button>
+        <button id="btn-download-json">Download JSON</button>
+        <button id="btn-reset">Reset</button>
+        <input type="file" id="file-input" accept="application/json,.json" style="display:none">
+      </div>
+      <div id="form-root"></div>
+      <div id="form-error" class="error"></div>
+    </div>
+
+    <div class="preview-panel">
+      <div class="preview-container" id="preview"><p style="color:#999">Loading…</p></div>
+      <details class="json-panel">
+        <summary>JSON (paste here and click Apply to load)</summary>
+        <div style="padding:8px 14px; display:flex; gap:6px; border-top:1px solid #eee;">
+          <button id="btn-apply-json" class="primary">Apply JSON</button>
+          <span id="json-status" style="font-size:11px; color:#888; align-self:center;"></span>
+        </div>
+        <textarea id="json-view" spellcheck="false"></textarea>
+      </details>
+    </div>
+  </div>
+
+  <details class="docs">
+    <summary>Configuration reference</summary>
+    <div class="docs-body">
+      <p>Every form field corresponds to one JSON property. The reference below documents each.</p>
+
+      <h3>Top-level</h3>
+      <table>
+        <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+        <tr><td><code>size</code></td><td>number</td><td>Diagram width &amp; height in pixels.</td></tr>
+        <tr><td><code>startAngle</code></td><td>number</td><td>Angle (degrees) where the first segment begins. <code>-90</code> is the top.</td></tr>
+        <tr><td><code>center</code></td><td>object</td><td>Centre hub configuration.</td></tr>
+        <tr><td><code>scale</code></td><td>object</td><td>Score scale (min, max, ring count).</td></tr>
+        <tr><td><code>segments</code></td><td>array</td><td>The dimensions / wedges. Each contains facets.</td></tr>
+        <tr><td><code>style</code></td><td>object</td><td>All visual styling options.</td></tr>
+      </table>
+
+      <h3>center</h3>
+      <table>
+        <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        <tr><td><code>label</code></td><td>string</td><td>—</td><td>Hub text. Use <code>\n</code> for line breaks.</td></tr>
+        <tr><td><code>radius</code></td><td>number</td><td>—</td><td>Hub radius in pixels.</td></tr>
+        <tr><td><code>color</code></td><td>string</td><td>—</td><td>Fill colour. Hex (with optional alpha, e.g. <code>#1a1a1aaa</code>) or <code>transparent</code>.</td></tr>
+        <tr><td><code>borderWidth</code></td><td>number</td><td><code>0</code></td><td>Hub border stroke width.</td></tr>
+        <tr><td><code>borderColor</code></td><td>string</td><td><code>#ffffff</code></td><td>Hub border stroke colour.</td></tr>
+        <tr><td><code>visible</code></td><td>boolean</td><td><code>true</code></td><td>Set to <code>false</code> to hide the hub entirely.</td></tr>
+        <tr><td><code>fontSize</code></td><td>number</td><td>—</td><td>Override <code>style.hubFontSize</code> for this diagram.</td></tr>
+        <tr><td><code>fontColor</code></td><td>string</td><td>—</td><td>Override <code>style.hubFontColor</code>.</td></tr>
+      </table>
+
+      <h3>scale</h3>
+      <table>
+        <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        <tr><td><code>min</code></td><td>number</td><td><code>1</code></td><td>Minimum score value.</td></tr>
+        <tr><td><code>max</code></td><td>number</td><td><code>5</code></td><td>Maximum score value.</td></tr>
+        <tr><td><code>rings</code></td><td>number</td><td><code>5</code></td><td>Number of concentric rings drawn for the score scale.</td></tr>
+      </table>
+
+      <h3>segments[]</h3>
+      <table>
+        <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+        <tr><td><code>name</code></td><td>string</td><td>Dimension label. Use <code>\n</code> for line breaks; multi-line labels stack along the band radius.</td></tr>
+        <tr><td><code>color</code></td><td>string</td><td>Wedge fill colour.</td></tr>
+        <tr><td><code>labelColor</code></td><td>string</td><td>Optional. Override fill for the dimension label band only. Falls back to <code>color</code> when unset.</td></tr>
+        <tr><td><code>facets</code></td><td>array</td><td>Sub-segments inside this dimension.</td></tr>
+      </table>
+
+      <h3>segments[].facets[]</h3>
+      <table>
+        <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+        <tr><td><code>name</code></td><td>string</td><td>Facet label. Use <code>\n</code> for line breaks.</td></tr>
+        <tr><td><code>score</code></td><td>number</td><td>Score within <code>scale.min</code>–<code>scale.max</code>. Set to <code>null</code> to hide the fill.</td></tr>
+        <tr><td><code>description</code></td><td>string</td><td>Optional tooltip text.</td></tr>
+      </table>
+
+      <h3>Style options</h3>
+      <p>Style options are grouped in the form panel above. Notable ones:</p>
+      <ul>
+        <li><code>segmentLabelPosition</code> — <code>outer</code> (band outside the wheel, default) or <code>inner</code> (band wraps the centre hub, best for framework diagrams).</li>
+        <li><code>backgroundColor</code> — page background. Leave blank for transparent.</li>
+        <li><code>showRings</code> + <code>showScoreLabels</code> — toggles for the radar-chart-style score visualisation.</li>
+        <li><code>fontFamily</code>, <code>segmentFontSize</code>, <code>facetFontSize</code>, <code>hubFontSize</code> — typography overrides.</li>
+      </ul>
+
+      <h3>Multi-line labels</h3>
+      <p><code>\n</code> produces a line break in <code>center.label</code>, segment names, and facet names. Centre hub and facet labels stack vertically; segment labels stack along the radius of the label band, each line on its own curved arc.</p>
+    </div>
+  </details>
+
+  <script type="module">
+    import { SVGRenderer } from '../dist/renderers/svg.js';
+    import { createConfig } from '../dist/core/types.js';
+
+    // ---------- Default config ----------
+    const DEFAULT_CONFIG = {
+      size: 800,
+      startAngle: -90,
+      center: {
+        label: 'Diagram Hub',
+        radius: 100,
+        color: '#475569',
+        borderWidth: 8,
+        borderColor: '#ffffff',
+        fontSize: 14,
+        fontColor: '#ffffff',
+        visible: true,
+      },
+      scale: { min: 1, max: 5, rings: 5 },
+      segments: [
+        { name: 'Strategy', color: '#3B82F6', facets: [
+          { name: 'Vision', score: 4 }, { name: 'Roadmap', score: 3 },
+        ]},
+        { name: 'Operations', color: '#8B5CF6', facets: [
+          { name: 'Process', score: 3 }, { name: 'Tooling', score: 4 },
+        ]},
+        { name: 'People', color: '#EC4899', facets: [
+          { name: 'Skills', score: 4 }, { name: 'Culture', score: 3 },
+        ]},
+      ],
+      style: {
+        fontFamily: 'Verdana, sans-serif',
+        backgroundColor: '',
+        segmentFontSize: 28,
+        segmentLabelPosition: 'outer',
+        showSegmentDividers: true,
+        segmentDividerWidth: 4,
+        segmentDividerColor: '#ffffff',
+        facetFontSize: 14,
+        facetFontColor: '#000000',
+        facetOpacity: 0.85,
+        showFacetPoints: false,
+        facetPointStyle: 'circle',
+        showRings: true,
+        ringColor: '#cccccc',
+        ringWidth: 1,
+        ringStyle: 'dashed',
+        showScoreLabels: true,
+        scoreLabelFontSize: 12,
+        scoreLabelColor: '#333',
+        scoreLabelStrokeColor: '#ffffff',
+        hubFontSize: 14,
+        hubFontColor: '#ffffff',
+      },
+    };
+
+    // ---------- Schema for static sections ----------
+    // Each entry: [path, label, kind, opts?]
+    // kinds: 'text', 'num', 'check', 'textarea', 'color', 'colorish', 'select'
+    const SECTIONS = [
+      { title: 'General', open: true, fields: [
+        ['size', 'Size (px)', 'num', { min: 400, max: 1400, step: 50 }],
+        ['startAngle', 'Start angle', 'num', { min: -360, max: 360, step: 1 }],
+        ['style.fontFamily', 'Font family', 'text'],
+        ['style.backgroundColor', 'Background', 'colorish', { placeholder: 'transparent' }],
+      ]},
+      { title: 'Centre', open: true, fields: [
+        ['center.label', 'Label (\\n for line break)', 'textarea'],
+        ['center.radius', 'Radius', 'num', { min: 20, max: 300, step: 5 }],
+        ['center.color', 'Fill', 'colorish'],
+        ['center.fontSize', 'Font size', 'num', { min: 6, max: 60, step: 1 }],
+        ['center.fontColor', 'Font colour', 'color'],
+        ['center.borderWidth', 'Border width', 'num', { min: 0, max: 30, step: 1 }],
+        ['center.borderColor', 'Border colour', 'color'],
+        ['center.visible', 'Visible', 'check'],
+      ]},
+      { title: 'Scale', fields: [
+        ['scale.min', 'Min', 'num', { min: 0, max: 100, step: 1 }],
+        ['scale.max', 'Max', 'num', { min: 1, max: 100, step: 1 }],
+        ['scale.rings', 'Rings', 'num', { min: 1, max: 10, step: 1 }],
+      ]},
+      { title: 'Style — Segment labels', fields: [
+        ['style.segmentFontSize', 'Font size', 'num', { min: 8, max: 60, step: 1 }],
+        ['style.segmentLabelPosition', 'Position', 'select', { options: [['outer', 'Outer (around the wheel)'], ['inner', 'Inner (around the hub)']] }],
+      ]},
+      { title: 'Style — Dividers', fields: [
+        ['style.showSegmentDividers', 'Show dividers', 'check'],
+        ['style.segmentDividerWidth', 'Width', 'num', { min: 0, max: 20, step: 1 }],
+        ['style.segmentDividerColor', 'Colour', 'color'],
+      ]},
+      { title: 'Style — Hub text', fields: [
+        ['style.hubFontSize', 'Font size', 'num', { min: 6, max: 40, step: 1 }],
+        ['style.hubFontColor', 'Colour', 'color'],
+      ]},
+      { title: 'Style — Facets', fields: [
+        ['style.facetFontSize', 'Font size', 'num', { min: 6, max: 40, step: 1 }],
+        ['style.facetFontColor', 'Colour', 'color'],
+        ['style.facetOpacity', 'Opacity', 'num', { min: 0, max: 1, step: 0.05 }],
+        ['style.showFacetPoints', 'Show points', 'check'],
+        ['style.facetPointStyle', 'Point style', 'select', { options: [['circle', 'circle'], ['dot', 'dot'], ['none', 'none']] }],
+      ]},
+      { title: 'Style — Rings & score labels', fields: [
+        ['style.showRings', 'Show rings', 'check'],
+        ['style.ringStyle', 'Ring style', 'select', { options: [['dashed', 'dashed'], ['solid', 'solid']] }],
+        ['style.ringColor', 'Ring colour', 'color'],
+        ['style.ringWidth', 'Ring width', 'num', { min: 0, max: 8, step: 1 }],
+        ['style.showScoreLabels', 'Show score labels', 'check'],
+        ['style.scoreLabelFontSize', 'Score font size', 'num', { min: 6, max: 30, step: 1 }],
+        ['style.scoreLabelColor', 'Score fill', 'color'],
+        ['style.scoreLabelStrokeColor', 'Score stroke', 'color'],
+      ]},
+    ];
+
+    // ---------- State ----------
+    let config = structuredClone(DEFAULT_CONFIG);
+
+    function getPath(obj, path) {
+      return path.split('.').reduce((o, k) => (o ? o[k] : undefined), obj);
+    }
+    function setPath(obj, path, value) {
+      const keys = path.split('.');
+      const last = keys.pop();
+      const target = keys.reduce((o, k) => (o[k] = o[k] || {}), obj);
+      target[last] = value;
+    }
+
+    // ---------- Render form ----------
+    const formRoot = document.getElementById('form-root');
+
+    function render() {
+      formRoot.innerHTML = '';
+      for (const section of SECTIONS) formRoot.appendChild(renderSection(section));
+      formRoot.appendChild(renderSegmentsSection());
+      renderPreview();
+    }
+
+    function renderSection({ title, fields, open }) {
+      const det = el('details', { open: !!open });
+      det.appendChild(el('summary', {}, [title]));
+      const body = el('div', { class: 'section-body' });
+      for (const f of fields) body.appendChild(renderField(f));
+      det.appendChild(body);
+      return det;
+    }
+
+    function renderField([path, label, kind, opts = {}]) {
+      const id = 'f-' + path.replace(/\W/g, '-');
+      const value = getPath(config, path);
+      let input;
+      if (kind === 'check') {
+        input = el('input', { type: 'checkbox', id });
+        input.checked = !!value;
+        input.addEventListener('change', () => { setPath(config, path, input.checked); update(); });
+      } else if (kind === 'num') {
+        input = el('input', { type: 'number', id, min: opts.min, max: opts.max, step: opts.step });
+        input.value = value ?? '';
+        input.addEventListener('input', () => { setPath(config, path, input.value === '' ? undefined : Number(input.value)); update(); });
+      } else if (kind === 'textarea') {
+        input = el('textarea', { id, rows: 2 });
+        input.value = (value ?? '').replace(/\n/g, '\\n');
+        input.addEventListener('input', () => {
+          setPath(config, path, input.value.replace(/\\n/g, '\n'));
+          update();
+        });
+      } else if (kind === 'color') {
+        const txt = el('input', { type: 'text', id, placeholder: '#ffffff' });
+        txt.value = value ?? '';
+        const swatch = el('input', { type: 'color' });
+        swatch.value = toHex6(value) || '#000000';
+        txt.addEventListener('input', () => { setPath(config, path, txt.value || undefined); swatch.value = toHex6(txt.value) || swatch.value; update(); });
+        swatch.addEventListener('input', () => { txt.value = swatch.value; setPath(config, path, swatch.value); update(); });
+        input = el('div', { class: 'color-pair' }, [txt, swatch]);
+      } else if (kind === 'colorish') {
+        // Like color but allows arbitrary strings (e.g. 'transparent', alpha hex).
+        const txt = el('input', { type: 'text', id, placeholder: opts.placeholder || '#ffffff or transparent' });
+        txt.value = value ?? '';
+        const swatch = el('input', { type: 'color' });
+        swatch.value = toHex6(value) || '#ffffff';
+        txt.addEventListener('input', () => { setPath(config, path, txt.value || undefined); swatch.value = toHex6(txt.value) || swatch.value; update(); });
+        swatch.addEventListener('input', () => { txt.value = swatch.value; setPath(config, path, swatch.value); update(); });
+        input = el('div', { class: 'color-pair' }, [txt, swatch]);
+      } else if (kind === 'select') {
+        input = el('select', { id });
+        for (const [v, lbl] of opts.options) {
+          const o = el('option', { value: v }, [lbl]);
+          if (v === value) o.selected = true;
+          input.appendChild(o);
+        }
+        input.addEventListener('change', () => { setPath(config, path, input.value); update(); });
+      } else {
+        input = el('input', { type: 'text', id });
+        input.value = value ?? '';
+        input.addEventListener('input', () => { setPath(config, path, input.value || undefined); update(); });
+      }
+      return el('div', { class: 'row' }, [el('label', { for: id }, [label]), input]);
+    }
+
+    // ---------- Segments / Facets ----------
+    function renderSegmentsSection() {
+      const det = el('details', { open: true });
+      det.appendChild(el('summary', {}, [`Segments (${config.segments.length})`]));
+      const body = el('div', { class: 'section-body' });
+      config.segments.forEach((seg, idx) => body.appendChild(renderSegmentCard(seg, idx)));
+      const addBtn = el('button', { class: 'primary tiny' }, ['+ Add segment']);
+      addBtn.addEventListener('click', () => {
+        const nextColor = ['#3B82F6', '#8B5CF6', '#EC4899', '#F97316', '#22C55E', '#06B6D4', '#FACC15'][config.segments.length % 7];
+        config.segments.push({ name: `Segment ${config.segments.length + 1}`, color: nextColor, facets: [{ name: 'Facet 1', score: 3 }] });
+        render();
+      });
+      body.appendChild(addBtn);
+      det.appendChild(body);
+      return det;
+    }
+
+    function renderSegmentCard(seg, idx) {
+      const card = el('details', { class: 'seg-card', open: true });
+      const summary = el('summary', {}, [`${idx + 1}. ${seg.name || '(unnamed)'}`]);
+      card.style.borderLeftColor = seg.color || '#999';
+      card.appendChild(summary);
+      const body = el('div', { class: 'section-body' });
+
+      // Live-update card chrome (summary text + border colour) without
+      // re-rendering the whole form — re-rendering steals focus from
+      // whichever input the user is typing into.
+      const refreshChrome = () => {
+        summary.textContent = `${idx + 1}. ${seg.name || '(unnamed)'}`;
+        card.style.borderLeftColor = seg.color || '#999';
+      };
+
+      body.appendChild(rowLabel('Name', textareaInput(seg.name, v => { seg.name = v; refreshChrome(); update(); }, 2)));
+      body.appendChild(rowLabel('Colour', colorPair(seg.color, v => { seg.color = v; refreshChrome(); update(); })));
+      body.appendChild(rowLabel('Label colour', colorishPair(seg.labelColor, v => { seg.labelColor = v || undefined; update(); }, 'inherits Colour')));
+
+      const facetsHeader = el('div', { style: 'margin-top:8px; font-weight:600; font-size:12px;' }, [`Facets (${seg.facets.length})`]);
+      body.appendChild(facetsHeader);
+      const list = el('ul', { class: 'facet-list' });
+      seg.facets.forEach((f, fi) => list.appendChild(renderFacetRow(f, fi, seg)));
+      body.appendChild(list);
+
+      const addFacet = el('button', { class: 'tiny' }, ['+ Add facet']);
+      addFacet.addEventListener('click', () => {
+        seg.facets.push({ name: 'New facet', score: Math.round((config.scale.min + config.scale.max) / 2) });
+        render();
+      });
+
+      const moveUp = el('button', { class: 'tiny' }, ['↑']);
+      moveUp.disabled = idx === 0;
+      moveUp.addEventListener('click', () => { const a = config.segments; [a[idx - 1], a[idx]] = [a[idx], a[idx - 1]]; render(); });
+      const moveDown = el('button', { class: 'tiny' }, ['↓']);
+      moveDown.disabled = idx === config.segments.length - 1;
+      moveDown.addEventListener('click', () => { const a = config.segments; [a[idx], a[idx + 1]] = [a[idx + 1], a[idx]]; render(); });
+      const del = el('button', { class: 'tiny danger' }, ['Delete']);
+      del.addEventListener('click', () => { if (confirm(`Delete segment "${seg.name}"?`)) { config.segments.splice(idx, 1); render(); } });
+
+      const actions = el('div', { class: 'actions' }, [addFacet, moveUp, moveDown, del]);
+      body.appendChild(actions);
+      card.appendChild(body);
+      return card;
+    }
+
+    function renderFacetRow(f, fi, seg) {
+      const li = el('li', { class: 'facet-row' });
+      const nameInput = el('textarea', { rows: 1 });
+      nameInput.value = (f.name || '').replace(/\n/g, '\\n');
+      nameInput.addEventListener('input', () => { f.name = nameInput.value.replace(/\\n/g, '\n'); update(); });
+
+      const scoreCell = el('div', { class: 'score-cell' });
+      const scoreInput = el('input', { type: 'number', min: config.scale.min, max: config.scale.max, step: 1 });
+      scoreInput.value = f.score ?? '';
+      scoreInput.addEventListener('input', () => { f.score = scoreInput.value === '' ? null : Number(scoreInput.value); update(); });
+      scoreCell.appendChild(scoreInput);
+
+      const del = el('button', { class: 'tiny danger' }, ['×']);
+      del.title = 'Remove facet';
+      del.addEventListener('click', () => { seg.facets.splice(fi, 1); render(); });
+
+      li.appendChild(nameInput);
+      li.appendChild(scoreCell);
+      li.appendChild(del);
+      return li;
+    }
+
+    // ---------- Helpers ----------
+    function el(tag, attrs = {}, children = []) {
+      const e = document.createElement(tag);
+      for (const [k, v] of Object.entries(attrs)) {
+        if (v === undefined || v === null || v === false) continue;
+        if (k === 'class') e.className = v;
+        else e.setAttribute(k, v);
+      }
+      for (const c of children) e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+      return e;
+    }
+    function rowLabel(label, control) {
+      return el('div', { class: 'row' }, [el('label', {}, [label]), control]);
+    }
+    function textareaInput(value, onChange, rows = 2) {
+      const ta = el('textarea', { rows });
+      ta.value = (value ?? '').replace(/\n/g, '\\n');
+      ta.addEventListener('input', () => onChange(ta.value.replace(/\\n/g, '\n')));
+      return ta;
+    }
+    function colorPair(value, onChange) {
+      const txt = el('input', { type: 'text' });
+      txt.value = value ?? '';
+      const swatch = el('input', { type: 'color' });
+      swatch.value = toHex6(value) || '#000000';
+      txt.addEventListener('input', () => { swatch.value = toHex6(txt.value) || swatch.value; onChange(txt.value); });
+      swatch.addEventListener('input', () => { txt.value = swatch.value; onChange(swatch.value); });
+      return el('div', { class: 'color-pair' }, [txt, swatch]);
+    }
+    function colorishPair(value, onChange, placeholder) {
+      const txt = el('input', { type: 'text', placeholder: placeholder || '' });
+      txt.value = value ?? '';
+      const swatch = el('input', { type: 'color' });
+      swatch.value = toHex6(value) || '#000000';
+      txt.addEventListener('input', () => { swatch.value = toHex6(txt.value) || swatch.value; onChange(txt.value); });
+      swatch.addEventListener('input', () => { txt.value = swatch.value; onChange(swatch.value); });
+      return el('div', { class: 'color-pair' }, [txt, swatch]);
+    }
+    function toHex6(v) {
+      if (typeof v !== 'string') return null;
+      const m = v.match(/^#([0-9a-fA-F]{6})/);
+      return m ? '#' + m[1] : null;
+    }
+
+    // ---------- Update / preview ----------
+    let renderTimer = null;
+    let jsonDirty = false;  // pause auto-mirror once user starts editing the JSON view
+    function update() {
+      // Mirror JSON view (unless user is editing it) & re-render preview (debounced).
+      if (!jsonDirty) {
+        document.getElementById('json-view').value = JSON.stringify(stripBlanks(config), null, 2);
+        document.getElementById('json-status').textContent = '';
+      }
+      clearTimeout(renderTimer);
+      renderTimer = setTimeout(renderPreview, 150);
+    }
+
+    function stripBlanks(c) {
+      // Drop empty-string optional values so the rendered JSON stays tidy.
+      const out = JSON.parse(JSON.stringify(c));
+      if (out.style && out.style.backgroundColor === '') delete out.style.backgroundColor;
+      return out;
+    }
+
+    function renderPreview() {
+      const errEl = document.getElementById('form-error');
+      try {
+        const full = createConfig(stripBlanks(config));
+        const svg = new SVGRenderer(full).render();
+        document.getElementById('preview').innerHTML = svg;
+        errEl.textContent = '';
+      } catch (e) {
+        errEl.textContent = e.message;
+      }
+    }
+
+    // ---------- Toolbar ----------
+    document.getElementById('btn-render').addEventListener('click', renderPreview);
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      if (!confirm('Reset to default? Your current config will be lost.')) return;
+      config = structuredClone(DEFAULT_CONFIG);
+      jsonDirty = false;
+      render();
+      update();
+    });
+    document.getElementById('btn-download-svg').addEventListener('click', () => {
+      const svg = document.querySelector('#preview svg');
+      if (!svg) return;
+      const blob = new Blob([svg.outerHTML], { type: 'image/svg+xml' });
+      downloadBlob(blob, 'radial-diagram.svg');
+    });
+    document.getElementById('btn-download-png').addEventListener('click', () => {
+      // PowerPoint's SVG parser drops <textPath> labels; export PNG for PPT use.
+      const svgEl = document.querySelector('#preview svg');
+      if (!svgEl) { alert('Render a diagram first.'); return; }
+      const clone = svgEl.cloneNode(true);
+      clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+      const svgString = new XMLSerializer().serializeToString(clone);
+      const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+      const svgUrl = URL.createObjectURL(svgBlob);
+      const img = new Image();
+      img.onload = () => {
+        try {
+          // Use the SVG's natural pixel dimensions as the base.
+          const w = svgEl.width.baseVal.value || config.size || 800;
+          const h = svgEl.height.baseVal.value || config.size || 800;
+          const scale = 2;
+          const canvas = document.createElement('canvas');
+          canvas.width = w * scale;
+          canvas.height = h * scale;
+          const ctx = canvas.getContext('2d');
+          // Paint a background only if the user has configured one. Leaving it
+          // unset (or 'transparent') yields a true alpha-channel transparent PNG,
+          // which is what PPT etc. need to drop the diagram onto any slide.
+          const bg = config.style && config.style.backgroundColor;
+          if (bg && bg !== 'transparent') {
+            ctx.fillStyle = bg;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+          }
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          URL.revokeObjectURL(svgUrl);
+          canvas.toBlob((blob) => {
+            if (!blob) { alert('PNG conversion failed.'); return; }
+            downloadBlob(blob, 'radial-diagram.png');
+          }, 'image/png');
+        } catch (e) {
+          URL.revokeObjectURL(svgUrl);
+          alert('PNG export failed: ' + e.message);
+        }
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(svgUrl);
+        alert('Failed to load SVG for PNG conversion.');
+      };
+      img.src = svgUrl;
+    });
+    document.getElementById('btn-download-json').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(stripBlanks(config), null, 2)], { type: 'application/json' });
+      downloadBlob(blob, 'radial-diagram-config.json');
+    });
+    function downloadBlob(blob, name) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    // ---------- Import / paste ----------
+    function loadConfig(jsonStr, source = 'pasted JSON') {
+      const status = document.getElementById('json-status');
+      let parsed;
+      try {
+        parsed = JSON.parse(jsonStr);
+      } catch (e) {
+        status.style.color = '#c00';
+        status.textContent = `Parse error: ${e.message}`;
+        return false;
+      }
+      if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.segments)) {
+        status.style.color = '#c00';
+        status.textContent = 'Not a valid diagram config (missing segments array).';
+        return false;
+      }
+      // Sanity-check by running it through the renderer's validator.
+      try {
+        new SVGRenderer(createConfig(parsed));
+      } catch (e) {
+        status.style.color = '#c00';
+        status.textContent = `Invalid: ${e.message}`;
+        return false;
+      }
+      // Replace state and repopulate the form.
+      config = parsed;
+      // Backfill optional sections so the form has somewhere to bind to.
+      config.center = config.center || {};
+      config.scale = config.scale || { min: 1, max: 5, rings: 5 };
+      config.style = config.style || {};
+      jsonDirty = false;
+      render();
+      update();
+      status.style.color = '#0a0';
+      status.textContent = `Loaded ${source} — ${config.segments.length} segments.`;
+      setTimeout(() => { if (status.textContent.startsWith('Loaded')) status.textContent = ''; }, 3000);
+      return true;
+    }
+
+    document.getElementById('btn-import-file').addEventListener('click', () => {
+      document.getElementById('file-input').click();
+    });
+    document.getElementById('file-input').addEventListener('change', async (ev) => {
+      const file = ev.target.files?.[0];
+      if (!file) return;
+      const text = await file.text();
+      loadConfig(text, file.name);
+      ev.target.value = ''; // allow re-picking the same file later
+    });
+    document.getElementById('btn-apply-json').addEventListener('click', () => {
+      loadConfig(document.getElementById('json-view').value, 'pasted JSON');
+    });
+    document.getElementById('json-view').addEventListener('input', () => {
+      jsonDirty = true;
+      const status = document.getElementById('json-status');
+      status.style.color = '#888';
+      status.textContent = 'Unapplied changes — click Apply JSON.';
+    });
+
+    // ---------- Boot ----------
+    render();
+    update();
+  </script>
+</body>
+</html>

@@ -1,994 +1,114 @@
 #!/usr/bin/env node
 /**
- * Build script to generate standalone single-file HTML version
+ * Build script: produce demo/radial-diagram.html as a single self-contained
+ * page (no external module imports) by reading demo/editor.html as the
+ * source-of-truth template and inlining the renderer into its <script>.
  *
- * This script reads the source TypeScript files, strips types,
- * and embeds them into a self-contained HTML file.
+ * The renderer is taken from the already-compiled output in dist/, so this
+ * step relies on `tsc` having run first. `npm run build` chains them.
+ *
+ * editor.html stays usable as a dev-mode page (loads dist/ via ES modules);
+ * this build is what gets uploaded to the public site.
  */
 
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 
-// Read source files
-const geometryTs = readFileSync(join(ROOT, 'src/core/geometry.ts'), 'utf-8');
-const typesTs = readFileSync(join(ROOT, 'src/core/types.ts'), 'utf-8');
-const svgTs = readFileSync(join(ROOT, 'src/renderers/svg.ts'), 'utf-8');
+// ---------- Read sources ----------
+const editorHtml = readFileSync(join(ROOT, 'demo/editor.html'), 'utf-8');
 const exampleJson = readFileSync(join(ROOT, 'demo/configs/example.json'), 'utf-8');
 
-// Strip TypeScript types and convert to plain JS
-function stripTypes(code) {
-  return code
-    // Remove imports
-    .replace(/^import\s+.*?from\s+['"].*?['"];?\s*$/gm, '')
-    // Remove type imports
-    .replace(/^import\s+type\s+.*?from\s+['"].*?['"];?\s*$/gm, '')
-    // Remove exports of types
-    .replace(/^export\s+type\s+\{[^}]*\};?\s*$/gm, '')
-    // Remove interface declarations
-    .replace(/^export\s+interface\s+\w+\s*\{[^}]*\}\s*$/gm, '')
-    .replace(/^interface\s+\w+\s*\{[^}]*\}\s*$/gm, '')
-    // Remove type annotations from function parameters and return types
-    .replace(/:\s*\{[^}]+\}/g, '') // object type annotations
-    .replace(/:\s*(?:string|number|boolean|void|any|never|unknown)(?:\[\])?/g, '')
-    .replace(/:\s*(?:Point|DiagramConfig|Segment|ValidationResult|ScaleConfig|StyleConfig|CenterConfig)(?:\[\])?/g, '')
-    .replace(/:\s*Array<[^>]+>/g, '')
-    .replace(/<[^>]+>/g, '') // generic type params
-    // Remove 'export' keyword but keep the rest
-    .replace(/^export\s+(const|function|class)/gm, '$1')
-    // Remove type assertions
-    .replace(/\s+as\s+\w+/g, '')
-    // Clean up empty lines
-    .replace(/\n{3,}/g, '\n\n')
+// dist/ is produced by tsc. Bail with a clear message if it's missing.
+const distFiles = ['dist/core/geometry.js', 'dist/core/types.js', 'dist/renderers/svg.js'];
+for (const f of distFiles) {
+  if (!existsSync(join(ROOT, f))) {
+    console.error(`Missing ${f}. Run \`npm run build\` (or \`tsc\`) first.`);
+    process.exit(1);
+  }
+}
+
+// Read each compiled module, drop ESM glue (imports, exports), and concat.
+function readModule(relPath) {
+  return readFileSync(join(ROOT, relPath), 'utf-8')
+    // Strip import statements — we're concatenating everything into one scope.
+    .replace(/^import\s+[^;]+;\s*$/gm, '')
+    // Strip the `export` keyword so symbols become locals in this scope.
+    .replace(/^export\s+(class|function|const|let|var)/gm, '$1')
+    // Strip bare `export {}` lines.
+    .replace(/^export\s+\{[^}]*\};?\s*$/gm, '')
     .trim();
 }
 
-// Extract just the functions we need from geometry
-function extractGeometryFunctions(code) {
-  const stripped = stripTypes(code);
-  // Remove the Point interface and header comments, keep functions
-  return stripped
-    .replace(/\/\*\*[\s\S]*?\*\/\s*(?=function|const|$)/g, '') // Remove JSDoc
-    .replace(/^\/\*[\s\S]*?\*\/\s*/m, '') // Remove header comment
-    .trim();
-}
+const inlinedRenderer = `
+    // ============================================================
+    // Inlined renderer (auto-generated from dist/ — do not edit)
+    // ============================================================
+${readModule('dist/core/geometry.js')}
 
-// Extract defaults and validation from types
-function extractFromTypes(code) {
-  const stripped = stripTypes(code);
-  // Extract DEFAULT_STYLE, DEFAULT_SCALE, validateConfig, createConfig
-  const defaultStyleMatch = stripped.match(/const\s+DEFAULT_STYLE\s*=\s*\{[\s\S]*?\};/);
-  const defaultScaleMatch = stripped.match(/const\s+DEFAULT_SCALE\s*=\s*\{[\s\S]*?\};/);
-  const validateMatch = stripped.match(/function\s+validateConfig[\s\S]*?^}\s*$/m);
-  const createMatch = stripped.match(/function\s+createConfig[\s\S]*?^}\s*$/m);
+${readModule('dist/core/types.js')}
 
-  return [
-    defaultStyleMatch?.[0] || '',
-    defaultScaleMatch?.[0] || '',
-    validateMatch?.[0] || '',
-    createMatch?.[0] || ''
-  ].filter(Boolean).join('\n\n');
-}
+${readModule('dist/renderers/svg.js')}
+`;
 
-// Extract SVGRenderer class
-function extractSvgRenderer(code) {
-  const stripped = stripTypes(code);
-  // Get the class definition
-  const classMatch = stripped.match(/class\s+SVGRenderer\s*\{[\s\S]*?^\}/m);
-  return classMatch?.[0] || '';
-}
-
-// Parse the example config, removing comments
+// Parse example config (drop the demo metadata keys for cleanliness).
 const exampleConfig = JSON.parse(exampleJson.replace(/^\s*"_[^"]*":\s*"[^"]*",?\s*$/gm, ''));
 
-// Build the standalone HTML
-const html = `<!DOCTYPE html>
-<!--
-  Radial Diagram Generator - Single File Version
+// ---------- Transform editor.html ----------
+let html = editorHtml;
 
-  AUTO-GENERATED FILE - Do not edit directly!
-  Run: npm run build:standalone
+// 1. Add a header comment so it's clear this file is generated.
+html = html.replace(
+  /^<!DOCTYPE html>\s*<!--[\s\S]*?-->/m,
+  `<!DOCTYPE html>
+<!--
+  Radial Diagram Generator - Single-file editor.
+
+  AUTO-GENERATED from demo/editor.html and dist/. Do not edit directly.
+  Run: npm run build
 
   @license MIT
   @copyright 2026 CGA Management Ltd
   @see https://www.cgamanagement.co.uk/category/tools
--->
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Radial Diagram Generator</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background: #f5f5f5;
-      color: #333;
-    }
-    h1 { margin: 0 0 20px; font-size: 24px; }
-    .container {
-      display: flex;
-      gap: 20px;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-    .editor-panel, .preview-panel {
-      flex: 1;
-      min-width: 400px;
-    }
-    textarea {
-      width: 100%;
-      height: 600px;
-      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-      font-size: 12px;
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      resize: vertical;
-    }
-    .preview-container {
-      background: white;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      padding: 20px;
-      text-align: center;
-      transition: background-color 0.3s;
-    }
-    .preview-container.dark { border-color: #444; }
-    .preview-container svg { max-width: 100%; height: auto; }
-    .buttons {
-      margin: 10px 0;
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    button {
-      padding: 8px 16px;
-      font-size: 14px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      background: #4a90d9;
-      color: white;
-    }
-    button:hover { background: #357abd; }
-    button.secondary { background: #666; }
-    button.secondary:hover { background: #555; }
-    .error { color: #c00; font-size: 12px; margin-top: 8px; }
-    .help { font-size: 12px; color: #666; margin-top: 8px; }
-    footer {
-      max-width: 1400px;
-      margin: 40px auto 20px;
-      padding-top: 20px;
-      border-top: 1px solid #ddd;
-      text-align: center;
-      font-size: 13px;
-      color: #666;
-    }
-    footer a { color: #4a90d9; text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
-    @media (max-width: 900px) {
-      .container { flex-direction: column; }
-      .editor-panel, .preview-panel { min-width: 100%; }
-    }
-    .docs {
-      max-width: 1400px;
-      margin: 30px auto 0;
-      background: white;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      padding: 0;
-    }
-    .docs > summary {
-      cursor: pointer;
-      padding: 14px 20px;
-      font-weight: 600;
-      font-size: 15px;
-      list-style: none;
-      user-select: none;
-    }
-    .docs > summary::-webkit-details-marker { display: none; }
-    .docs > summary::before {
-      content: '▸';
-      display: inline-block;
-      margin-right: 8px;
-      transition: transform 0.15s;
-    }
-    .docs[open] > summary::before { transform: rotate(90deg); }
-    .docs-body { padding: 0 20px 20px; font-size: 13px; line-height: 1.5; }
-    .docs-body h3 { margin: 18px 0 6px; font-size: 14px; }
-    .docs-body h4 { margin: 14px 0 4px; font-size: 13px; color: #555; font-weight: 600; }
-    .docs-body p { margin: 4px 0 8px; }
-    .docs-body table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 6px 0 10px;
-      font-size: 12px;
-    }
-    .docs-body th, .docs-body td {
-      text-align: left;
-      padding: 6px 10px;
-      border-bottom: 1px solid #eee;
-      vertical-align: top;
-    }
-    .docs-body th {
-      background: #fafafa;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-    .docs-body code {
-      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-      background: #f4f4f4;
-      padding: 1px 5px;
-      border-radius: 3px;
-      font-size: 11.5px;
-    }
-    .docs-body pre {
-      background: #f4f4f4;
-      padding: 10px 12px;
-      border-radius: 4px;
-      overflow-x: auto;
-      font-size: 11.5px;
-    }
-  </style>
-</head>
-<body>
-  <h1>Radial Diagram Generator</h1>
+-->`,
+);
 
-  <div class="container">
-    <div class="editor-panel">
-      <h3>Configuration (JSON)</h3>
-      <textarea id="config-editor" spellcheck="false"></textarea>
-      <div class="buttons">
-        <button onclick="renderDiagram()">Render</button>
-        <button class="secondary" onclick="downloadSVG()">Download SVG</button>
-        <button class="secondary" onclick="downloadPNG()">Download PNG</button>
-      </div>
-      <div id="error" class="error"></div>
-      <div class="help">
-        Edit the JSON configuration - click Render to update.
-        Scores range from 1-5 (or as defined in scale). Set score to null to hide fill.
-      </div>
-    </div>
+// 2. Drop ES module imports — we'll inline the symbols instead.
+html = html.replace(
+  /import\s*\{\s*SVGRenderer\s*\}\s*from\s*['"]\.\.\/dist\/renderers\/svg\.js['"];\s*\n/,
+  '',
+);
+html = html.replace(
+  /import\s*\{\s*createConfig\s*\}\s*from\s*['"]\.\.\/dist\/core\/types\.js['"];\s*\n/,
+  '',
+);
 
-    <div class="preview-panel">
-      <h3>Preview</h3>
-      <div class="preview-container" id="preview">
-        <p style="color: #999;">Click "Render" to generate diagram</p>
-      </div>
-    </div>
-  </div>
+// 3. Remove the type="module" attribute since we no longer use imports.
+html = html.replace(/<script type="module">/, '<script>');
 
-  <details class="docs">
-    <summary>Configuration reference</summary>
-    <div class="docs-body">
-      <p>The diagram is configured via a single JSON object. Edit the textarea above to try any of these options live.</p>
+// 4. Inject inlined renderer at the top of the editor's script body.
+html = html.replace(
+  /<script>(\s*\n)/,
+  `<script>$1${inlinedRenderer}\n`,
+);
 
-      <h3>Top-level</h3>
-      <table>
-        <tr><th>Property</th><th>Type</th><th>Description</th></tr>
-        <tr><td><code>size</code></td><td>number</td><td>Diagram width &amp; height in pixels.</td></tr>
-        <tr><td><code>startAngle</code></td><td>number</td><td>Angle (degrees) where the first segment begins. <code>-90</code> is the top.</td></tr>
-        <tr><td><code>center</code></td><td>object</td><td>Centre hub configuration. See below.</td></tr>
-        <tr><td><code>scale</code></td><td>object</td><td>Score scale (min, max, ring count).</td></tr>
-        <tr><td><code>segments</code></td><td>array</td><td>The dimensions / wedges. Each contains facets.</td></tr>
-        <tr><td><code>style</code></td><td>object</td><td>All visual styling options.</td></tr>
-      </table>
+// 5. Replace the editor's hardcoded DEFAULT_CONFIG with the parsed example.json
+//    so the deployed page boots with the showcase config.
+const exampleConfigJs = JSON.stringify(exampleConfig, null, 6)
+  .split('\n')
+  .map((line, i) => (i === 0 ? line : '    ' + line))
+  .join('\n');
 
-      <h3>center</h3>
-      <table>
-        <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
-        <tr><td><code>label</code></td><td>string</td><td>—</td><td>Hub text. Use <code>\\n</code> for line breaks.</td></tr>
-        <tr><td><code>radius</code></td><td>number</td><td>—</td><td>Hub radius in pixels.</td></tr>
-        <tr><td><code>color</code></td><td>string</td><td>—</td><td>Fill colour. Hex (with optional alpha, e.g. <code>#1a1a1aaa</code>) or <code>transparent</code>.</td></tr>
-        <tr><td><code>borderWidth</code></td><td>number</td><td><code>0</code></td><td>Hub border stroke width.</td></tr>
-        <tr><td><code>borderColor</code></td><td>string</td><td><code>#ffffff</code></td><td>Hub border stroke colour.</td></tr>
-        <tr><td><code>visible</code></td><td>boolean</td><td><code>true</code></td><td>Set to <code>false</code> to hide the hub entirely.</td></tr>
-        <tr><td><code>fontSize</code></td><td>number</td><td>—</td><td>Override <code>style.hubFontSize</code> for this diagram.</td></tr>
-        <tr><td><code>fontColor</code></td><td>string</td><td>—</td><td>Override <code>style.hubFontColor</code>.</td></tr>
-      </table>
+const defaultConfigBlock = /const\s+DEFAULT_CONFIG\s*=\s*\{[\s\S]*?\n\s*\};\s*$/m;
+if (!defaultConfigBlock.test(html)) {
+  console.error('Could not find DEFAULT_CONFIG in editor.html — aborting.');
+  process.exit(1);
+}
+html = html.replace(defaultConfigBlock, `const DEFAULT_CONFIG = ${exampleConfigJs};`);
 
-      <h3>scale</h3>
-      <table>
-        <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
-        <tr><td><code>min</code></td><td>number</td><td><code>1</code></td><td>Minimum score value.</td></tr>
-        <tr><td><code>max</code></td><td>number</td><td><code>5</code></td><td>Maximum score value.</td></tr>
-        <tr><td><code>rings</code></td><td>number</td><td><code>5</code></td><td>Number of concentric rings drawn for the score scale.</td></tr>
-      </table>
-
-      <h3>segments[]</h3>
-      <table>
-        <tr><th>Property</th><th>Type</th><th>Description</th></tr>
-        <tr><td><code>name</code></td><td>string</td><td>Dimension label. Use <code>\\n</code> for line breaks; multi-line labels stack along the band radius.</td></tr>
-        <tr><td><code>color</code></td><td>string</td><td>Wedge fill colour.</td></tr>
-        <tr><td><code>labelColor</code></td><td>string</td><td>Optional. Override fill for the dimension label band only. Falls back to <code>color</code> when unset.</td></tr>
-        <tr><td><code>facets</code></td><td>array</td><td>Sub-segments inside this dimension.</td></tr>
-      </table>
-
-      <h3>segments[].facets[]</h3>
-      <table>
-        <tr><th>Property</th><th>Type</th><th>Description</th></tr>
-        <tr><td><code>name</code></td><td>string</td><td>Facet label. Use <code>\\n</code> for line breaks.</td></tr>
-        <tr><td><code>score</code></td><td>number</td><td>Score within <code>scale.min</code>–<code>scale.max</code>. Set to <code>null</code> to hide the fill.</td></tr>
-        <tr><td><code>description</code></td><td>string</td><td>Optional tooltip text.</td></tr>
-      </table>
-
-      <h3>style</h3>
-
-      <h4>Segment labels</h4>
-      <table>
-        <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
-        <tr><td><code>segmentFontSize</code></td><td>number</td><td><code>28</code></td><td>Font size for dimension labels.</td></tr>
-        <tr><td><code>segmentLabelPosition</code></td><td>string</td><td><code>outer</code></td><td><code>outer</code> (default) puts the labelled colour band outside the wheel. <code>inner</code> puts it around the centre hub — best for framework-style diagrams.</td></tr>
-      </table>
-
-      <h4>Segment dividers</h4>
-      <table>
-        <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
-        <tr><td><code>showSegmentDividers</code></td><td>boolean</td><td><code>true</code></td><td>Show divider lines between segments &amp; on band edges.</td></tr>
-        <tr><td><code>segmentDividerWidth</code></td><td>number</td><td><code>2</code></td><td>Divider stroke width.</td></tr>
-        <tr><td><code>segmentDividerColor</code></td><td>string</td><td><code>#ffffff</code></td><td>Divider stroke colour.</td></tr>
-      </table>
-
-      <h4>Hub text</h4>
-      <table>
-        <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
-        <tr><td><code>hubFontSize</code></td><td>number</td><td><code>14</code></td><td>Hub label font size.</td></tr>
-        <tr><td><code>hubFontColor</code></td><td>string</td><td><code>#ffffff</code></td><td>Hub label colour.</td></tr>
-      </table>
-
-      <h4>Facets</h4>
-      <table>
-        <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
-        <tr><td><code>facetFontSize</code></td><td>number</td><td><code>11</code></td><td>Facet label font size.</td></tr>
-        <tr><td><code>facetFontColor</code></td><td>string</td><td>—</td><td>Facet label colour. Hex with alpha supported.</td></tr>
-        <tr><td><code>facetOpacity</code></td><td>number</td><td><code>1</code></td><td>Opacity of the score-fill area (0–1).</td></tr>
-        <tr><td><code>showFacetPoints</code></td><td>boolean</td><td><code>true</code></td><td>Show point markers at the score level.</td></tr>
-        <tr><td><code>facetPointStyle</code></td><td>string</td><td><code>circle</code></td><td><code>circle</code>, <code>dot</code>, or <code>none</code>.</td></tr>
-      </table>
-
-      <h4>Rings &amp; score labels</h4>
-      <table>
-        <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
-        <tr><td><code>showRings</code></td><td>boolean</td><td><code>true</code></td><td>Show concentric ring circles.</td></tr>
-        <tr><td><code>ringColor</code></td><td>string</td><td><code>#cccccc</code></td><td>Ring colour.</td></tr>
-        <tr><td><code>ringWidth</code></td><td>number</td><td><code>1</code></td><td>Ring stroke width.</td></tr>
-        <tr><td><code>ringStyle</code></td><td>string</td><td><code>dashed</code></td><td><code>solid</code> or <code>dashed</code>.</td></tr>
-        <tr><td><code>showScoreLabels</code></td><td>boolean</td><td><code>false</code></td><td>Show numeric score labels (1, 2, …).</td></tr>
-        <tr><td><code>scoreLabelFontSize</code></td><td>number</td><td><code>14</code></td><td>Score label font size.</td></tr>
-        <tr><td><code>scoreLabelColor</code></td><td>string</td><td><code>#ffffff</code></td><td>Score label fill colour.</td></tr>
-        <tr><td><code>scoreLabelStrokeColor</code></td><td>string</td><td><code>#333333</code></td><td>Score label outline colour.</td></tr>
-      </table>
-
-      <h4>General</h4>
-      <table>
-        <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
-        <tr><td><code>fontFamily</code></td><td>string</td><td><code>Arial, sans-serif</code></td><td>Font family for all text.</td></tr>
-        <tr><td><code>backgroundColor</code></td><td>string</td><td>—</td><td>Page background. Transparent if not set.</td></tr>
-      </table>
-
-      <h3>Multi-line labels</h3>
-      <p><code>\\n</code> produces a line break in <code>center.label</code>, segment names, and facet names. Centre hub and facet labels stack vertically; segment labels stack along the radius of the label band, each line on its own curved arc.</p>
-
-      <h3>Inner vs outer label position</h3>
-      <p><code>style.segmentLabelPosition</code> controls where the dimension labels sit:</p>
-      <ul>
-        <li><code>"outer"</code> (default) — the labelled colour band sits outside the wheel. Best for assessments where the wedge area visualises scoring.</li>
-        <li><code>"inner"</code> — the labelled band sits between the centre hub and the facet area, with ring dividers on both edges. Best for framework-style diagrams. Note: the inner band visually overlays the inner part of the wedge, so partial score fills may be hidden behind it.</li>
-      </ul>
-    </div>
-  </details>
-
-  <footer>
-    Built by <a href="https://cgamanagement.co.uk/category/tools/" target="_blank" rel="noopener">CGA Management Ltd</a>.
-    <a href="https://github.com/andycop/radial-diagram" target="_blank" rel="noopener">GitHub</a> |
-    Licensed under MIT.
-  </footer>
-
-  <script>
-    // ============================================================
-    // Geometry Utilities (from src/core/geometry.ts)
-    // ============================================================
-
-    function polarToCartesian(cx, cy, radius, angleDegrees) {
-      const angleRadians = (angleDegrees * Math.PI) / 180;
-      return {
-        x: cx + radius * Math.cos(angleRadians),
-        y: cy + radius * Math.sin(angleRadians)
-      };
-    }
-
-    function segmentPath(cx, cy, innerRadius, outerRadius, startAngle, endAngle) {
-      const outerStart = polarToCartesian(cx, cy, outerRadius, startAngle);
-      const outerEnd = polarToCartesian(cx, cy, outerRadius, endAngle);
-      const innerStart = polarToCartesian(cx, cy, innerRadius, startAngle);
-      const innerEnd = polarToCartesian(cx, cy, innerRadius, endAngle);
-      const angleDiff = endAngle - startAngle;
-      const largeArcFlag = Math.abs(angleDiff) > 180 ? 1 : 0;
-
-      if (innerRadius === 0) {
-        return [
-          \`M \${cx} \${cy}\`,
-          \`L \${outerStart.x} \${outerStart.y}\`,
-          \`A \${outerRadius} \${outerRadius} 0 \${largeArcFlag} 1 \${outerEnd.x} \${outerEnd.y}\`,
-          'Z'
-        ].join(' ');
-      }
-
-      return [
-        \`M \${outerStart.x} \${outerStart.y}\`,
-        \`A \${outerRadius} \${outerRadius} 0 \${largeArcFlag} 1 \${outerEnd.x} \${outerEnd.y}\`,
-        \`L \${innerEnd.x} \${innerEnd.y}\`,
-        \`A \${innerRadius} \${innerRadius} 0 \${largeArcFlag} 0 \${innerStart.x} \${innerStart.y}\`,
-        'Z'
-      ].join(' ');
-    }
-
-    function segmentAngle(segmentCount) {
-      if (segmentCount <= 0) throw new Error('segmentCount must be greater than 0');
-      return 360 / segmentCount;
-    }
-
-    function facetAngles(segmentStartAngle, segmentEndAngle, facetCount) {
-      if (facetCount <= 0) throw new Error('facetCount must be greater than 0');
-      const totalAngle = segmentEndAngle - segmentStartAngle;
-      const facetAngleSpan = totalAngle / facetCount;
-      return Array.from({ length: facetCount }, (_, i) => {
-        const startAngle = segmentStartAngle + i * facetAngleSpan;
-        const endAngle = startAngle + facetAngleSpan;
-        const midAngle = (startAngle + endAngle) / 2;
-        return { startAngle, endAngle, midAngle };
-      });
-    }
-
-    function scoreToRadius(score, minScore, maxScore, innerRadius, outerRadius) {
-      if (minScore > maxScore) throw new Error('minScore must be <= maxScore');
-      if (innerRadius >= outerRadius) throw new Error('innerRadius must be < outerRadius');
-      if (minScore === maxScore) return outerRadius;
-      const clampedScore = Math.max(minScore, Math.min(maxScore, score));
-      const levels = maxScore - minScore + 1;
-      const radiusRange = outerRadius - innerRadius;
-      const normalizedScore = (clampedScore - minScore + 1) / levels;
-      return innerRadius + normalizedScore * radiusRange;
-    }
-
-    function ringRadii(ringCount, innerRadius, outerRadius) {
-      if (ringCount <= 0) throw new Error('ringCount must be greater than 0');
-      if (innerRadius >= outerRadius) throw new Error('innerRadius must be < outerRadius');
-      const step = (outerRadius - innerRadius) / ringCount;
-      return Array.from({ length: ringCount + 1 }, (_, i) => innerRadius + i * step);
-    }
-
-    // ============================================================
-    // Types and Config (from src/core/types.ts)
-    // ============================================================
-
-    const DEFAULT_STYLE = {
-      showRings: true,
-      ringColor: '#cccccc',
-      ringWidth: 1,
-      ringStyle: 'dashed',
-      showScoreLabels: false,
-      scoreLabelFontSize: 14,
-      scoreLabelColor: '#ffffff',
-      scoreLabelStrokeColor: '#333333',
-      showFacetPoints: true,
-      facetPointStyle: 'circle',
-      facetOpacity: 1,
-      segmentDividerWidth: 2,
-      fontFamily: 'Arial, sans-serif',
-      segmentDividerColor: '#ffffff',
-      showSegmentDividers: true,
-      hubFontSize: 14,
-      hubFontColor: '#ffffff',
-      segmentFontSize: 28,
-      facetFontSize: 11
-    };
-
-    const DEFAULT_SCALE = { min: 1, max: 5, rings: 5 };
-
-    function createConfig(partial) {
-      return {
-        center: {
-          label: partial.center?.label ?? 'Core',
-          radius: partial.center?.radius ?? 60,
-          color: partial.center?.color ?? '#8B3A62',
-          subtitle: partial.center?.subtitle,
-          borderWidth: partial.center?.borderWidth,
-          borderColor: partial.center?.borderColor,
-          visible: partial.center?.visible,
-          fontSize: partial.center?.fontSize,
-          fontColor: partial.center?.fontColor
-        },
-        scale: { ...DEFAULT_SCALE, ...partial.scale },
-        segments: partial.segments || [],
-        style: { ...DEFAULT_STYLE, ...partial.style },
-        size: partial.size || 800,
-        startAngle: partial.startAngle ?? -90
-      };
-    }
-
-    function validateConfig(config) {
-      const errors = [];
-      if (!config.size || config.size <= 0) errors.push('size must be > 0');
-      if (!config.center) errors.push('center configuration is required');
-      else if (!config.center.radius || config.center.radius <= 0) errors.push('center.radius must be > 0');
-      if (!config.scale) errors.push('scale configuration is required');
-      else {
-        if (config.scale.min > config.scale.max) errors.push('scale.min must be <= scale.max');
-        if (!config.scale.rings || config.scale.rings <= 0) errors.push('scale.rings must be > 0');
-      }
-      if (!config.segments || config.segments.length === 0) errors.push('segments array must have at least one segment');
-      else {
-        config.segments.forEach((seg, i) => {
-          if (!seg.facets || seg.facets.length === 0) errors.push(\`segment[\${i}] must have at least one facet\`);
-        });
-      }
-      if (config.size && config.center?.radius) {
-        const outerRadius = (config.size / 2) * 0.9;
-        if (config.center.radius >= outerRadius) {
-          errors.push(\`center.radius (\${config.center.radius}) must be < outer radius (\${outerRadius.toFixed(1)})\`);
-        }
-      }
-      return { valid: errors.length === 0, errors };
-    }
-
-    // ============================================================
-    // SVG Renderer (from src/renderers/svg.ts)
-    // ============================================================
-
-    class SVGRenderer {
-      constructor(config) {
-        const validation = validateConfig(config);
-        if (!validation.valid) throw new Error('Invalid config:\\n- ' + validation.errors.join('\\n- '));
-        this.config = config;
-        this.cx = config.size / 2;
-        this.cy = config.size / 2;
-        this.outerRadius = (config.size / 2) * 0.9;
-        this.padding = 70;
-      }
-
-      render() {
-        const elements = [];
-        if (this.config.style.backgroundColor) elements.push(this.renderBackground());
-        elements.push(this.renderSegmentBackgrounds());
-        elements.push(this.renderScoreFills());
-        if (this.config.style.showSegmentDividers) elements.push(this.renderSegmentDividers());
-        elements.push(this.renderFacetDividers());
-        elements.push(this.renderCenterHub());
-        elements.push(this.renderFacetLabels());
-        elements.push(this.renderSegmentLabels());
-        if (this.config.style.showRings !== false) elements.push(this.renderRings());
-        if (this.config.style.showScoreLabels) elements.push(this.renderScoreLabels());
-        return this.wrapSVG(elements.join('\\n'));
-      }
-
-      wrapSVG(content) {
-        const { size, style, center } = this.config;
-        const viewSize = size + this.padding * 2;
-        const hubFontSize = center.fontSize || style.hubFontSize || 14;
-        const hubFontColor = center.fontColor || style.hubFontColor || '#ffffff';
-        const segmentFontSize = style.segmentFontSize || 28;
-        const facetFontSize = style.facetFontSize || 11;
-        const facetFontColor = style.facetFontColor || '#000000';
-        return \`<svg xmlns="http://www.w3.org/2000/svg" viewBox="\${-this.padding} \${-this.padding} \${viewSize} \${viewSize}" width="\${size}" height="\${size}">
-  <style>
-    .segment-label { font-family: \${style.fontFamily}; font-weight: bold; font-size: \${segmentFontSize}px; fill: white; dominant-baseline: middle; }
-    .facet-label { font-family: \${style.fontFamily}; font-size: \${facetFontSize}px; font-style: italic; fill: \${facetFontColor}; }
-    .center-label { font-family: \${style.fontFamily}; font-weight: bold; font-size: \${hubFontSize}px; fill: \${hubFontColor}; text-anchor: middle; }
-    .ring-label { font-family: \${style.fontFamily}; font-size: 10px; fill: #666; }
-  </style>
-  \${content}
-</svg>\`;
-      }
-
-      renderBackground() {
-        const viewSize = this.config.size + this.padding * 2;
-        return \`<rect x="\${-this.padding}" y="\${-this.padding}" width="\${viewSize}" height="\${viewSize}" fill="\${this.config.style.backgroundColor}" />\`;
-      }
-
-      renderRings() {
-        const { scale, center, style } = this.config;
-        const rings = ringRadii(scale.rings, center.radius, this.outerRadius);
-        const elements = [];
-        const ringColor = style.ringColor || '#cccccc';
-        const ringWidth = style.ringWidth || 1;
-        const dashArray = (style.ringStyle || 'dashed') === 'dashed' ? 'stroke-dasharray="4,4"' : '';
-        rings.forEach((radius, i) => {
-          if (i === 0) return;
-          elements.push(\`<circle cx="\${this.cx}" cy="\${this.cy}" r="\${radius}" fill="none" stroke="\${ringColor}" stroke-width="\${ringWidth}" \${dashArray} />\`);
-        });
-        return \`<g class="rings">\${elements.join('\\n')}</g>\`;
-      }
-
-      renderScoreLabels() {
-        const { scale, center, style } = this.config;
-        const elements = [];
-        const fontSize = style.scoreLabelFontSize || 14;
-        const fillColor = style.scoreLabelColor || '#ffffff';
-        const strokeColor = style.scoreLabelStrokeColor || '#333333';
-        const ringStep = (this.outerRadius - center.radius) / scale.rings;
-        for (let i = 0; i < scale.rings; i++) {
-          const label = scale.min + i;
-          const labelRadius = center.radius + ((i + 0.5) * ringStep);
-          const y = this.cy - labelRadius;
-          elements.push(\`<text x="\${this.cx}" y="\${y}" font-family="\${style.fontFamily}" font-size="\${fontSize}px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="\${fillColor}" stroke="\${strokeColor}" stroke-width="3" paint-order="stroke">\${label}</text>\`);
-        }
-        return \`<g class="score-labels">\${elements.join('\\n')}</g>\`;
-      }
-
-      renderSegmentBackgrounds() {
-        const { segments, center, startAngle } = this.config;
-        const segAngle = segmentAngle(segments.length);
-        const elements = [];
-        segments.forEach((segment, i) => {
-          const sStart = startAngle + i * segAngle;
-          const sEnd = sStart + segAngle;
-          const bgPath = segmentPath(this.cx, this.cy, center.radius, this.outerRadius, sStart, sEnd);
-          elements.push(\`<path d="\${bgPath}" fill="\${segment.color}" opacity="0.3" />\`);
-        });
-        return \`<g class="segment-backgrounds">\${elements.join('\\n')}</g>\`;
-      }
-
-      renderScoreFills() {
-        const { segments, center, scale, startAngle, style } = this.config;
-        const segAngle = segmentAngle(segments.length);
-        const elements = [];
-        segments.forEach((segment, segIndex) => {
-          const segStart = startAngle + segIndex * segAngle;
-          const segEnd = segStart + segAngle;
-          const facetAngleData = facetAngles(segStart, segEnd, segment.facets.length);
-          segment.facets.forEach((facet, facetIndex) => {
-            if (facet.score === undefined || facet.score === null) return;
-            const { startAngle: fStart, endAngle: fEnd } = facetAngleData[facetIndex];
-            const scoreRadius = scoreToRadius(facet.score, scale.min, scale.max, center.radius, this.outerRadius);
-            const fillPath = segmentPath(this.cx, this.cy, center.radius, scoreRadius, fStart, fEnd);
-            elements.push(\`<path d="\${fillPath}" fill="\${segment.color}" opacity="\${style.facetOpacity}" />\`);
-          });
-        });
-        return \`<g class="score-fills">\${elements.join('\\n')}</g>\`;
-      }
-
-      renderSegmentDividers() {
-        const { segments, center, startAngle, style } = this.config;
-        const segAngle = segmentAngle(segments.length);
-        const elements = [];
-        segments.forEach((_, i) => {
-          const angle = startAngle + i * segAngle;
-          const inner = polarToCartesian(this.cx, this.cy, center.radius, angle);
-          const outer = polarToCartesian(this.cx, this.cy, this.outerRadius, angle);
-          elements.push(\`<line x1="\${inner.x}" y1="\${inner.y}" x2="\${outer.x}" y2="\${outer.y}" stroke="\${style.segmentDividerColor}" stroke-width="\${style.segmentDividerWidth}" />\`);
-        });
-        return \`<g class="segment-dividers">\${elements.join('\\n')}</g>\`;
-      }
-
-      renderFacetDividers() {
-        const { segments, center, startAngle, style } = this.config;
-        const segAngle = segmentAngle(segments.length);
-        const elements = [];
-        segments.forEach((segment, segIndex) => {
-          const segStart = startAngle + segIndex * segAngle;
-          const segEnd = segStart + segAngle;
-          const facetAngleData = facetAngles(segStart, segEnd, segment.facets.length);
-          facetAngleData.forEach((facet, facetIndex) => {
-            if (facetIndex === 0) return;
-            const inner = polarToCartesian(this.cx, this.cy, center.radius, facet.startAngle);
-            const outer = polarToCartesian(this.cx, this.cy, this.outerRadius, facet.startAngle);
-            elements.push(\`<line x1="\${inner.x}" y1="\${inner.y}" x2="\${outer.x}" y2="\${outer.y}" stroke="\${style.segmentDividerColor}" stroke-width="1" opacity="0.5" />\`);
-          });
-          if (style.showFacetPoints && style.facetPointStyle !== 'none') {
-            facetAngleData.forEach((facetData) => {
-              const pointRadius = style.facetPointStyle === 'circle' ? 6 : 3;
-              const arcRadius = this.outerRadius - 20;
-              const point = polarToCartesian(this.cx, this.cy, arcRadius, facetData.midAngle);
-              elements.push(\`<circle cx="\${point.x}" cy="\${point.y}" r="\${pointRadius}" fill="white" stroke="\${style.segmentDividerColor}" stroke-width="1" />\`);
-            });
-          }
-        });
-        return \`<g class="facet-dividers">\${elements.join('\\n')}</g>\`;
-      }
-
-      renderCenterHub() {
-        const { center, style } = this.config;
-        if (center.visible === false) return '';
-        const elements = [];
-        const borderWidth = center.borderWidth || 0;
-        const borderColor = center.borderColor || '#ffffff';
-        if (borderWidth > 0) {
-          elements.push(\`<circle cx="\${this.cx}" cy="\${this.cy}" r="\${center.radius}" fill="\${center.color}" stroke="\${borderColor}" stroke-width="\${borderWidth}" />\`);
-        } else {
-          elements.push(\`<circle cx="\${this.cx}" cy="\${this.cy}" r="\${center.radius}" fill="\${center.color}" />\`);
-        }
-        const lines = center.label.split('\\n').map(s => s.trim());
-        const availableWidth = center.radius * 1.6;
-        const maxLineLength = Math.max(...lines.map(l => l.length));
-        const scaledFontSize = Math.floor(availableWidth / (maxLineLength * 0.6));
-        const lineHeight = scaledFontSize * 1.2;
-        const startY = this.cy - ((lines.length - 1) * lineHeight) / 2;
-        lines.forEach((line, i) => {
-          const safe = line.replace(/&/g, '&amp;');
-          const y = startY + i * lineHeight;
-          elements.push(\`<text x="\${this.cx}" y="\${y}" class="center-label" style="font-size: \${scaledFontSize}px" dominant-baseline="middle">\${safe}</text>\`);
-        });
-        return \`<g class="center-hub">\${elements.join('\\n')}</g>\`;
-      }
-
-      renderFacetLabels() {
-        const { segments, center, startAngle } = this.config;
-        const segAngle = segmentAngle(segments.length);
-        const elements = [];
-        const labelRadius = this.outerRadius - 20;
-        segments.forEach((segment, segIndex) => {
-          const segStart = startAngle + segIndex * segAngle;
-          const segEnd = segStart + segAngle;
-          const segMid = (segStart + segEnd) / 2;
-          const facetAngleData = facetAngles(segStart, segEnd, segment.facets.length);
-          const normalizedSegMid = ((segMid % 360) + 360) % 360;
-          const needsFlip = normalizedSegMid > 90 && normalizedSegMid <= 270;
-          const rotationOffset = needsFlip ? 180 : 0;
-          const isTopHalf = normalizedSegMid <= 90 || normalizedSegMid > 270;
-          const anchor = isTopHalf ? 'end' : 'start';
-          segment.facets.forEach((facet, facetIndex) => {
-            const { midAngle } = facetAngleData[facetIndex];
-            const rotation = midAngle + rotationOffset;
-            const pos = polarToCartesian(this.cx, this.cy, labelRadius, midAngle);
-            const safeName = facet.name.replace(/&/g, '&amp;');
-            const lines = safeName.split('\\n');
-            let inner;
-            if (lines.length === 1) {
-              inner = safeName;
-            } else {
-              const firstDy = -((lines.length - 1) * 0.6);
-              inner = lines.map((line, i) => {
-                const dy = i === 0 ? \`\${firstDy}em\` : '1.2em';
-                return \`<tspan x="\${pos.x}" dy="\${dy}">\${line}</tspan>\`;
-              }).join('');
-            }
-            elements.push(\`<text x="\${pos.x}" y="\${pos.y}" class="facet-label" text-anchor="\${anchor}" dominant-baseline="middle" transform="rotate(\${rotation}, \${pos.x}, \${pos.y})">\${inner}</text>\`);
-          });
-        });
-        return \`<g class="facet-labels">\${elements.join('\\n')}</g>\`;
-      }
-
-      renderSegmentLabels() {
-        if ((this.config.style.segmentLabelPosition || 'outer') === 'inner') {
-          return this.renderSegmentLabelsInner();
-        }
-        return this.renderSegmentLabelsOuter();
-      }
-
-      scaleSegmentFontSize(segments, segAngle, textRadius, baseFontSize) {
-        const arcLength = textRadius * (segAngle - 6) * (Math.PI / 180);
-        const longestLineLength = Math.max(...segments.flatMap(s => s.name.split('\\n').map(l => l.length)));
-        const estTextWidth = (longestLineLength + 1) * baseFontSize * 0.6;
-        return estTextWidth > arcLength ? Math.floor(baseFontSize * (arcLength / estTextWidth)) : baseFontSize;
-      }
-
-      emitSegmentLabelLines(defs, texts, pathIdBase, segStart, segEnd, midAngle, textRadius, fontSize, rawName) {
-        const segAngle = segEnd - segStart;
-        const safe = rawName.replace(/&/g, '&amp;');
-        const lines = safe.split('\\n');
-        const lineHeight = fontSize * 1.2;
-        const normalizedMid = ((midAngle % 360) + 360) % 360;
-        const useClockwise = normalizedMid < 15 || normalizedMid > 165;
-        const sign = useClockwise ? -1 : 1;
-        const largeArc = segAngle - 6 > 180 ? 1 : 0;
-        lines.forEach((line, idx) => {
-          const offset = sign * (idx - (lines.length - 1) / 2) * lineHeight;
-          const lineRadius = textRadius + offset;
-          const linePathId = \`\${pathIdBase}-\${idx}\`;
-          if (useClockwise) {
-            const s = polarToCartesian(this.cx, this.cy, lineRadius, segStart + 3);
-            const e = polarToCartesian(this.cx, this.cy, lineRadius, segEnd - 3);
-            defs.push(\`<path id="\${linePathId}" d="M \${s.x} \${s.y} A \${lineRadius} \${lineRadius} 0 \${largeArc} 1 \${e.x} \${e.y}" fill="none" />\`);
-          } else {
-            const s = polarToCartesian(this.cx, this.cy, lineRadius, segEnd - 3);
-            const e = polarToCartesian(this.cx, this.cy, lineRadius, segStart + 3);
-            defs.push(\`<path id="\${linePathId}" d="M \${s.x} \${s.y} A \${lineRadius} \${lineRadius} 0 \${largeArc} 0 \${e.x} \${e.y}" fill="none" />\`);
-          }
-          texts.push(\`<text class="segment-label" fill="white" style="font-size: \${fontSize}px"><textPath href="#\${linePathId}" startOffset="50%" text-anchor="middle">\${line}</textPath></text>\`);
-        });
-      }
-
-      renderSegmentLabelsInner() {
-        const { segments, startAngle, style, center } = this.config;
-        const segAngle = segmentAngle(segments.length);
-        const defs = [];
-        const backgrounds = [];
-        const dividers = [];
-        const texts = [];
-        const baseFontSize = style.segmentFontSize || 28;
-        const phi = 1.618;
-        const maxLines = Math.max(...segments.map(s => s.name.split('\\n').length));
-        const arcThickness = (baseFontSize * phi) + baseFontSize + (maxLines - 1) * baseFontSize * 1.2;
-        const dividerWidth = style.segmentDividerWidth || 4;
-        const innerLabelRadius = center.radius + (dividerWidth / 2);
-        const outerLabelRadius = innerLabelRadius + arcThickness;
-        const textRadius = innerLabelRadius + (arcThickness / 2);
-        const scaledFontSize = this.scaleSegmentFontSize(segments, segAngle, textRadius, baseFontSize);
-
-        segments.forEach((segment, i) => {
-          const segStart = startAngle + i * segAngle;
-          const segEnd = segStart + segAngle;
-          const midAngle = (segStart + segEnd) / 2;
-          const pathId = \`segment-path-\${i}\`;
-          const bgPath = segmentPath(this.cx, this.cy, innerLabelRadius, outerLabelRadius, segStart, segEnd);
-          backgrounds.push(\`<path d="\${bgPath}" fill="\${segment.labelColor || segment.color}" />\`);
-          if (style.showSegmentDividers) {
-            const inner = polarToCartesian(this.cx, this.cy, innerLabelRadius, segStart);
-            const outer = polarToCartesian(this.cx, this.cy, outerLabelRadius, segStart);
-            dividers.push(\`<line x1="\${inner.x}" y1="\${inner.y}" x2="\${outer.x}" y2="\${outer.y}" stroke="\${style.segmentDividerColor}" stroke-width="\${style.segmentDividerWidth}" />\`);
-          }
-          this.emitSegmentLabelLines(defs, texts, pathId, segStart, segEnd, midAngle, textRadius, scaledFontSize, segment.name);
-        });
-        const ringDividers = style.showSegmentDividers
-          ? [
-              \`<circle cx="\${this.cx}" cy="\${this.cy}" r="\${innerLabelRadius}" fill="none" stroke="\${style.segmentDividerColor}" stroke-width="\${dividerWidth}" />\`,
-              \`<circle cx="\${this.cx}" cy="\${this.cy}" r="\${outerLabelRadius}" fill="none" stroke="\${style.segmentDividerColor}" stroke-width="\${dividerWidth}" />\`
-            ].join('\\n')
-          : '';
-        return \`<defs>\${defs.join('\\n')}</defs>\\n<g class="segment-label-backgrounds">\${backgrounds.join('\\n')}</g>\\n\${ringDividers}\\n<g class="segment-label-dividers">\${dividers.join('\\n')}</g>\\n<g class="segment-labels">\${texts.join('\\n')}</g>\`;
-      }
-
-      renderSegmentLabelsOuter() {
-        const { segments, startAngle, style } = this.config;
-        const segAngle = segmentAngle(segments.length);
-        const defs = [];
-        const backgrounds = [];
-        const dividers = [];
-        const texts = [];
-        const baseFontSize = style.segmentFontSize || 28;
-        const phi = 1.618;
-        const maxLines = Math.max(...segments.map(s => s.name.split('\\n').length));
-        const arcThickness = (baseFontSize * phi) + baseFontSize + (maxLines - 1) * baseFontSize * 1.2;
-        const dividerWidth = style.segmentDividerWidth || 4;
-        const innerLabelRadius = this.outerRadius + (dividerWidth / 2);
-        const outerLabelRadius = innerLabelRadius + arcThickness;
-        const textRadius = innerLabelRadius + (arcThickness / 2);
-        const scaledFontSize = this.scaleSegmentFontSize(segments, segAngle, textRadius, baseFontSize);
-
-        segments.forEach((segment, i) => {
-          const segStart = startAngle + i * segAngle;
-          const segEnd = segStart + segAngle;
-          const midAngle = (segStart + segEnd) / 2;
-          const pathId = \`segment-path-\${i}\`;
-          const bgPath = segmentPath(this.cx, this.cy, innerLabelRadius, outerLabelRadius, segStart, segEnd);
-          backgrounds.push(\`<path d="\${bgPath}" fill="\${segment.labelColor || segment.color}" />\`);
-          if (style.showSegmentDividers) {
-            const inner = polarToCartesian(this.cx, this.cy, innerLabelRadius, segStart);
-            const outer = polarToCartesian(this.cx, this.cy, outerLabelRadius, segStart);
-            dividers.push(\`<line x1="\${inner.x}" y1="\${inner.y}" x2="\${outer.x}" y2="\${outer.y}" stroke="\${style.segmentDividerColor}" stroke-width="\${style.segmentDividerWidth}" />\`);
-          }
-          this.emitSegmentLabelLines(defs, texts, pathId, segStart, segEnd, midAngle, textRadius, scaledFontSize, segment.name);
-        });
-
-        const ringDivider = style.showSegmentDividers
-          ? \`<circle cx="\${this.cx}" cy="\${this.cy}" r="\${this.outerRadius}" fill="none" stroke="\${style.segmentDividerColor}" stroke-width="\${dividerWidth}" />\`
-          : '';
-        return \`<defs>\${defs.join('\\n')}</defs>\\n\${ringDivider}\\n<g class="segment-label-backgrounds">\${backgrounds.join('\\n')}</g>\\n<g class="segment-label-dividers">\${dividers.join('\\n')}</g>\\n<g class="segment-labels">\${texts.join('\\n')}</g>\`;
-      }
-    }
-
-    // ============================================================
-    // Application
-    // ============================================================
-
-    let currentSVG = '';
-
-    const exampleConfig = ${JSON.stringify(exampleConfig, null, 2).split('\n').map((line, i) => i === 0 ? line : '    ' + line).join('\n')};
-
-    document.addEventListener('DOMContentLoaded', function() {
-      document.getElementById('config-editor').value = JSON.stringify(exampleConfig, null, 2);
-      renderDiagram();
-    });
-
-    function isColorDark(color) {
-      let hex = color.replace('#', '');
-      if (hex.length === 3) hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
-      if (hex.length < 6) return false;
-      const r = parseInt(hex.substring(0, 2), 16);
-      const g = parseInt(hex.substring(2, 4), 16);
-      const b = parseInt(hex.substring(4, 6), 16);
-      const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-      return luminance < 0.5;
-    }
-
-    function renderDiagram() {
-      const errorEl = document.getElementById('error');
-      const previewEl = document.getElementById('preview');
-      try {
-        const configText = document.getElementById('config-editor').value;
-        const config = JSON.parse(configText);
-        const fullConfig = createConfig(config);
-        const renderer = new SVGRenderer(fullConfig);
-        currentSVG = renderer.render();
-        previewEl.innerHTML = currentSVG;
-        errorEl.textContent = '';
-        const bgColor = config.style?.backgroundColor || '#ffffff';
-        previewEl.style.backgroundColor = bgColor;
-        previewEl.classList.toggle('dark', isColorDark(bgColor));
-      } catch (e) {
-        errorEl.textContent = 'Error: ' + e.message;
-      }
-    }
-
-    function downloadSVG() {
-      if (!currentSVG) { alert('Please render a diagram first'); return; }
-      const blob = new Blob([currentSVG], { type: 'image/svg+xml' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'radial-diagram.svg';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-
-    function downloadPNG() {
-      if (!currentSVG) { alert('Please render a diagram first'); return; }
-      let bgColor = '#ffffff', size = 800;
-      try {
-        const config = JSON.parse(document.getElementById('config-editor').value);
-        bgColor = config.style?.backgroundColor || '#ffffff';
-        size = config.size || 800;
-      } catch (e) {}
-      try {
-        const svgEl = document.querySelector('#preview svg');
-        if (!svgEl) { alert('No SVG found. Please render a diagram first.'); return; }
-        const svgClone = svgEl.cloneNode(true);
-        svgClone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-        const serializer = new XMLSerializer();
-        const svgString = serializer.serializeToString(svgClone);
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const img = new Image();
-        const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
-        const svgUrl = URL.createObjectURL(svgBlob);
-        img.onload = function() {
-          try {
-            const scale = 2;
-            const canvasSize = (size + 140) * scale;
-            canvas.width = canvasSize;
-            canvas.height = canvasSize;
-            ctx.fillStyle = bgColor;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            URL.revokeObjectURL(svgUrl);
-            canvas.toBlob(function(blob) {
-              if (!blob) { alert('Failed to generate PNG.'); return; }
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = 'radial-diagram.png';
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
-              URL.revokeObjectURL(url);
-            }, 'image/png');
-          } catch (err) {
-            URL.revokeObjectURL(svgUrl);
-            alert('Failed to render PNG: ' + err.message);
-          }
-        };
-        img.onerror = function() {
-          URL.revokeObjectURL(svgUrl);
-          alert('Failed to load SVG for PNG conversion.');
-        };
-        img.src = svgUrl;
-      } catch (err) {
-        alert('Failed to export PNG: ' + err.message);
-      }
-    }
-  </script>
-</body>
-</html>
-`;
-
+// ---------- Write ----------
 writeFileSync(join(ROOT, 'demo/radial-diagram.html'), html);
-console.log('Built demo/radial-diagram.html');
+console.log('Built demo/radial-diagram.html from demo/editor.html + dist/');

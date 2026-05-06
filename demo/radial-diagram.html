@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
-  Radial Diagram Generator - Single File Version
+  Radial Diagram Generator - Single-file editor.
 
-  AUTO-GENERATED FILE - Do not edit directly!
-  Run: npm run build:standalone
+  AUTO-GENERATED from demo/editor.html and dist/. Do not edit directly.
+  Run: npm run build
 
   @license MIT
   @copyright 2026 CGA Management Ltd
@@ -13,89 +13,180 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Radial Diagram Generator</title>
+  <title>Radial Diagram - Editor</title>
   <style>
     * { box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       margin: 0;
-      padding: 20px;
+      padding: 16px;
       background: #f5f5f5;
-      color: #333;
+      color: #222;
+      font-size: 14px;
     }
-    h1 { margin: 0 0 20px; font-size: 24px; }
-    .container {
-      display: flex;
-      gap: 20px;
+    h1 { margin: 0 0 12px; font-size: 22px; }
+    .layout {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 16px;
       max-width: 1400px;
       margin: 0 auto;
     }
-    .editor-panel, .preview-panel {
-      flex: 1;
-      min-width: 400px;
-    }
-    textarea {
-      width: 100%;
-      height: 600px;
-      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-      font-size: 12px;
-      padding: 12px;
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+
+    /* Form panel */
+    .form-panel {
+      background: white;
       border: 1px solid #ddd;
       border-radius: 4px;
-      resize: vertical;
+      max-height: calc(100vh - 100px);
+      overflow-y: auto;
     }
+    .form-panel details {
+      border-bottom: 1px solid #eee;
+    }
+    .form-panel details:last-child { border-bottom: 0; }
+    .form-panel summary {
+      cursor: pointer;
+      padding: 10px 14px;
+      font-weight: 600;
+      font-size: 13px;
+      list-style: none;
+      user-select: none;
+      background: #fafafa;
+    }
+    .form-panel summary::-webkit-details-marker { display: none; }
+    .form-panel summary::before {
+      content: '▸';
+      display: inline-block;
+      width: 14px;
+      transition: transform 0.15s;
+      color: #888;
+    }
+    .form-panel details[open] > summary::before { transform: rotate(90deg); }
+    .section-body { padding: 8px 14px 12px; }
+
+    .row { display: grid; grid-template-columns: 110px 1fr; gap: 8px; align-items: center; margin: 5px 0; }
+    .row > label { font-size: 12px; color: #444; }
+    .row input[type="text"],
+    .row input[type="number"],
+    .row select,
+    .row textarea {
+      width: 100%;
+      padding: 4px 6px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      font: inherit;
+      font-size: 12px;
+    }
+    .row textarea { resize: vertical; min-height: 36px; font-family: inherit; }
+    .row input[type="color"] { width: 40px; height: 28px; padding: 0; border: 1px solid #ccc; border-radius: 3px; cursor: pointer; vertical-align: middle; }
+    .row input[type="checkbox"] { margin: 0; }
+    .color-pair { display: flex; gap: 6px; align-items: center; }
+    .color-pair input[type="text"] { flex: 1; font-family: 'Monaco', 'Menlo', monospace; }
+
+    /* Segments */
+    .seg-card {
+      border: 1px solid #e0e0e0;
+      border-left: 4px solid #999;
+      border-radius: 3px;
+      margin: 6px 0;
+      background: #fdfdfd;
+    }
+    .seg-card > summary {
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .seg-card .section-body { padding: 6px 10px 10px; }
+    .seg-card .actions { margin: 6px 0 0; display: flex; gap: 6px; flex-wrap: wrap; }
+    .facet-list { margin-top: 8px; padding-left: 0; list-style: none; }
+    .facet-row {
+      display: grid;
+      grid-template-columns: 1fr 60px auto;
+      gap: 6px;
+      margin: 4px 0;
+      padding: 4px;
+      background: #f7f7f7;
+      border-radius: 3px;
+      align-items: center;
+    }
+    .facet-row textarea { min-height: 28px; font-size: 12px; }
+    .facet-row .score-cell { display: flex; gap: 4px; align-items: center; }
+    .facet-row input[type="number"] { width: 50px; }
+
+    button {
+      padding: 4px 10px;
+      font-size: 12px;
+      border: 1px solid #bbb;
+      background: white;
+      color: #333;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    button:hover { background: #f0f0f0; }
+    button.primary { background: #4a90d9; color: white; border-color: #4a90d9; }
+    button.primary:hover { background: #357abd; }
+    button.danger { color: #c00; border-color: #e0a0a0; }
+    button.danger:hover { background: #ffe8e8; }
+    button.tiny { padding: 2px 6px; font-size: 11px; }
+
+    .toolbar {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      padding: 10px 14px;
+      border-bottom: 1px solid #eee;
+      background: white;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    /* Preview panel */
+    .preview-panel { display: flex; flex-direction: column; gap: 12px; }
     .preview-container {
       background: white;
       border: 1px solid #ddd;
       border-radius: 4px;
-      padding: 20px;
+      padding: 16px;
       text-align: center;
-      transition: background-color 0.3s;
+      min-height: 400px;
     }
-    .preview-container.dark { border-color: #444; }
     .preview-container svg { max-width: 100%; height: auto; }
-    .buttons {
-      margin: 10px 0;
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    button {
-      padding: 8px 16px;
-      font-size: 14px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      background: #4a90d9;
-      color: white;
-    }
-    button:hover { background: #357abd; }
-    button.secondary { background: #666; }
-    button.secondary:hover { background: #555; }
-    .error { color: #c00; font-size: 12px; margin-top: 8px; }
-    .help { font-size: 12px; color: #666; margin-top: 8px; }
-    footer {
-      max-width: 1400px;
-      margin: 40px auto 20px;
-      padding-top: 20px;
-      border-top: 1px solid #ddd;
-      text-align: center;
-      font-size: 13px;
-      color: #666;
-    }
-    footer a { color: #4a90d9; text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
-    @media (max-width: 900px) {
-      .container { flex-direction: column; }
-      .editor-panel, .preview-panel { min-width: 100%; }
-    }
-    .docs {
-      max-width: 1400px;
-      margin: 30px auto 0;
+    .json-panel {
       background: white;
       border: 1px solid #ddd;
       border-radius: 4px;
-      padding: 0;
+    }
+    .json-panel summary {
+      cursor: pointer;
+      padding: 8px 14px;
+      font-weight: 600;
+      font-size: 13px;
+      list-style: none;
+    }
+    .json-panel summary::-webkit-details-marker { display: none; }
+    .json-panel textarea {
+      width: 100%;
+      min-height: 280px;
+      padding: 10px;
+      border: 0;
+      border-top: 1px solid #eee;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 11px;
+      resize: vertical;
+    }
+    .error { color: #c00; padding: 6px 14px; font-size: 12px; }
+    .help { font-size: 11px; color: #888; margin-top: 4px; }
+
+    /* Docs panel (mirrors the textarea-standalone reference) */
+    .docs {
+      max-width: 1400px;
+      margin: 16px auto 0;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 4px;
     }
     .docs > summary {
       cursor: pointer;
@@ -141,53 +232,50 @@
       border-radius: 3px;
       font-size: 11.5px;
     }
-    .docs-body pre {
-      background: #f4f4f4;
-      padding: 10px 12px;
-      border-radius: 4px;
-      overflow-x: auto;
-      font-size: 11.5px;
-    }
   </style>
 </head>
 <body>
-  <h1>Radial Diagram Generator</h1>
+  <h1>Radial Diagram - Editor</h1>
 
-  <div class="container">
-    <div class="editor-panel">
-      <h3>Configuration (JSON)</h3>
-      <textarea id="config-editor" spellcheck="false"></textarea>
-      <div class="buttons">
-        <button onclick="renderDiagram()">Render</button>
-        <button class="secondary" onclick="downloadSVG()">Download SVG</button>
-        <button class="secondary" onclick="downloadPNG()">Download PNG</button>
+  <div class="layout">
+    <div class="form-panel">
+      <div class="toolbar">
+        <button class="primary" id="btn-render">Render</button>
+        <button id="btn-import-file">Import JSON…</button>
+        <button id="btn-download-svg">Download SVG</button>
+        <button id="btn-download-png">Download PNG</button>
+        <button id="btn-download-json">Download JSON</button>
+        <button id="btn-reset">Reset</button>
+        <input type="file" id="file-input" accept="application/json,.json" style="display:none">
       </div>
-      <div id="error" class="error"></div>
-      <div class="help">
-        Edit the JSON configuration - click Render to update.
-        Scores range from 1-5 (or as defined in scale). Set score to null to hide fill.
-      </div>
+      <div id="form-root"></div>
+      <div id="form-error" class="error"></div>
     </div>
 
     <div class="preview-panel">
-      <h3>Preview</h3>
-      <div class="preview-container" id="preview">
-        <p style="color: #999;">Click "Render" to generate diagram</p>
-      </div>
+      <div class="preview-container" id="preview"><p style="color:#999">Loading…</p></div>
+      <details class="json-panel">
+        <summary>JSON (paste here and click Apply to load)</summary>
+        <div style="padding:8px 14px; display:flex; gap:6px; border-top:1px solid #eee;">
+          <button id="btn-apply-json" class="primary">Apply JSON</button>
+          <span id="json-status" style="font-size:11px; color:#888; align-self:center;"></span>
+        </div>
+        <textarea id="json-view" spellcheck="false"></textarea>
+      </details>
     </div>
   </div>
 
   <details class="docs">
     <summary>Configuration reference</summary>
     <div class="docs-body">
-      <p>The diagram is configured via a single JSON object. Edit the textarea above to try any of these options live.</p>
+      <p>Every form field corresponds to one JSON property. The reference below documents each.</p>
 
       <h3>Top-level</h3>
       <table>
         <tr><th>Property</th><th>Type</th><th>Description</th></tr>
         <tr><td><code>size</code></td><td>number</td><td>Diagram width &amp; height in pixels.</td></tr>
         <tr><td><code>startAngle</code></td><td>number</td><td>Angle (degrees) where the first segment begins. <code>-90</code> is the top.</td></tr>
-        <tr><td><code>center</code></td><td>object</td><td>Centre hub configuration. See below.</td></tr>
+        <tr><td><code>center</code></td><td>object</td><td>Centre hub configuration.</td></tr>
         <tr><td><code>scale</code></td><td>object</td><td>Score scale (min, max, ring count).</td></tr>
         <tr><td><code>segments</code></td><td>array</td><td>The dimensions / wedges. Each contains facets.</td></tr>
         <tr><td><code>style</code></td><td>object</td><td>All visual styling options.</td></tr>
@@ -231,259 +319,417 @@
         <tr><td><code>description</code></td><td>string</td><td>Optional tooltip text.</td></tr>
       </table>
 
-      <h3>style</h3>
-
-      <h4>Segment labels</h4>
-      <table>
-        <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
-        <tr><td><code>segmentFontSize</code></td><td>number</td><td><code>28</code></td><td>Font size for dimension labels.</td></tr>
-        <tr><td><code>segmentLabelPosition</code></td><td>string</td><td><code>outer</code></td><td><code>outer</code> (default) puts the labelled colour band outside the wheel. <code>inner</code> puts it around the centre hub — best for framework-style diagrams.</td></tr>
-      </table>
-
-      <h4>Segment dividers</h4>
-      <table>
-        <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
-        <tr><td><code>showSegmentDividers</code></td><td>boolean</td><td><code>true</code></td><td>Show divider lines between segments &amp; on band edges.</td></tr>
-        <tr><td><code>segmentDividerWidth</code></td><td>number</td><td><code>2</code></td><td>Divider stroke width.</td></tr>
-        <tr><td><code>segmentDividerColor</code></td><td>string</td><td><code>#ffffff</code></td><td>Divider stroke colour.</td></tr>
-      </table>
-
-      <h4>Hub text</h4>
-      <table>
-        <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
-        <tr><td><code>hubFontSize</code></td><td>number</td><td><code>14</code></td><td>Hub label font size.</td></tr>
-        <tr><td><code>hubFontColor</code></td><td>string</td><td><code>#ffffff</code></td><td>Hub label colour.</td></tr>
-      </table>
-
-      <h4>Facets</h4>
-      <table>
-        <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
-        <tr><td><code>facetFontSize</code></td><td>number</td><td><code>11</code></td><td>Facet label font size.</td></tr>
-        <tr><td><code>facetFontColor</code></td><td>string</td><td>—</td><td>Facet label colour. Hex with alpha supported.</td></tr>
-        <tr><td><code>facetOpacity</code></td><td>number</td><td><code>1</code></td><td>Opacity of the score-fill area (0–1).</td></tr>
-        <tr><td><code>showFacetPoints</code></td><td>boolean</td><td><code>true</code></td><td>Show point markers at the score level.</td></tr>
-        <tr><td><code>facetPointStyle</code></td><td>string</td><td><code>circle</code></td><td><code>circle</code>, <code>dot</code>, or <code>none</code>.</td></tr>
-      </table>
-
-      <h4>Rings &amp; score labels</h4>
-      <table>
-        <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
-        <tr><td><code>showRings</code></td><td>boolean</td><td><code>true</code></td><td>Show concentric ring circles.</td></tr>
-        <tr><td><code>ringColor</code></td><td>string</td><td><code>#cccccc</code></td><td>Ring colour.</td></tr>
-        <tr><td><code>ringWidth</code></td><td>number</td><td><code>1</code></td><td>Ring stroke width.</td></tr>
-        <tr><td><code>ringStyle</code></td><td>string</td><td><code>dashed</code></td><td><code>solid</code> or <code>dashed</code>.</td></tr>
-        <tr><td><code>showScoreLabels</code></td><td>boolean</td><td><code>false</code></td><td>Show numeric score labels (1, 2, …).</td></tr>
-        <tr><td><code>scoreLabelFontSize</code></td><td>number</td><td><code>14</code></td><td>Score label font size.</td></tr>
-        <tr><td><code>scoreLabelColor</code></td><td>string</td><td><code>#ffffff</code></td><td>Score label fill colour.</td></tr>
-        <tr><td><code>scoreLabelStrokeColor</code></td><td>string</td><td><code>#333333</code></td><td>Score label outline colour.</td></tr>
-      </table>
-
-      <h4>General</h4>
-      <table>
-        <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
-        <tr><td><code>fontFamily</code></td><td>string</td><td><code>Arial, sans-serif</code></td><td>Font family for all text.</td></tr>
-        <tr><td><code>backgroundColor</code></td><td>string</td><td>—</td><td>Page background. Transparent if not set.</td></tr>
-      </table>
+      <h3>Style options</h3>
+      <p>Style options are grouped in the form panel above. Notable ones:</p>
+      <ul>
+        <li><code>segmentLabelPosition</code> — <code>outer</code> (band outside the wheel, default) or <code>inner</code> (band wraps the centre hub, best for framework diagrams).</li>
+        <li><code>backgroundColor</code> — page background. Leave blank for transparent.</li>
+        <li><code>showRings</code> + <code>showScoreLabels</code> — toggles for the radar-chart-style score visualisation.</li>
+        <li><code>fontFamily</code>, <code>segmentFontSize</code>, <code>facetFontSize</code>, <code>hubFontSize</code> — typography overrides.</li>
+      </ul>
 
       <h3>Multi-line labels</h3>
       <p><code>\n</code> produces a line break in <code>center.label</code>, segment names, and facet names. Centre hub and facet labels stack vertically; segment labels stack along the radius of the label band, each line on its own curved arc.</p>
-
-      <h3>Inner vs outer label position</h3>
-      <p><code>style.segmentLabelPosition</code> controls where the dimension labels sit:</p>
-      <ul>
-        <li><code>"outer"</code> (default) — the labelled colour band sits outside the wheel. Best for assessments where the wedge area visualises scoring.</li>
-        <li><code>"inner"</code> — the labelled band sits between the centre hub and the facet area, with ring dividers on both edges. Best for framework-style diagrams. Note: the inner band visually overlays the inner part of the wedge, so partial score fills may be hidden behind it.</li>
-      </ul>
     </div>
   </details>
 
-  <footer>
-    Built by <a href="https://cgamanagement.co.uk/category/tools/" target="_blank" rel="noopener">CGA Management Ltd</a>.
-    <a href="https://github.com/andycop/radial-diagram" target="_blank" rel="noopener">GitHub</a> |
-    Licensed under MIT.
-  </footer>
-
   <script>
-    // ============================================================
-    // Geometry Utilities (from src/core/geometry.ts)
-    // ============================================================
 
-    function polarToCartesian(cx, cy, radius, angleDegrees) {
-      const angleRadians = (angleDegrees * Math.PI) / 180;
-      return {
+    // ============================================================
+    // Inlined renderer (auto-generated from dist/ — do not edit)
+    // ============================================================
+/**
+ * Geometry utilities for circular diagram calculations
+ *
+ * @license MIT
+ * @copyright 2026 CGA Management Ltd
+ * @see https://www.cgamanagement.co.uk/category/tools
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+/**
+ * Convert polar coordinates to Cartesian (SVG) coordinates
+ * @param cx Center X
+ * @param cy Center Y
+ * @param radius Distance from center
+ * @param angleDegrees Angle in degrees (0 = right, 90 = down in SVG coords)
+ */
+function polarToCartesian(cx, cy, radius, angleDegrees) {
+    const angleRadians = (angleDegrees * Math.PI) / 180;
+    return {
         x: cx + radius * Math.cos(angleRadians),
-        y: cy + radius * Math.sin(angleRadians)
-      };
-    }
-
-    function segmentPath(cx, cy, innerRadius, outerRadius, startAngle, endAngle) {
-      const outerStart = polarToCartesian(cx, cy, outerRadius, startAngle);
-      const outerEnd = polarToCartesian(cx, cy, outerRadius, endAngle);
-      const innerStart = polarToCartesian(cx, cy, innerRadius, startAngle);
-      const innerEnd = polarToCartesian(cx, cy, innerRadius, endAngle);
-      const angleDiff = endAngle - startAngle;
-      const largeArcFlag = Math.abs(angleDiff) > 180 ? 1 : 0;
-
-      if (innerRadius === 0) {
+        y: cy + radius * Math.sin(angleRadians),
+    };
+}
+/**
+ * Generate SVG arc path data
+ * @param cx Center X
+ * @param cy Center Y
+ * @param radius Arc radius
+ * @param startAngle Start angle in degrees
+ * @param endAngle End angle in degrees
+ * @returns SVG path d attribute for the arc
+ */
+function describeArc(cx, cy, radius, startAngle, endAngle) {
+    const start = polarToCartesian(cx, cy, radius, startAngle);
+    const end = polarToCartesian(cx, cy, radius, endAngle);
+    // Determine if arc should be drawn the "long way" around
+    const angleDiff = endAngle - startAngle;
+    const largeArcFlag = Math.abs(angleDiff) > 180 ? 1 : 0;
+    // Sweep direction (1 = clockwise in SVG)
+    const sweepFlag = angleDiff > 0 ? 1 : 0;
+    return `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArcFlag} ${sweepFlag} ${end.x} ${end.y}`;
+}
+/**
+ * Generate SVG path for a filled segment (pie slice or ring segment)
+ * @param cx Center X
+ * @param cy Center Y
+ * @param innerRadius Inner radius (0 for full pie slice)
+ * @param outerRadius Outer radius
+ * @param startAngle Start angle in degrees
+ * @param endAngle End angle in degrees
+ * @returns SVG path d attribute for the filled segment
+ */
+function segmentPath(cx, cy, innerRadius, outerRadius, startAngle, endAngle) {
+    const outerStart = polarToCartesian(cx, cy, outerRadius, startAngle);
+    const outerEnd = polarToCartesian(cx, cy, outerRadius, endAngle);
+    const innerStart = polarToCartesian(cx, cy, innerRadius, startAngle);
+    const innerEnd = polarToCartesian(cx, cy, innerRadius, endAngle);
+    const angleDiff = endAngle - startAngle;
+    const largeArcFlag = Math.abs(angleDiff) > 180 ? 1 : 0;
+    if (innerRadius === 0) {
+        // Full pie slice from center
         return [
-          `M ${cx} ${cy}`,
-          `L ${outerStart.x} ${outerStart.y}`,
-          `A ${outerRadius} ${outerRadius} 0 ${largeArcFlag} 1 ${outerEnd.x} ${outerEnd.y}`,
-          'Z'
+            `M ${cx} ${cy}`,
+            `L ${outerStart.x} ${outerStart.y}`,
+            `A ${outerRadius} ${outerRadius} 0 ${largeArcFlag} 1 ${outerEnd.x} ${outerEnd.y}`,
+            'Z',
         ].join(' ');
-      }
-
-      return [
+    }
+    // Ring segment (donut slice)
+    return [
         `M ${outerStart.x} ${outerStart.y}`,
         `A ${outerRadius} ${outerRadius} 0 ${largeArcFlag} 1 ${outerEnd.x} ${outerEnd.y}`,
         `L ${innerEnd.x} ${innerEnd.y}`,
         `A ${innerRadius} ${innerRadius} 0 ${largeArcFlag} 0 ${innerStart.x} ${innerStart.y}`,
-        'Z'
-      ].join(' ');
+        'Z',
+    ].join(' ');
+}
+/**
+ * Generate SVG path for a filled arc segment within a facet
+ * Used for showing scores as filled arcs
+ * @param cx Center X
+ * @param cy Center Y
+ * @param innerRadius Inner radius (center hub edge)
+ * @param outerRadius Outer radius (based on score)
+ * @param startAngle Start angle of facet
+ * @param endAngle End angle of facet
+ */
+function facetScorePath(cx, cy, innerRadius, outerRadius, startAngle, endAngle) {
+    return segmentPath(cx, cy, innerRadius, outerRadius, startAngle, endAngle);
+}
+/**
+ * Calculate the angle span for each segment
+ * @param segmentCount Number of segments (must be > 0)
+ * @returns Angle in degrees per segment
+ * @throws Error if segmentCount is not greater than 0
+ */
+function segmentAngle(segmentCount) {
+    if (segmentCount <= 0) {
+        throw new Error('segmentCount must be greater than 0');
     }
-
-    function segmentAngle(segmentCount) {
-      if (segmentCount <= 0) throw new Error('segmentCount must be greater than 0');
-      return 360 / segmentCount;
+    return 360 / segmentCount;
+}
+/**
+ * Calculate angles for facets within a segment
+ * @param segmentStartAngle Start angle of the segment
+ * @param segmentEndAngle End angle of the segment
+ * @param facetCount Number of facets in segment (must be > 0)
+ * @returns Array of { startAngle, endAngle, midAngle } for each facet
+ * @throws Error if facetCount is not greater than 0
+ */
+function facetAngles(segmentStartAngle, segmentEndAngle, facetCount) {
+    if (facetCount <= 0) {
+        throw new Error('facetCount must be greater than 0');
     }
-
-    function facetAngles(segmentStartAngle, segmentEndAngle, facetCount) {
-      if (facetCount <= 0) throw new Error('facetCount must be greater than 0');
-      const totalAngle = segmentEndAngle - segmentStartAngle;
-      const facetAngleSpan = totalAngle / facetCount;
-      return Array.from({ length: facetCount }, (_, i) => {
+    const totalAngle = segmentEndAngle - segmentStartAngle;
+    const facetAngleSpan = totalAngle / facetCount;
+    return Array.from({ length: facetCount }, (_, i) => {
         const startAngle = segmentStartAngle + i * facetAngleSpan;
         const endAngle = startAngle + facetAngleSpan;
         const midAngle = (startAngle + endAngle) / 2;
         return { startAngle, endAngle, midAngle };
-      });
+    });
+}
+/**
+ * Calculate radius for a given score level
+ * Uses level-based calculation where score 1 = 1/5, score 5 = 5/5 (for 1-5 scale)
+ * @param score The score value (will be clamped to valid range)
+ * @param minScore Minimum score in scale
+ * @param maxScore Maximum score in scale
+ * @param innerRadius Radius of center hub
+ * @param outerRadius Maximum outer radius
+ * @throws Error if minScore > maxScore or innerRadius >= outerRadius
+ */
+function scoreToRadius(score, minScore, maxScore, innerRadius, outerRadius) {
+    if (minScore > maxScore) {
+        throw new Error('minScore must be less than or equal to maxScore');
     }
-
-    function scoreToRadius(score, minScore, maxScore, innerRadius, outerRadius) {
-      if (minScore > maxScore) throw new Error('minScore must be <= maxScore');
-      if (innerRadius >= outerRadius) throw new Error('innerRadius must be < outerRadius');
-      if (minScore === maxScore) return outerRadius;
-      const clampedScore = Math.max(minScore, Math.min(maxScore, score));
-      const levels = maxScore - minScore + 1;
-      const radiusRange = outerRadius - innerRadius;
-      const normalizedScore = (clampedScore - minScore + 1) / levels;
-      return innerRadius + normalizedScore * radiusRange;
+    if (innerRadius >= outerRadius) {
+        throw new Error('innerRadius must be less than outerRadius');
     }
-
-    function ringRadii(ringCount, innerRadius, outerRadius) {
-      if (ringCount <= 0) throw new Error('ringCount must be greater than 0');
-      if (innerRadius >= outerRadius) throw new Error('innerRadius must be < outerRadius');
-      const step = (outerRadius - innerRadius) / ringCount;
-      return Array.from({ length: ringCount + 1 }, (_, i) => innerRadius + i * step);
+    // When min === max, return full outer radius (flat diagram)
+    if (minScore === maxScore) {
+        return outerRadius;
     }
+    // Clamp score to valid range
+    const clampedScore = Math.max(minScore, Math.min(maxScore, score));
+    const levels = maxScore - minScore + 1; // 5 levels for 1-5 scale
+    const radiusRange = outerRadius - innerRadius;
+    const normalizedScore = (clampedScore - minScore + 1) / levels;
+    return innerRadius + normalizedScore * radiusRange;
+}
+/**
+ * Calculate radii for ring grid lines
+ * @param ringCount Number of rings (must be > 0)
+ * @param innerRadius Inner radius (center hub)
+ * @param outerRadius Outer radius
+ * @throws Error if ringCount is not greater than 0 or innerRadius >= outerRadius
+ */
+function ringRadii(ringCount, innerRadius, outerRadius) {
+    if (ringCount <= 0) {
+        throw new Error('ringCount must be greater than 0');
+    }
+    if (innerRadius >= outerRadius) {
+        throw new Error('innerRadius must be less than outerRadius');
+    }
+    const step = (outerRadius - innerRadius) / ringCount;
+    return Array.from({ length: ringCount + 1 }, (_, i) => innerRadius + i * step);
+}
+/**
+ * Calculate text anchor and rotation for labels at an angle
+ * @param angle Angle in degrees
+ * @returns Object with textAnchor and rotation for readable text
+ */
+function labelOrientation(angle) {
+    // Normalize angle to 0-360
+    const normalizedAngle = ((angle % 360) + 360) % 360;
+    // Text should be readable (not upside down)
+    // Right side (315-45): start anchor
+    // Bottom (45-135): middle anchor
+    // Left side (135-225): end anchor
+    // Top (225-315): middle anchor
+    let textAnchor = 'middle';
+    let rotation = normalizedAngle + 90; // Tangent to circle
+    let alignmentBaseline = 'middle';
+    // Flip text that would be upside down
+    if (normalizedAngle > 90 && normalizedAngle < 270) {
+        rotation += 180;
+    }
+    // Adjust anchor based on position
+    if (normalizedAngle >= 350 || normalizedAngle <= 10) {
+        textAnchor = 'start';
+        alignmentBaseline = 'middle';
+    }
+    else if (normalizedAngle >= 170 && normalizedAngle <= 190) {
+        textAnchor = 'end';
+        alignmentBaseline = 'middle';
+    }
+    return { textAnchor, rotation, alignmentBaseline };
+}
+//# sourceMappingURL=geometry.js.map
 
-    // ============================================================
-    // Types and Config (from src/core/types.ts)
-    // ============================================================
-
-    const DEFAULT_STYLE = {
-      showRings: true,
-      ringColor: '#cccccc',
-      ringWidth: 1,
-      ringStyle: 'dashed',
-      showScoreLabels: false,
-      scoreLabelFontSize: 14,
-      scoreLabelColor: '#ffffff',
-      scoreLabelStrokeColor: '#333333',
-      showFacetPoints: true,
-      facetPointStyle: 'circle',
-      facetOpacity: 1,
-      segmentDividerWidth: 2,
-      fontFamily: 'Arial, sans-serif',
-      segmentDividerColor: '#ffffff',
-      showSegmentDividers: true,
-      hubFontSize: 14,
-      hubFontColor: '#ffffff',
-      segmentFontSize: 28,
-      facetFontSize: 11
+/**
+ * Configuration types for the Radial Diagram Generator
+ *
+ * @license MIT
+ * @copyright 2026 CGA Management Ltd
+ * @see https://www.cgamanagement.co.uk/category/tools
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+/** Default style configuration */
+const DEFAULT_STYLE = {
+    showRings: true,
+    ringColor: '#cccccc',
+    ringWidth: 1,
+    ringStyle: 'dashed',
+    showScoreLabels: false,
+    scoreLabelFontSize: 14,
+    scoreLabelColor: '#ffffff',
+    scoreLabelStrokeColor: '#333333',
+    showFacetPoints: true,
+    facetPointStyle: 'circle',
+    facetOpacity: 1,
+    segmentDividerWidth: 2,
+    fontFamily: 'Arial, sans-serif',
+    segmentDividerColor: '#ffffff',
+    showSegmentDividers: true,
+    hubFontSize: 14,
+    hubFontColor: '#ffffff',
+    segmentFontSize: 28,
+    facetFontSize: 11,
+    segmentLabelPosition: 'outer',
+};
+/** Default scale configuration */
+const DEFAULT_SCALE = {
+    min: 1,
+    max: 5,
+    rings: 5,
+};
+/**
+ * Validate a diagram configuration
+ * @param config The config to validate
+ * @returns ValidationResult with valid flag and any error messages
+ */
+function validateConfig(config) {
+    const errors = [];
+    // Size validation
+    if (!config.size || config.size <= 0) {
+        errors.push('size must be greater than 0');
+    }
+    // Center validation
+    if (!config.center) {
+        errors.push('center configuration is required');
+    }
+    else {
+        if (!config.center.radius || config.center.radius <= 0) {
+            errors.push('center.radius must be greater than 0');
+        }
+    }
+    // Scale validation
+    if (!config.scale) {
+        errors.push('scale configuration is required');
+    }
+    else {
+        if (config.scale.min > config.scale.max) {
+            errors.push('scale.min must be less than or equal to scale.max');
+        }
+        if (!config.scale.rings || config.scale.rings <= 0) {
+            errors.push('scale.rings must be greater than 0');
+        }
+    }
+    // Segments validation
+    if (!config.segments || config.segments.length === 0) {
+        errors.push('segments array must contain at least one segment');
+    }
+    else {
+        config.segments.forEach((segment, segIndex) => {
+            if (!segment.facets || segment.facets.length === 0) {
+                errors.push(`segment[${segIndex}] must contain at least one facet`);
+            }
+            else if (config.scale) {
+                // Only validate scores if scale is defined
+                segment.facets.forEach((facet, facetIndex) => {
+                    if (facet.score !== undefined && facet.score !== null) {
+                        if (facet.score < config.scale.min || facet.score > config.scale.max) {
+                            errors.push(`segment[${segIndex}].facet[${facetIndex}].score (${facet.score}) must be between ${config.scale.min} and ${config.scale.max}`);
+                        }
+                    }
+                });
+            }
+        });
+    }
+    // Check that center radius is less than computed outer radius
+    if (config.size && config.center?.radius) {
+        const outerRadius = (config.size / 2) * 0.9;
+        if (config.center.radius >= outerRadius) {
+            errors.push(`center.radius (${config.center.radius}) must be less than outer radius (${outerRadius.toFixed(1)})`);
+        }
+    }
+    return {
+        valid: errors.length === 0,
+        errors,
     };
-
-    const DEFAULT_SCALE = { min: 1, max: 5, rings: 5 };
-
-    function createConfig(partial) {
-      return {
+}
+/** Create a complete config with defaults filled in */
+function createConfig(partial) {
+    return {
         center: {
-          label: partial.center?.label ?? 'Core',
-          radius: partial.center?.radius ?? 60,
-          color: partial.center?.color ?? '#8B3A62',
-          subtitle: partial.center?.subtitle,
-          borderWidth: partial.center?.borderWidth,
-          borderColor: partial.center?.borderColor,
-          visible: partial.center?.visible,
-          fontSize: partial.center?.fontSize,
-          fontColor: partial.center?.fontColor
+            label: partial.center?.label ?? 'Core',
+            radius: partial.center?.radius ?? 60,
+            color: partial.center?.color ?? '#8B3A62',
+            subtitle: partial.center?.subtitle,
+            borderWidth: partial.center?.borderWidth,
+            borderColor: partial.center?.borderColor,
+            visible: partial.center?.visible,
+            fontSize: partial.center?.fontSize,
+            fontColor: partial.center?.fontColor,
         },
         scale: { ...DEFAULT_SCALE, ...partial.scale },
         segments: partial.segments || [],
         style: { ...DEFAULT_STYLE, ...partial.style },
         size: partial.size || 800,
-        startAngle: partial.startAngle ?? -90
-      };
-    }
+        startAngle: partial.startAngle ?? -90, // Default to top
+    };
+}
+//# sourceMappingURL=types.js.map
 
-    function validateConfig(config) {
-      const errors = [];
-      if (!config.size || config.size <= 0) errors.push('size must be > 0');
-      if (!config.center) errors.push('center configuration is required');
-      else if (!config.center.radius || config.center.radius <= 0) errors.push('center.radius must be > 0');
-      if (!config.scale) errors.push('scale configuration is required');
-      else {
-        if (config.scale.min > config.scale.max) errors.push('scale.min must be <= scale.max');
-        if (!config.scale.rings || config.scale.rings <= 0) errors.push('scale.rings must be > 0');
-      }
-      if (!config.segments || config.segments.length === 0) errors.push('segments array must have at least one segment');
-      else {
-        config.segments.forEach((seg, i) => {
-          if (!seg.facets || seg.facets.length === 0) errors.push(`segment[${i}] must have at least one facet`);
-        });
-      }
-      if (config.size && config.center?.radius) {
-        const outerRadius = (config.size / 2) * 0.9;
-        if (config.center.radius >= outerRadius) {
-          errors.push(`center.radius (${config.center.radius}) must be < outer radius (${outerRadius.toFixed(1)})`);
-        }
-      }
-      return { valid: errors.length === 0, errors };
-    }
+/**
+ * SVG Renderer for Radial Diagrams
+ *
+ * @license MIT
+ * @copyright 2026 CGA Management Ltd
+ * @see https://www.cgamanagement.co.uk/category/tools
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
 
-    // ============================================================
-    // SVG Renderer (from src/renderers/svg.ts)
-    // ============================================================
 
-    class SVGRenderer {
-      constructor(config) {
+class SVGRenderer {
+    constructor(config) {
+        this.padding = 70; // Extra space for labels outside the wheel
+        // Validate config before using
         const validation = validateConfig(config);
-        if (!validation.valid) throw new Error('Invalid config:\n- ' + validation.errors.join('\n- '));
+        if (!validation.valid) {
+            throw new Error(`Invalid diagram configuration:\n- ${validation.errors.join('\n- ')}`);
+        }
         this.config = config;
         this.cx = config.size / 2;
         this.cy = config.size / 2;
-        this.outerRadius = (config.size / 2) * 0.9;
-        this.padding = 70;
-      }
-
-      render() {
+        this.outerRadius = (config.size / 2) * 0.9; // 90% of half-size for padding
+    }
+    /**
+     * Generate complete SVG string
+     */
+    render() {
         const elements = [];
-        if (this.config.style.backgroundColor) elements.push(this.renderBackground());
+        // Background
+        if (this.config.style.backgroundColor) {
+            elements.push(this.renderBackground());
+        }
+        // Segment backgrounds
         elements.push(this.renderSegmentBackgrounds());
+        // Score fills for each facet
         elements.push(this.renderScoreFills());
-        if (this.config.style.showSegmentDividers) elements.push(this.renderSegmentDividers());
+        // Segment divider lines
+        if (this.config.style.showSegmentDividers) {
+            elements.push(this.renderSegmentDividers());
+        }
+        // Facet divider lines and points
         elements.push(this.renderFacetDividers());
+        // Center hub
         elements.push(this.renderCenterHub());
+        // Facet labels
         elements.push(this.renderFacetLabels());
+        // Segment labels (on outer ring)
         elements.push(this.renderSegmentLabels());
-        if (this.config.style.showRings !== false) elements.push(this.renderRings());
-        if (this.config.style.showScoreLabels) elements.push(this.renderScoreLabels());
+        // Rings and score labels render on top of everything
+        if (this.config.style.showRings !== false) {
+            elements.push(this.renderRings());
+        }
+        if (this.config.style.showScoreLabels) {
+            elements.push(this.renderScoreLabels());
+        }
         return this.wrapSVG(elements.join('\n'));
-      }
-
-      wrapSVG(content) {
+    }
+    wrapSVG(content) {
         const { size, style, center } = this.config;
         const viewSize = size + this.padding * 2;
+        // Support both center.fontSize/fontColor and style.hubFontSize/hubFontColor
         const hubFontSize = center.fontSize || style.hubFontSize || 14;
         const hubFontColor = center.fontColor || style.hubFontColor || '#ffffff';
         const segmentFontSize = style.segmentFontSize || 28;
@@ -498,566 +744,936 @@
   </style>
   ${content}
 </svg>`;
-      }
-
-      renderBackground() {
+    }
+    renderBackground() {
         const viewSize = this.config.size + this.padding * 2;
         return `<rect x="${-this.padding}" y="${-this.padding}" width="${viewSize}" height="${viewSize}" fill="${this.config.style.backgroundColor}" />`;
-      }
-
-      renderRings() {
+    }
+    renderRings() {
         const { scale, center, style } = this.config;
         const rings = ringRadii(scale.rings, center.radius, this.outerRadius);
         const elements = [];
         const ringColor = style.ringColor || '#cccccc';
         const ringWidth = style.ringWidth || 1;
-        const dashArray = (style.ringStyle || 'dashed') === 'dashed' ? 'stroke-dasharray="4,4"' : '';
+        const ringStyle = style.ringStyle || 'dashed';
+        const dashArray = ringStyle === 'dashed' ? 'stroke-dasharray="4,4"' : '';
+        // Draw ring circles
         rings.forEach((radius, i) => {
-          if (i === 0) return;
-          elements.push(`<circle cx="${this.cx}" cy="${this.cy}" r="${radius}" fill="none" stroke="${ringColor}" stroke-width="${ringWidth}" ${dashArray} />`);
+            if (i === 0)
+                return; // Skip innermost (center hub boundary)
+            elements.push(`<circle cx="${this.cx}" cy="${this.cy}" r="${radius}" fill="none" stroke="${ringColor}" stroke-width="${ringWidth}" ${dashArray} />`);
         });
         return `<g class="rings">${elements.join('\n')}</g>`;
-      }
-
-      renderScoreLabels() {
+    }
+    renderScoreLabels() {
         const { scale, center, style } = this.config;
         const elements = [];
         const fontSize = style.scoreLabelFontSize || 14;
         const fillColor = style.scoreLabelColor || '#ffffff';
         const strokeColor = style.scoreLabelStrokeColor || '#333333';
+        // Add scale labels (1-5) at each ring level, positioned at top
         const ringStep = (this.outerRadius - center.radius) / scale.rings;
         for (let i = 0; i < scale.rings; i++) {
-          const label = scale.min + i;
-          const labelRadius = center.radius + ((i + 0.5) * ringStep);
-          const y = this.cy - labelRadius;
-          elements.push(`<text x="${this.cx}" y="${y}" font-family="${style.fontFamily}" font-size="${fontSize}px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="${fillColor}" stroke="${strokeColor}" stroke-width="3" paint-order="stroke">${label}</text>`);
+            const label = scale.min + i;
+            const labelRadius = center.radius + ((i + 0.5) * ringStep); // Middle of each band
+            const y = this.cy - labelRadius;
+            // Text with outline for visibility on any background
+            elements.push(`<text x="${this.cx}" y="${y}" font-family="${style.fontFamily}" font-size="${fontSize}px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="${fillColor}" stroke="${strokeColor}" stroke-width="3" paint-order="stroke">${label}</text>`);
         }
         return `<g class="score-labels">${elements.join('\n')}</g>`;
-      }
-
-      renderSegmentBackgrounds() {
+    }
+    renderSegmentBackgrounds() {
         const { segments, center, startAngle } = this.config;
         const segAngle = segmentAngle(segments.length);
         const elements = [];
         segments.forEach((segment, i) => {
-          const sStart = startAngle + i * segAngle;
-          const sEnd = sStart + segAngle;
-          const bgPath = segmentPath(this.cx, this.cy, center.radius, this.outerRadius, sStart, sEnd);
-          elements.push(`<path d="${bgPath}" fill="${segment.color}" opacity="0.3" />`);
+            const sStart = startAngle + i * segAngle;
+            const sEnd = sStart + segAngle;
+            // Full segment background (lighter shade)
+            const bgPath = segmentPath(this.cx, this.cy, center.radius, this.outerRadius, sStart, sEnd);
+            elements.push(`<path d="${bgPath}" fill="${segment.color}" opacity="0.3" />`);
         });
         return `<g class="segment-backgrounds">${elements.join('\n')}</g>`;
-      }
-
-      renderScoreFills() {
+    }
+    renderScoreFills() {
         const { segments, center, scale, startAngle, style } = this.config;
         const segAngle = segmentAngle(segments.length);
         const elements = [];
         segments.forEach((segment, segIndex) => {
-          const segStart = startAngle + segIndex * segAngle;
-          const segEnd = segStart + segAngle;
-          const facetAngleData = facetAngles(segStart, segEnd, segment.facets.length);
-          segment.facets.forEach((facet, facetIndex) => {
-            if (facet.score === undefined || facet.score === null) return;
-            const { startAngle: fStart, endAngle: fEnd } = facetAngleData[facetIndex];
-            const scoreRadius = scoreToRadius(facet.score, scale.min, scale.max, center.radius, this.outerRadius);
-            const fillPath = segmentPath(this.cx, this.cy, center.radius, scoreRadius, fStart, fEnd);
-            elements.push(`<path d="${fillPath}" fill="${segment.color}" opacity="${style.facetOpacity}" />`);
-          });
+            const segStart = startAngle + segIndex * segAngle;
+            const segEnd = segStart + segAngle;
+            const facetAngleData = facetAngles(segStart, segEnd, segment.facets.length);
+            segment.facets.forEach((facet, facetIndex) => {
+                if (facet.score === undefined || facet.score === null)
+                    return;
+                const { startAngle: fStart, endAngle: fEnd } = facetAngleData[facetIndex];
+                const scoreRadius = scoreToRadius(facet.score, scale.min, scale.max, center.radius, this.outerRadius);
+                const fillPath = segmentPath(this.cx, this.cy, center.radius, scoreRadius, fStart, fEnd);
+                elements.push(`<path d="${fillPath}" fill="${segment.color}" opacity="${style.facetOpacity}" />`);
+            });
         });
         return `<g class="score-fills">${elements.join('\n')}</g>`;
-      }
-
-      renderSegmentDividers() {
+    }
+    renderSegmentDividers() {
         const { segments, center, startAngle, style } = this.config;
         const segAngle = segmentAngle(segments.length);
         const elements = [];
         segments.forEach((_, i) => {
-          const angle = startAngle + i * segAngle;
-          const inner = polarToCartesian(this.cx, this.cy, center.radius, angle);
-          const outer = polarToCartesian(this.cx, this.cy, this.outerRadius, angle);
-          elements.push(`<line x1="${inner.x}" y1="${inner.y}" x2="${outer.x}" y2="${outer.y}" stroke="${style.segmentDividerColor}" stroke-width="${style.segmentDividerWidth}" />`);
+            const angle = startAngle + i * segAngle;
+            const inner = polarToCartesian(this.cx, this.cy, center.radius, angle);
+            const outer = polarToCartesian(this.cx, this.cy, this.outerRadius, angle);
+            elements.push(`<line x1="${inner.x}" y1="${inner.y}" x2="${outer.x}" y2="${outer.y}" stroke="${style.segmentDividerColor}" stroke-width="${style.segmentDividerWidth}" />`);
         });
         return `<g class="segment-dividers">${elements.join('\n')}</g>`;
-      }
-
-      renderFacetDividers() {
+    }
+    renderFacetDividers() {
         const { segments, center, startAngle, style } = this.config;
         const segAngle = segmentAngle(segments.length);
         const elements = [];
         segments.forEach((segment, segIndex) => {
-          const segStart = startAngle + segIndex * segAngle;
-          const segEnd = segStart + segAngle;
-          const facetAngleData = facetAngles(segStart, segEnd, segment.facets.length);
-          facetAngleData.forEach((facet, facetIndex) => {
-            if (facetIndex === 0) return;
-            const inner = polarToCartesian(this.cx, this.cy, center.radius, facet.startAngle);
-            const outer = polarToCartesian(this.cx, this.cy, this.outerRadius, facet.startAngle);
-            elements.push(`<line x1="${inner.x}" y1="${inner.y}" x2="${outer.x}" y2="${outer.y}" stroke="${style.segmentDividerColor}" stroke-width="1" opacity="0.5" />`);
-          });
-          if (style.showFacetPoints && style.facetPointStyle !== 'none') {
-            facetAngleData.forEach((facetData) => {
-              const pointRadius = style.facetPointStyle === 'circle' ? 6 : 3;
-              const arcRadius = this.outerRadius - 20;
-              const point = polarToCartesian(this.cx, this.cy, arcRadius, facetData.midAngle);
-              elements.push(`<circle cx="${point.x}" cy="${point.y}" r="${pointRadius}" fill="white" stroke="${style.segmentDividerColor}" stroke-width="1" />`);
+            const segStart = startAngle + segIndex * segAngle;
+            const segEnd = segStart + segAngle;
+            const facetAngleData = facetAngles(segStart, segEnd, segment.facets.length);
+            // Draw dividers between facets (skip first one which is segment divider)
+            facetAngleData.forEach((facet, facetIndex) => {
+                if (facetIndex === 0)
+                    return; // First facet starts at segment boundary
+                const inner = polarToCartesian(this.cx, this.cy, center.radius, facet.startAngle);
+                const outer = polarToCartesian(this.cx, this.cy, this.outerRadius, facet.startAngle);
+                elements.push(`<line x1="${inner.x}" y1="${inner.y}" x2="${outer.x}" y2="${outer.y}" stroke="${style.segmentDividerColor}" stroke-width="1" opacity="0.5" />`);
             });
-          }
+            // Draw facet points if enabled
+            if (style.showFacetPoints && style.facetPointStyle !== 'none') {
+                facetAngleData.forEach((facetData) => {
+                    const pointRadius = style.facetPointStyle === 'circle' ? 6 : 3;
+                    const arcRadius = this.outerRadius - 20; // Position points near outer edge
+                    const point = polarToCartesian(this.cx, this.cy, arcRadius, facetData.midAngle);
+                    elements.push(`<circle cx="${point.x}" cy="${point.y}" r="${pointRadius}" fill="white" stroke="${style.segmentDividerColor}" stroke-width="1" />`);
+                });
+            }
         });
         return `<g class="facet-dividers">${elements.join('\n')}</g>`;
-      }
-
-      renderCenterHub() {
+    }
+    renderCenterHub() {
         const { center, style } = this.config;
-        if (center.visible === false) return '';
+        // Check if hub should be visible (default true)
+        if (center.visible === false) {
+            return '';
+        }
         const elements = [];
         const borderWidth = center.borderWidth || 0;
         const borderColor = center.borderColor || '#ffffff';
+        // Hub circle with optional border
         if (borderWidth > 0) {
-          elements.push(`<circle cx="${this.cx}" cy="${this.cy}" r="${center.radius}" fill="${center.color}" stroke="${borderColor}" stroke-width="${borderWidth}" />`);
-        } else {
-          elements.push(`<circle cx="${this.cx}" cy="${this.cy}" r="${center.radius}" fill="${center.color}" />`);
+            elements.push(`<circle cx="${this.cx}" cy="${this.cy}" r="${center.radius}" fill="${center.color}" stroke="${borderColor}" stroke-width="${borderWidth}" />`);
         }
-        const lines = center.label.split('\n').map(s => s.trim());
-        const availableWidth = center.radius * 1.6;
-        const maxLineLength = Math.max(...lines.map(l => l.length));
+        else {
+            elements.push(`<circle cx="${this.cx}" cy="${this.cy}" r="${center.radius}" fill="${center.color}" />`);
+        }
+        // Hub label (split on \n for multiple lines)
+        const lines = center.label.split('\n').map((s) => s.trim());
+        // Auto-scale font to fit hub (scales up or down)
+        const availableWidth = center.radius * 1.6; // Use 80% of diameter
+        const maxLineLength = Math.max(...lines.map((l) => l.length));
         const scaledFontSize = Math.floor(availableWidth / (maxLineLength * 0.6));
         const lineHeight = scaledFontSize * 1.2;
         const startY = this.cy - ((lines.length - 1) * lineHeight) / 2;
         lines.forEach((line, i) => {
-          const safe = line.replace(/&/g, '&amp;');
-          const y = startY + i * lineHeight;
-          elements.push(`<text x="${this.cx}" y="${y}" class="center-label" style="font-size: ${scaledFontSize}px" dominant-baseline="middle">${safe}</text>`);
+            const safe = line.replace(/&/g, '&amp;');
+            const y = startY + i * lineHeight;
+            elements.push(`<text x="${this.cx}" y="${y}" class="center-label" style="font-size: ${scaledFontSize}px" dominant-baseline="middle">${safe}</text>`);
         });
         return `<g class="center-hub">${elements.join('\n')}</g>`;
-      }
-
-      renderFacetLabels() {
+    }
+    renderFacetLabels() {
         const { segments, center, startAngle } = this.config;
         const segAngle = segmentAngle(segments.length);
         const elements = [];
         const labelRadius = this.outerRadius - 20;
         segments.forEach((segment, segIndex) => {
-          const segStart = startAngle + segIndex * segAngle;
-          const segEnd = segStart + segAngle;
-          const segMid = (segStart + segEnd) / 2;
-          const facetAngleData = facetAngles(segStart, segEnd, segment.facets.length);
-          const normalizedSegMid = ((segMid % 360) + 360) % 360;
-          const needsFlip = normalizedSegMid > 90 && normalizedSegMid <= 270;
-          const rotationOffset = needsFlip ? 180 : 0;
-          const isTopHalf = normalizedSegMid <= 90 || normalizedSegMid > 270;
-          const anchor = isTopHalf ? 'end' : 'start';
-          segment.facets.forEach((facet, facetIndex) => {
-            const { midAngle } = facetAngleData[facetIndex];
-            const rotation = midAngle + rotationOffset;
-            const pos = polarToCartesian(this.cx, this.cy, labelRadius, midAngle);
-            const safeName = facet.name.replace(/&/g, '&amp;');
-            const lines = safeName.split('\n');
-            let inner;
-            if (lines.length === 1) {
-              inner = safeName;
-            } else {
-              const firstDy = -((lines.length - 1) * 0.6);
-              inner = lines.map((line, i) => {
-                const dy = i === 0 ? `${firstDy}em` : '1.2em';
-                return `<tspan x="${pos.x}" dy="${dy}">${line}</tspan>`;
-              }).join('');
-            }
-            elements.push(`<text x="${pos.x}" y="${pos.y}" class="facet-label" text-anchor="${anchor}" dominant-baseline="middle" transform="rotate(${rotation}, ${pos.x}, ${pos.y})">${inner}</text>`);
-          });
+            const segStart = startAngle + segIndex * segAngle;
+            const segEnd = segStart + segAngle;
+            const segMid = (segStart + segEnd) / 2;
+            const facetAngleData = facetAngles(segStart, segEnd, segment.facets.length);
+            // Determine orientation based on SEGMENT mid-angle (same for all facets in segment)
+            const normalizedSegMid = ((segMid % 360) + 360) % 360;
+            // Flip for readability in bottom half (90, 270]
+            const needsFlip = normalizedSegMid > 90 && normalizedSegMid <= 270;
+            const rotationOffset = needsFlip ? 180 : 0;
+            // Anchor: 'end' for top half (text reads inner to outer)
+            //         'start' for bottom half (text reads outer to inner)
+            const isTopHalf = normalizedSegMid <= 90 || normalizedSegMid > 270;
+            const anchor = isTopHalf ? 'end' : 'start';
+            segment.facets.forEach((facet, facetIndex) => {
+                const { midAngle } = facetAngleData[facetIndex];
+                const rotation = midAngle + rotationOffset;
+                const pos = polarToCartesian(this.cx, this.cy, labelRadius, midAngle);
+                // Escape & for valid XML, then split on \n for multi-line labels
+                const safeName = facet.name.replace(/&/g, '&amp;');
+                const lines = safeName.split('\n');
+                let inner;
+                if (lines.length === 1) {
+                    inner = safeName;
+                }
+                else {
+                    // Vertically centre the block: first line offset up by half the block height
+                    const firstDy = -((lines.length - 1) * 0.6);
+                    inner = lines
+                        .map((line, i) => {
+                        const dy = i === 0 ? `${firstDy}em` : '1.2em';
+                        return `<tspan x="${pos.x}" dy="${dy}">${line}</tspan>`;
+                    })
+                        .join('');
+                }
+                elements.push(`<text x="${pos.x}" y="${pos.y}" class="facet-label" text-anchor="${anchor}" dominant-baseline="middle" transform="rotate(${rotation}, ${pos.x}, ${pos.y})">${inner}</text>`);
+            });
         });
         return `<g class="facet-labels">${elements.join('\n')}</g>`;
-      }
-
-      renderSegmentLabels() {
+    }
+    renderSegmentLabels() {
         if ((this.config.style.segmentLabelPosition || 'outer') === 'inner') {
-          return this.renderSegmentLabelsInner();
+            return this.renderSegmentLabelsInner();
         }
         return this.renderSegmentLabelsOuter();
-      }
-
-      scaleSegmentFontSize(segments, segAngle, textRadius, baseFontSize) {
-        const arcLength = textRadius * (segAngle - 6) * (Math.PI / 180);
-        const longestLineLength = Math.max(...segments.flatMap(s => s.name.split('\n').map(l => l.length)));
-        const estTextWidth = (longestLineLength + 1) * baseFontSize * 0.6;
-        return estTextWidth > arcLength ? Math.floor(baseFontSize * (arcLength / estTextWidth)) : baseFontSize;
-      }
-
-      emitSegmentLabelLines(defs, texts, pathIdBase, segStart, segEnd, midAngle, textRadius, fontSize, rawName) {
-        const segAngle = segEnd - segStart;
-        const safe = rawName.replace(/&/g, '&amp;');
-        const lines = safe.split('\n');
-        const lineHeight = fontSize * 1.2;
-        const normalizedMid = ((midAngle % 360) + 360) % 360;
-        const useClockwise = normalizedMid < 15 || normalizedMid > 165;
-        const sign = useClockwise ? -1 : 1;
-        const largeArc = segAngle - 6 > 180 ? 1 : 0;
-        lines.forEach((line, idx) => {
-          const offset = sign * (idx - (lines.length - 1) / 2) * lineHeight;
-          const lineRadius = textRadius + offset;
-          const linePathId = `${pathIdBase}-${idx}`;
-          if (useClockwise) {
-            const s = polarToCartesian(this.cx, this.cy, lineRadius, segStart + 3);
-            const e = polarToCartesian(this.cx, this.cy, lineRadius, segEnd - 3);
-            defs.push(`<path id="${linePathId}" d="M ${s.x} ${s.y} A ${lineRadius} ${lineRadius} 0 ${largeArc} 1 ${e.x} ${e.y}" fill="none" />`);
-          } else {
-            const s = polarToCartesian(this.cx, this.cy, lineRadius, segEnd - 3);
-            const e = polarToCartesian(this.cx, this.cy, lineRadius, segStart + 3);
-            defs.push(`<path id="${linePathId}" d="M ${s.x} ${s.y} A ${lineRadius} ${lineRadius} 0 ${largeArc} 0 ${e.x} ${e.y}" fill="none" />`);
-          }
-          texts.push(`<text class="segment-label" fill="white" style="font-size: ${fontSize}px"><textPath href="#${linePathId}" startOffset="50%" text-anchor="middle">${line}</textPath></text>`);
-        });
-      }
-
-      renderSegmentLabelsInner() {
+    }
+    renderSegmentLabelsInner() {
         const { segments, startAngle, style, center } = this.config;
         const segAngle = segmentAngle(segments.length);
         const defs = [];
         const backgrounds = [];
         const dividers = [];
         const texts = [];
+        // Same band sizing as the outer mode (golden-ratio thickness), but anchored
+        // to the centre hub edge instead of the outer wheel edge.
         const baseFontSize = style.segmentFontSize || 28;
         const phi = 1.618;
-        const maxLines = Math.max(...segments.map(s => s.name.split('\n').length));
+        const maxLines = Math.max(...segments.map((s) => s.name.split('\n').length));
+        // Single-line band uses golden-ratio padding around the line.
+        // Each extra line adds one line-height (1.2× fontSize).
         const arcThickness = (baseFontSize * phi) + baseFontSize + (maxLines - 1) * baseFontSize * 1.2;
         const dividerWidth = style.segmentDividerWidth || 4;
         const innerLabelRadius = center.radius + (dividerWidth / 2);
         const outerLabelRadius = innerLabelRadius + arcThickness;
         const textRadius = innerLabelRadius + (arcThickness / 2);
         const scaledFontSize = this.scaleSegmentFontSize(segments, segAngle, textRadius, baseFontSize);
-
         segments.forEach((segment, i) => {
-          const segStart = startAngle + i * segAngle;
-          const segEnd = segStart + segAngle;
-          const midAngle = (segStart + segEnd) / 2;
-          const pathId = `segment-path-${i}`;
-          const bgPath = segmentPath(this.cx, this.cy, innerLabelRadius, outerLabelRadius, segStart, segEnd);
-          backgrounds.push(`<path d="${bgPath}" fill="${segment.labelColor || segment.color}" />`);
-          if (style.showSegmentDividers) {
-            const inner = polarToCartesian(this.cx, this.cy, innerLabelRadius, segStart);
-            const outer = polarToCartesian(this.cx, this.cy, outerLabelRadius, segStart);
-            dividers.push(`<line x1="${inner.x}" y1="${inner.y}" x2="${outer.x}" y2="${outer.y}" stroke="${style.segmentDividerColor}" stroke-width="${style.segmentDividerWidth}" />`);
-          }
-          this.emitSegmentLabelLines(defs, texts, pathId, segStart, segEnd, midAngle, textRadius, scaledFontSize, segment.name);
+            const segStart = startAngle + i * segAngle;
+            const segEnd = segStart + segAngle;
+            const midAngle = (segStart + segEnd) / 2;
+            const pathId = `segment-path-${i}`;
+            // Solid coloured arc band sitting on the wedge's inner edge
+            const bgPath = segmentPath(this.cx, this.cy, innerLabelRadius, outerLabelRadius, segStart, segEnd);
+            backgrounds.push(`<path d="${bgPath}" fill="${segment.labelColor || segment.color}" />`);
+            // Radial dividers between segments along the band
+            if (style.showSegmentDividers) {
+                const inner = polarToCartesian(this.cx, this.cy, innerLabelRadius, segStart);
+                const outer = polarToCartesian(this.cx, this.cy, outerLabelRadius, segStart);
+                dividers.push(`<line x1="${inner.x}" y1="${inner.y}" x2="${outer.x}" y2="${outer.y}" stroke="${style.segmentDividerColor}" stroke-width="${style.segmentDividerWidth}" />`);
+            }
+            this.emitSegmentLabelLines(defs, texts, pathId, segStart, segEnd, midAngle, textRadius, scaledFontSize, segment.name);
         });
+        // Ring dividers on both edges of the inner band: one between the band and
+        // the centre hub, one between the band and the facet area.
         const ringDividers = style.showSegmentDividers
-          ? [
-              `<circle cx="${this.cx}" cy="${this.cy}" r="${innerLabelRadius}" fill="none" stroke="${style.segmentDividerColor}" stroke-width="${dividerWidth}" />`,
-              `<circle cx="${this.cx}" cy="${this.cy}" r="${outerLabelRadius}" fill="none" stroke="${style.segmentDividerColor}" stroke-width="${dividerWidth}" />`
+            ? [
+                `<circle cx="${this.cx}" cy="${this.cy}" r="${innerLabelRadius}" fill="none" stroke="${style.segmentDividerColor}" stroke-width="${dividerWidth}" />`,
+                `<circle cx="${this.cx}" cy="${this.cy}" r="${outerLabelRadius}" fill="none" stroke="${style.segmentDividerColor}" stroke-width="${dividerWidth}" />`,
             ].join('\n')
-          : '';
+            : '';
         return `<defs>${defs.join('\n')}</defs>\n<g class="segment-label-backgrounds">${backgrounds.join('\n')}</g>\n${ringDividers}\n<g class="segment-label-dividers">${dividers.join('\n')}</g>\n<g class="segment-labels">${texts.join('\n')}</g>`;
-      }
-
-      renderSegmentLabelsOuter() {
+    }
+    /** Scale segment font size to fit the longest single line within a segment's arc. */
+    scaleSegmentFontSize(segments, segAngle, textRadius, baseFontSize) {
+        const arcLength = textRadius * (segAngle - 6) * (Math.PI / 180);
+        const longestLineLength = Math.max(...segments.flatMap((s) => s.name.split('\n').map((l) => l.length)));
+        const estTextWidth = (longestLineLength + 1) * baseFontSize * 0.6;
+        return estTextWidth > arcLength
+            ? Math.floor(baseFontSize * (arcLength / estTextWidth))
+            : baseFontSize;
+    }
+    /**
+     * Emit one or more textPath rows for a segment label. When `name` contains
+     * `\n`, each line is rendered on its own arc at a different radius within
+     * the band, stacked along the radial axis.
+     */
+    emitSegmentLabelLines(defs, texts, pathIdBase, segStart, segEnd, midAngle, textRadius, fontSize, rawName) {
+        const segAngle = segEnd - segStart;
+        const safe = rawName.replace(/&/g, '&amp;');
+        const lines = safe.split('\n');
+        const lineHeight = fontSize * 1.2;
+        const normalizedMid = ((midAngle % 360) + 360) % 360;
+        const useClockwise = normalizedMid < 15 || normalizedMid > 165;
+        // Top-half segments (clockwise arcs) read with the visually-first line at
+        // the larger radius (outer edge); bottom-half segments (counter-clockwise
+        // arcs) read with it at the smaller radius (closer to the hub).
+        const sign = useClockwise ? -1 : 1;
+        const largeArc = segAngle - 6 > 180 ? 1 : 0;
+        lines.forEach((line, idx) => {
+            const offset = sign * (idx - (lines.length - 1) / 2) * lineHeight;
+            const lineRadius = textRadius + offset;
+            const linePathId = `${pathIdBase}-${idx}`;
+            if (useClockwise) {
+                const s = polarToCartesian(this.cx, this.cy, lineRadius, segStart + 3);
+                const e = polarToCartesian(this.cx, this.cy, lineRadius, segEnd - 3);
+                defs.push(`<path id="${linePathId}" d="M ${s.x} ${s.y} A ${lineRadius} ${lineRadius} 0 ${largeArc} 1 ${e.x} ${e.y}" fill="none" />`);
+            }
+            else {
+                const s = polarToCartesian(this.cx, this.cy, lineRadius, segEnd - 3);
+                const e = polarToCartesian(this.cx, this.cy, lineRadius, segStart + 3);
+                defs.push(`<path id="${linePathId}" d="M ${s.x} ${s.y} A ${lineRadius} ${lineRadius} 0 ${largeArc} 0 ${e.x} ${e.y}" fill="none" />`);
+            }
+            texts.push(`<text class="segment-label" fill="white" style="font-size: ${fontSize}px"><textPath href="#${linePathId}" startOffset="50%" text-anchor="middle">${line}</textPath></text>`);
+        });
+    }
+    renderSegmentLabelsOuter() {
         const { segments, startAngle, style } = this.config;
         const segAngle = segmentAngle(segments.length);
         const defs = [];
         const backgrounds = [];
         const dividers = [];
         const texts = [];
+        // Calculate arc thickness using golden ratio: fontSize * phi + fontSize.
+        // Each extra line of text adds one line-height (1.2× fontSize).
         const baseFontSize = style.segmentFontSize || 28;
         const phi = 1.618;
-        const maxLines = Math.max(...segments.map(s => s.name.split('\n').length));
+        const maxLines = Math.max(...segments.map((s) => s.name.split('\n').length));
         const arcThickness = (baseFontSize * phi) + baseFontSize + (maxLines - 1) * baseFontSize * 1.2;
         const dividerWidth = style.segmentDividerWidth || 4;
+        // Position arc with divider gap, vertically center text
         const innerLabelRadius = this.outerRadius + (dividerWidth / 2);
         const outerLabelRadius = innerLabelRadius + arcThickness;
-        const textRadius = innerLabelRadius + (arcThickness / 2);
+        const textRadius = innerLabelRadius + (arcThickness / 2); // Vertically centered
         const scaledFontSize = this.scaleSegmentFontSize(segments, segAngle, textRadius, baseFontSize);
-
         segments.forEach((segment, i) => {
-          const segStart = startAngle + i * segAngle;
-          const segEnd = segStart + segAngle;
-          const midAngle = (segStart + segEnd) / 2;
-          const pathId = `segment-path-${i}`;
-          const bgPath = segmentPath(this.cx, this.cy, innerLabelRadius, outerLabelRadius, segStart, segEnd);
-          backgrounds.push(`<path d="${bgPath}" fill="${segment.labelColor || segment.color}" />`);
-          if (style.showSegmentDividers) {
-            const inner = polarToCartesian(this.cx, this.cy, innerLabelRadius, segStart);
-            const outer = polarToCartesian(this.cx, this.cy, outerLabelRadius, segStart);
-            dividers.push(`<line x1="${inner.x}" y1="${inner.y}" x2="${outer.x}" y2="${outer.y}" stroke="${style.segmentDividerColor}" stroke-width="${style.segmentDividerWidth}" />`);
-          }
-          this.emitSegmentLabelLines(defs, texts, pathId, segStart, segEnd, midAngle, textRadius, scaledFontSize, segment.name);
+            const segStart = startAngle + i * segAngle;
+            const segEnd = segStart + segAngle;
+            const midAngle = (segStart + segEnd) / 2;
+            const pathId = `segment-path-${i}`;
+            // Background arc segment
+            const bgPath = segmentPath(this.cx, this.cy, innerLabelRadius, outerLabelRadius, segStart, segEnd);
+            backgrounds.push(`<path d="${bgPath}" fill="${segment.labelColor || segment.color}" />`);
+            // Segment divider line (same as main segments)
+            if (style.showSegmentDividers) {
+                const inner = polarToCartesian(this.cx, this.cy, innerLabelRadius, segStart);
+                const outer = polarToCartesian(this.cx, this.cy, outerLabelRadius, segStart);
+                dividers.push(`<line x1="${inner.x}" y1="${inner.y}" x2="${outer.x}" y2="${outer.y}" stroke="${style.segmentDividerColor}" stroke-width="${style.segmentDividerWidth}" />`);
+            }
+            this.emitSegmentLabelLines(defs, texts, pathId, segStart, segEnd, midAngle, textRadius, scaledFontSize, segment.name);
         });
-
+        // Add divider ring between main segments and label arc
         const ringDivider = style.showSegmentDividers
-          ? `<circle cx="${this.cx}" cy="${this.cy}" r="${this.outerRadius}" fill="none" stroke="${style.segmentDividerColor}" stroke-width="${dividerWidth}" />`
-          : '';
+            ? `<circle cx="${this.cx}" cy="${this.cy}" r="${this.outerRadius}" fill="none" stroke="${style.segmentDividerColor}" stroke-width="${dividerWidth}" />`
+            : '';
         return `<defs>${defs.join('\n')}</defs>\n${ringDivider}\n<g class="segment-label-backgrounds">${backgrounds.join('\n')}</g>\n<g class="segment-label-dividers">${dividers.join('\n')}</g>\n<g class="segment-labels">${texts.join('\n')}</g>`;
-      }
     }
+}
+/**
+ * Convenience function to render a diagram from config
+ */
+function renderDiagram(config) {
+    const renderer = new SVGRenderer(config);
+    return renderer.render();
+}
+//# sourceMappingURL=svg.js.map
 
-    // ============================================================
-    // Application
-    // ============================================================
-
-    let currentSVG = '';
-
-    const exampleConfig = {
-      "size": 800,
-      "startAngle": -90,
-      "center": {
-        "label": "Diagram Hub",
-        "radius": 100,
-        "color": "#475569",
-        "borderWidth": 8,
-        "borderColor": "#ffffff",
-        "fontSize": 14,
-        "fontColor": "#ffffff",
-        "visible": true
-      },
-      "scale": {
-        "min": 1,
-        "max": 5,
-        "rings": 5
-      },
-      "segments": [
-        {
-          "name": "Segment 1",
-          "color": "#3B82F6",
-          "facets": [
-            {
-              "name": "Section 1",
-              "score": 3
-            }
-          ]
-        },
-        {
-          "name": "Segment 2",
-          "color": "#8B5CF6",
-          "facets": [
-            {
-              "name": "Section 1",
-              "score": 4
-            },
-            {
-              "name": "Section 2",
-              "score": 2
-            }
-          ]
-        },
-        {
-          "name": "Segment 3",
-          "color": "#EC4899",
-          "facets": [
-            {
-              "name": "Section 1",
-              "score": 3
-            },
-            {
-              "name": "Section 2",
-              "score": 2
-            },
-            {
-              "name": "Section 3",
-              "score": 4
-            }
-          ]
-        },
-        {
-          "name": "Segment 4",
-          "color": "#F97316",
-          "facets": [
-            {
-              "name": "Section 1",
-              "score": 2
-            },
-            {
-              "name": "Section 2",
-              "score": 1
-            },
-            {
-              "name": "Section 3",
-              "score": 4
-            },
-            {
-              "name": "Section 4",
-              "score": 3
-            }
-          ]
-        },
-        {
-          "name": "Segment 5",
-          "color": "#22C55E",
-          "facets": [
-            {
-              "name": "Section 1",
-              "score": 5
-            },
-            {
-              "name": "Section 2",
-              "score": 3
-            },
-            {
-              "name": "Section 3",
-              "score": 4
-            },
-            {
-              "name": "Section 4",
-              "score": 2
-            },
-            {
-              "name": "Section 5",
-              "score": 3
-            }
-          ]
-        },
-        {
-          "name": "Segment 6",
-          "color": "#06B6D4",
-          "facets": [
-            {
-              "name": "Section 1",
-              "score": 3
-            },
-            {
-              "name": "Section 2",
-              "score": 4
-            },
-            {
-              "name": "Section 3",
-              "score": 2
-            },
-            {
-              "name": "Section 4",
-              "score": 5
-            },
-            {
-              "name": "Section 5",
-              "score": 1
-            },
-            {
-              "name": "Section 6",
-              "score": 4
-            }
-          ]
-        }
-      ],
-      "style": {
-        "fontFamily": "Verdana, sans-serif",
-        "segmentFontSize": 28,
-        "showSegmentDividers": true,
-        "segmentDividerWidth": 8,
-        "segmentDividerColor": "#ffffff",
-        "facetFontSize": 18,
-        "facetFontColor": "#000000",
-        "facetOpacity": 0.8,
-        "showFacetPoints": false,
-        "facetPointStyle": "circle",
-        "showRings": true,
-        "ringColor": "#fff",
-        "ringWidth": 1,
-        "ringStyle": "dashed",
-        "showScoreLabels": true,
-        "scoreLabelFontSize": 10,
-        "scoreLabelColor": "#000",
-        "scoreLabelStrokeColor": "#33333300"
-      }
+            // ---------- Default config ----------
+    const DEFAULT_CONFIG = {
+          "size": 800,
+          "startAngle": -90,
+          "center": {
+                "label": "Diagram Hub",
+                "radius": 100,
+                "color": "#475569",
+                "borderWidth": 8,
+                "borderColor": "#ffffff",
+                "fontSize": 14,
+                "fontColor": "#ffffff",
+                "visible": true
+          },
+          "scale": {
+                "min": 1,
+                "max": 5,
+                "rings": 5
+          },
+          "segments": [
+                {
+                      "name": "Segment 1",
+                      "color": "#3B82F6",
+                      "facets": [
+                            {
+                                  "name": "Section 1",
+                                  "score": 3
+                            }
+                      ]
+                },
+                {
+                      "name": "Segment 2",
+                      "color": "#8B5CF6",
+                      "facets": [
+                            {
+                                  "name": "Section 1",
+                                  "score": 4
+                            },
+                            {
+                                  "name": "Section 2",
+                                  "score": 2
+                            }
+                      ]
+                },
+                {
+                      "name": "Segment 3",
+                      "color": "#EC4899",
+                      "facets": [
+                            {
+                                  "name": "Section 1",
+                                  "score": 3
+                            },
+                            {
+                                  "name": "Section 2",
+                                  "score": 2
+                            },
+                            {
+                                  "name": "Section 3",
+                                  "score": 4
+                            }
+                      ]
+                },
+                {
+                      "name": "Segment 4",
+                      "color": "#F97316",
+                      "facets": [
+                            {
+                                  "name": "Section 1",
+                                  "score": 2
+                            },
+                            {
+                                  "name": "Section 2",
+                                  "score": 1
+                            },
+                            {
+                                  "name": "Section 3",
+                                  "score": 4
+                            },
+                            {
+                                  "name": "Section 4",
+                                  "score": 3
+                            }
+                      ]
+                },
+                {
+                      "name": "Segment 5",
+                      "color": "#22C55E",
+                      "facets": [
+                            {
+                                  "name": "Section 1",
+                                  "score": 5
+                            },
+                            {
+                                  "name": "Section 2",
+                                  "score": 3
+                            },
+                            {
+                                  "name": "Section 3",
+                                  "score": 4
+                            },
+                            {
+                                  "name": "Section 4",
+                                  "score": 2
+                            },
+                            {
+                                  "name": "Section 5",
+                                  "score": 3
+                            }
+                      ]
+                },
+                {
+                      "name": "Segment 6",
+                      "color": "#06B6D4",
+                      "facets": [
+                            {
+                                  "name": "Section 1",
+                                  "score": 3
+                            },
+                            {
+                                  "name": "Section 2",
+                                  "score": 4
+                            },
+                            {
+                                  "name": "Section 3",
+                                  "score": 2
+                            },
+                            {
+                                  "name": "Section 4",
+                                  "score": 5
+                            },
+                            {
+                                  "name": "Section 5",
+                                  "score": 1
+                            },
+                            {
+                                  "name": "Section 6",
+                                  "score": 4
+                            }
+                      ]
+                }
+          ],
+          "style": {
+                "fontFamily": "Verdana, sans-serif",
+                "segmentFontSize": 28,
+                "showSegmentDividers": true,
+                "segmentDividerWidth": 8,
+                "segmentDividerColor": "#ffffff",
+                "facetFontSize": 18,
+                "facetFontColor": "#000000",
+                "facetOpacity": 0.8,
+                "showFacetPoints": false,
+                "facetPointStyle": "circle",
+                "showRings": true,
+                "ringColor": "#fff",
+                "ringWidth": 1,
+                "ringStyle": "dashed",
+                "showScoreLabels": true,
+                "scoreLabelFontSize": 10,
+                "scoreLabelColor": "#000",
+                "scoreLabelStrokeColor": "#33333300"
+          }
     };
+    // ---------- Schema for static sections ----------
+    // Each entry: [path, label, kind, opts?]
+    // kinds: 'text', 'num', 'check', 'textarea', 'color', 'colorish', 'select'
+    const SECTIONS = [
+      { title: 'General', open: true, fields: [
+        ['size', 'Size (px)', 'num', { min: 400, max: 1400, step: 50 }],
+        ['startAngle', 'Start angle', 'num', { min: -360, max: 360, step: 1 }],
+        ['style.fontFamily', 'Font family', 'text'],
+        ['style.backgroundColor', 'Background', 'colorish', { placeholder: 'transparent' }],
+      ]},
+      { title: 'Centre', open: true, fields: [
+        ['center.label', 'Label (\\n for line break)', 'textarea'],
+        ['center.radius', 'Radius', 'num', { min: 20, max: 300, step: 5 }],
+        ['center.color', 'Fill', 'colorish'],
+        ['center.fontSize', 'Font size', 'num', { min: 6, max: 60, step: 1 }],
+        ['center.fontColor', 'Font colour', 'color'],
+        ['center.borderWidth', 'Border width', 'num', { min: 0, max: 30, step: 1 }],
+        ['center.borderColor', 'Border colour', 'color'],
+        ['center.visible', 'Visible', 'check'],
+      ]},
+      { title: 'Scale', fields: [
+        ['scale.min', 'Min', 'num', { min: 0, max: 100, step: 1 }],
+        ['scale.max', 'Max', 'num', { min: 1, max: 100, step: 1 }],
+        ['scale.rings', 'Rings', 'num', { min: 1, max: 10, step: 1 }],
+      ]},
+      { title: 'Style — Segment labels', fields: [
+        ['style.segmentFontSize', 'Font size', 'num', { min: 8, max: 60, step: 1 }],
+        ['style.segmentLabelPosition', 'Position', 'select', { options: [['outer', 'Outer (around the wheel)'], ['inner', 'Inner (around the hub)']] }],
+      ]},
+      { title: 'Style — Dividers', fields: [
+        ['style.showSegmentDividers', 'Show dividers', 'check'],
+        ['style.segmentDividerWidth', 'Width', 'num', { min: 0, max: 20, step: 1 }],
+        ['style.segmentDividerColor', 'Colour', 'color'],
+      ]},
+      { title: 'Style — Hub text', fields: [
+        ['style.hubFontSize', 'Font size', 'num', { min: 6, max: 40, step: 1 }],
+        ['style.hubFontColor', 'Colour', 'color'],
+      ]},
+      { title: 'Style — Facets', fields: [
+        ['style.facetFontSize', 'Font size', 'num', { min: 6, max: 40, step: 1 }],
+        ['style.facetFontColor', 'Colour', 'color'],
+        ['style.facetOpacity', 'Opacity', 'num', { min: 0, max: 1, step: 0.05 }],
+        ['style.showFacetPoints', 'Show points', 'check'],
+        ['style.facetPointStyle', 'Point style', 'select', { options: [['circle', 'circle'], ['dot', 'dot'], ['none', 'none']] }],
+      ]},
+      { title: 'Style — Rings & score labels', fields: [
+        ['style.showRings', 'Show rings', 'check'],
+        ['style.ringStyle', 'Ring style', 'select', { options: [['dashed', 'dashed'], ['solid', 'solid']] }],
+        ['style.ringColor', 'Ring colour', 'color'],
+        ['style.ringWidth', 'Ring width', 'num', { min: 0, max: 8, step: 1 }],
+        ['style.showScoreLabels', 'Show score labels', 'check'],
+        ['style.scoreLabelFontSize', 'Score font size', 'num', { min: 6, max: 30, step: 1 }],
+        ['style.scoreLabelColor', 'Score fill', 'color'],
+        ['style.scoreLabelStrokeColor', 'Score stroke', 'color'],
+      ]},
+    ];
 
-    document.addEventListener('DOMContentLoaded', function() {
-      document.getElementById('config-editor').value = JSON.stringify(exampleConfig, null, 2);
-      renderDiagram();
-    });
+    // ---------- State ----------
+    let config = structuredClone(DEFAULT_CONFIG);
 
-    function isColorDark(color) {
-      let hex = color.replace('#', '');
-      if (hex.length === 3) hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
-      if (hex.length < 6) return false;
-      const r = parseInt(hex.substring(0, 2), 16);
-      const g = parseInt(hex.substring(2, 4), 16);
-      const b = parseInt(hex.substring(4, 6), 16);
-      const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-      return luminance < 0.5;
+    function getPath(obj, path) {
+      return path.split('.').reduce((o, k) => (o ? o[k] : undefined), obj);
+    }
+    function setPath(obj, path, value) {
+      const keys = path.split('.');
+      const last = keys.pop();
+      const target = keys.reduce((o, k) => (o[k] = o[k] || {}), obj);
+      target[last] = value;
     }
 
-    function renderDiagram() {
-      const errorEl = document.getElementById('error');
-      const previewEl = document.getElementById('preview');
+    // ---------- Render form ----------
+    const formRoot = document.getElementById('form-root');
+
+    function render() {
+      formRoot.innerHTML = '';
+      for (const section of SECTIONS) formRoot.appendChild(renderSection(section));
+      formRoot.appendChild(renderSegmentsSection());
+      renderPreview();
+    }
+
+    function renderSection({ title, fields, open }) {
+      const det = el('details', { open: !!open });
+      det.appendChild(el('summary', {}, [title]));
+      const body = el('div', { class: 'section-body' });
+      for (const f of fields) body.appendChild(renderField(f));
+      det.appendChild(body);
+      return det;
+    }
+
+    function renderField([path, label, kind, opts = {}]) {
+      const id = 'f-' + path.replace(/\W/g, '-');
+      const value = getPath(config, path);
+      let input;
+      if (kind === 'check') {
+        input = el('input', { type: 'checkbox', id });
+        input.checked = !!value;
+        input.addEventListener('change', () => { setPath(config, path, input.checked); update(); });
+      } else if (kind === 'num') {
+        input = el('input', { type: 'number', id, min: opts.min, max: opts.max, step: opts.step });
+        input.value = value ?? '';
+        input.addEventListener('input', () => { setPath(config, path, input.value === '' ? undefined : Number(input.value)); update(); });
+      } else if (kind === 'textarea') {
+        input = el('textarea', { id, rows: 2 });
+        input.value = (value ?? '').replace(/\n/g, '\\n');
+        input.addEventListener('input', () => {
+          setPath(config, path, input.value.replace(/\\n/g, '\n'));
+          update();
+        });
+      } else if (kind === 'color') {
+        const txt = el('input', { type: 'text', id, placeholder: '#ffffff' });
+        txt.value = value ?? '';
+        const swatch = el('input', { type: 'color' });
+        swatch.value = toHex6(value) || '#000000';
+        txt.addEventListener('input', () => { setPath(config, path, txt.value || undefined); swatch.value = toHex6(txt.value) || swatch.value; update(); });
+        swatch.addEventListener('input', () => { txt.value = swatch.value; setPath(config, path, swatch.value); update(); });
+        input = el('div', { class: 'color-pair' }, [txt, swatch]);
+      } else if (kind === 'colorish') {
+        // Like color but allows arbitrary strings (e.g. 'transparent', alpha hex).
+        const txt = el('input', { type: 'text', id, placeholder: opts.placeholder || '#ffffff or transparent' });
+        txt.value = value ?? '';
+        const swatch = el('input', { type: 'color' });
+        swatch.value = toHex6(value) || '#ffffff';
+        txt.addEventListener('input', () => { setPath(config, path, txt.value || undefined); swatch.value = toHex6(txt.value) || swatch.value; update(); });
+        swatch.addEventListener('input', () => { txt.value = swatch.value; setPath(config, path, swatch.value); update(); });
+        input = el('div', { class: 'color-pair' }, [txt, swatch]);
+      } else if (kind === 'select') {
+        input = el('select', { id });
+        for (const [v, lbl] of opts.options) {
+          const o = el('option', { value: v }, [lbl]);
+          if (v === value) o.selected = true;
+          input.appendChild(o);
+        }
+        input.addEventListener('change', () => { setPath(config, path, input.value); update(); });
+      } else {
+        input = el('input', { type: 'text', id });
+        input.value = value ?? '';
+        input.addEventListener('input', () => { setPath(config, path, input.value || undefined); update(); });
+      }
+      return el('div', { class: 'row' }, [el('label', { for: id }, [label]), input]);
+    }
+
+    // ---------- Segments / Facets ----------
+    function renderSegmentsSection() {
+      const det = el('details', { open: true });
+      det.appendChild(el('summary', {}, [`Segments (${config.segments.length})`]));
+      const body = el('div', { class: 'section-body' });
+      config.segments.forEach((seg, idx) => body.appendChild(renderSegmentCard(seg, idx)));
+      const addBtn = el('button', { class: 'primary tiny' }, ['+ Add segment']);
+      addBtn.addEventListener('click', () => {
+        const nextColor = ['#3B82F6', '#8B5CF6', '#EC4899', '#F97316', '#22C55E', '#06B6D4', '#FACC15'][config.segments.length % 7];
+        config.segments.push({ name: `Segment ${config.segments.length + 1}`, color: nextColor, facets: [{ name: 'Facet 1', score: 3 }] });
+        render();
+      });
+      body.appendChild(addBtn);
+      det.appendChild(body);
+      return det;
+    }
+
+    function renderSegmentCard(seg, idx) {
+      const card = el('details', { class: 'seg-card', open: true });
+      const summary = el('summary', {}, [`${idx + 1}. ${seg.name || '(unnamed)'}`]);
+      card.style.borderLeftColor = seg.color || '#999';
+      card.appendChild(summary);
+      const body = el('div', { class: 'section-body' });
+
+      // Live-update card chrome (summary text + border colour) without
+      // re-rendering the whole form — re-rendering steals focus from
+      // whichever input the user is typing into.
+      const refreshChrome = () => {
+        summary.textContent = `${idx + 1}. ${seg.name || '(unnamed)'}`;
+        card.style.borderLeftColor = seg.color || '#999';
+      };
+
+      body.appendChild(rowLabel('Name', textareaInput(seg.name, v => { seg.name = v; refreshChrome(); update(); }, 2)));
+      body.appendChild(rowLabel('Colour', colorPair(seg.color, v => { seg.color = v; refreshChrome(); update(); })));
+      body.appendChild(rowLabel('Label colour', colorishPair(seg.labelColor, v => { seg.labelColor = v || undefined; update(); }, 'inherits Colour')));
+
+      const facetsHeader = el('div', { style: 'margin-top:8px; font-weight:600; font-size:12px;' }, [`Facets (${seg.facets.length})`]);
+      body.appendChild(facetsHeader);
+      const list = el('ul', { class: 'facet-list' });
+      seg.facets.forEach((f, fi) => list.appendChild(renderFacetRow(f, fi, seg)));
+      body.appendChild(list);
+
+      const addFacet = el('button', { class: 'tiny' }, ['+ Add facet']);
+      addFacet.addEventListener('click', () => {
+        seg.facets.push({ name: 'New facet', score: Math.round((config.scale.min + config.scale.max) / 2) });
+        render();
+      });
+
+      const moveUp = el('button', { class: 'tiny' }, ['↑']);
+      moveUp.disabled = idx === 0;
+      moveUp.addEventListener('click', () => { const a = config.segments; [a[idx - 1], a[idx]] = [a[idx], a[idx - 1]]; render(); });
+      const moveDown = el('button', { class: 'tiny' }, ['↓']);
+      moveDown.disabled = idx === config.segments.length - 1;
+      moveDown.addEventListener('click', () => { const a = config.segments; [a[idx], a[idx + 1]] = [a[idx + 1], a[idx]]; render(); });
+      const del = el('button', { class: 'tiny danger' }, ['Delete']);
+      del.addEventListener('click', () => { if (confirm(`Delete segment "${seg.name}"?`)) { config.segments.splice(idx, 1); render(); } });
+
+      const actions = el('div', { class: 'actions' }, [addFacet, moveUp, moveDown, del]);
+      body.appendChild(actions);
+      card.appendChild(body);
+      return card;
+    }
+
+    function renderFacetRow(f, fi, seg) {
+      const li = el('li', { class: 'facet-row' });
+      const nameInput = el('textarea', { rows: 1 });
+      nameInput.value = (f.name || '').replace(/\n/g, '\\n');
+      nameInput.addEventListener('input', () => { f.name = nameInput.value.replace(/\\n/g, '\n'); update(); });
+
+      const scoreCell = el('div', { class: 'score-cell' });
+      const scoreInput = el('input', { type: 'number', min: config.scale.min, max: config.scale.max, step: 1 });
+      scoreInput.value = f.score ?? '';
+      scoreInput.addEventListener('input', () => { f.score = scoreInput.value === '' ? null : Number(scoreInput.value); update(); });
+      scoreCell.appendChild(scoreInput);
+
+      const del = el('button', { class: 'tiny danger' }, ['×']);
+      del.title = 'Remove facet';
+      del.addEventListener('click', () => { seg.facets.splice(fi, 1); render(); });
+
+      li.appendChild(nameInput);
+      li.appendChild(scoreCell);
+      li.appendChild(del);
+      return li;
+    }
+
+    // ---------- Helpers ----------
+    function el(tag, attrs = {}, children = []) {
+      const e = document.createElement(tag);
+      for (const [k, v] of Object.entries(attrs)) {
+        if (v === undefined || v === null || v === false) continue;
+        if (k === 'class') e.className = v;
+        else e.setAttribute(k, v);
+      }
+      for (const c of children) e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+      return e;
+    }
+    function rowLabel(label, control) {
+      return el('div', { class: 'row' }, [el('label', {}, [label]), control]);
+    }
+    function textareaInput(value, onChange, rows = 2) {
+      const ta = el('textarea', { rows });
+      ta.value = (value ?? '').replace(/\n/g, '\\n');
+      ta.addEventListener('input', () => onChange(ta.value.replace(/\\n/g, '\n')));
+      return ta;
+    }
+    function colorPair(value, onChange) {
+      const txt = el('input', { type: 'text' });
+      txt.value = value ?? '';
+      const swatch = el('input', { type: 'color' });
+      swatch.value = toHex6(value) || '#000000';
+      txt.addEventListener('input', () => { swatch.value = toHex6(txt.value) || swatch.value; onChange(txt.value); });
+      swatch.addEventListener('input', () => { txt.value = swatch.value; onChange(swatch.value); });
+      return el('div', { class: 'color-pair' }, [txt, swatch]);
+    }
+    function colorishPair(value, onChange, placeholder) {
+      const txt = el('input', { type: 'text', placeholder: placeholder || '' });
+      txt.value = value ?? '';
+      const swatch = el('input', { type: 'color' });
+      swatch.value = toHex6(value) || '#000000';
+      txt.addEventListener('input', () => { swatch.value = toHex6(txt.value) || swatch.value; onChange(txt.value); });
+      swatch.addEventListener('input', () => { txt.value = swatch.value; onChange(swatch.value); });
+      return el('div', { class: 'color-pair' }, [txt, swatch]);
+    }
+    function toHex6(v) {
+      if (typeof v !== 'string') return null;
+      const m = v.match(/^#([0-9a-fA-F]{6})/);
+      return m ? '#' + m[1] : null;
+    }
+
+    // ---------- Update / preview ----------
+    let renderTimer = null;
+    let jsonDirty = false;  // pause auto-mirror once user starts editing the JSON view
+    function update() {
+      // Mirror JSON view (unless user is editing it) & re-render preview (debounced).
+      if (!jsonDirty) {
+        document.getElementById('json-view').value = JSON.stringify(stripBlanks(config), null, 2);
+        document.getElementById('json-status').textContent = '';
+      }
+      clearTimeout(renderTimer);
+      renderTimer = setTimeout(renderPreview, 150);
+    }
+
+    function stripBlanks(c) {
+      // Drop empty-string optional values so the rendered JSON stays tidy.
+      const out = JSON.parse(JSON.stringify(c));
+      if (out.style && out.style.backgroundColor === '') delete out.style.backgroundColor;
+      return out;
+    }
+
+    function renderPreview() {
+      const errEl = document.getElementById('form-error');
       try {
-        const configText = document.getElementById('config-editor').value;
-        const config = JSON.parse(configText);
-        const fullConfig = createConfig(config);
-        const renderer = new SVGRenderer(fullConfig);
-        currentSVG = renderer.render();
-        previewEl.innerHTML = currentSVG;
-        errorEl.textContent = '';
-        const bgColor = config.style?.backgroundColor || '#ffffff';
-        previewEl.style.backgroundColor = bgColor;
-        previewEl.classList.toggle('dark', isColorDark(bgColor));
+        const full = createConfig(stripBlanks(config));
+        const svg = new SVGRenderer(full).render();
+        document.getElementById('preview').innerHTML = svg;
+        errEl.textContent = '';
       } catch (e) {
-        errorEl.textContent = 'Error: ' + e.message;
+        errEl.textContent = e.message;
       }
     }
 
-    function downloadSVG() {
-      if (!currentSVG) { alert('Please render a diagram first'); return; }
-      const blob = new Blob([currentSVG], { type: 'image/svg+xml' });
+    // ---------- Toolbar ----------
+    document.getElementById('btn-render').addEventListener('click', renderPreview);
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      if (!confirm('Reset to default? Your current config will be lost.')) return;
+      config = structuredClone(DEFAULT_CONFIG);
+      jsonDirty = false;
+      render();
+      update();
+    });
+    document.getElementById('btn-download-svg').addEventListener('click', () => {
+      const svg = document.querySelector('#preview svg');
+      if (!svg) return;
+      const blob = new Blob([svg.outerHTML], { type: 'image/svg+xml' });
+      downloadBlob(blob, 'radial-diagram.svg');
+    });
+    document.getElementById('btn-download-png').addEventListener('click', () => {
+      // PowerPoint's SVG parser drops <textPath> labels; export PNG for PPT use.
+      const svgEl = document.querySelector('#preview svg');
+      if (!svgEl) { alert('Render a diagram first.'); return; }
+      const clone = svgEl.cloneNode(true);
+      clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+      const svgString = new XMLSerializer().serializeToString(clone);
+      const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+      const svgUrl = URL.createObjectURL(svgBlob);
+      const img = new Image();
+      img.onload = () => {
+        try {
+          // Use the SVG's natural pixel dimensions as the base.
+          const w = svgEl.width.baseVal.value || config.size || 800;
+          const h = svgEl.height.baseVal.value || config.size || 800;
+          const scale = 2;
+          const canvas = document.createElement('canvas');
+          canvas.width = w * scale;
+          canvas.height = h * scale;
+          const ctx = canvas.getContext('2d');
+          // Paint a background only if the user has configured one. Leaving it
+          // unset (or 'transparent') yields a true alpha-channel transparent PNG,
+          // which is what PPT etc. need to drop the diagram onto any slide.
+          const bg = config.style && config.style.backgroundColor;
+          if (bg && bg !== 'transparent') {
+            ctx.fillStyle = bg;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+          }
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          URL.revokeObjectURL(svgUrl);
+          canvas.toBlob((blob) => {
+            if (!blob) { alert('PNG conversion failed.'); return; }
+            downloadBlob(blob, 'radial-diagram.png');
+          }, 'image/png');
+        } catch (e) {
+          URL.revokeObjectURL(svgUrl);
+          alert('PNG export failed: ' + e.message);
+        }
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(svgUrl);
+        alert('Failed to load SVG for PNG conversion.');
+      };
+      img.src = svgUrl;
+    });
+    document.getElementById('btn-download-json').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(stripBlanks(config), null, 2)], { type: 'application/json' });
+      downloadBlob(blob, 'radial-diagram-config.json');
+    });
+    function downloadBlob(blob, name) {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url;
-      a.download = 'radial-diagram.svg';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      a.href = url; a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
       URL.revokeObjectURL(url);
     }
 
-    function downloadPNG() {
-      if (!currentSVG) { alert('Please render a diagram first'); return; }
-      let bgColor = '#ffffff', size = 800;
+    // ---------- Import / paste ----------
+    function loadConfig(jsonStr, source = 'pasted JSON') {
+      const status = document.getElementById('json-status');
+      let parsed;
       try {
-        const config = JSON.parse(document.getElementById('config-editor').value);
-        bgColor = config.style?.backgroundColor || '#ffffff';
-        size = config.size || 800;
-      } catch (e) {}
-      try {
-        const svgEl = document.querySelector('#preview svg');
-        if (!svgEl) { alert('No SVG found. Please render a diagram first.'); return; }
-        const svgClone = svgEl.cloneNode(true);
-        svgClone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-        const serializer = new XMLSerializer();
-        const svgString = serializer.serializeToString(svgClone);
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const img = new Image();
-        const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
-        const svgUrl = URL.createObjectURL(svgBlob);
-        img.onload = function() {
-          try {
-            const scale = 2;
-            const canvasSize = (size + 140) * scale;
-            canvas.width = canvasSize;
-            canvas.height = canvasSize;
-            ctx.fillStyle = bgColor;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            URL.revokeObjectURL(svgUrl);
-            canvas.toBlob(function(blob) {
-              if (!blob) { alert('Failed to generate PNG.'); return; }
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = 'radial-diagram.png';
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
-              URL.revokeObjectURL(url);
-            }, 'image/png');
-          } catch (err) {
-            URL.revokeObjectURL(svgUrl);
-            alert('Failed to render PNG: ' + err.message);
-          }
-        };
-        img.onerror = function() {
-          URL.revokeObjectURL(svgUrl);
-          alert('Failed to load SVG for PNG conversion.');
-        };
-        img.src = svgUrl;
-      } catch (err) {
-        alert('Failed to export PNG: ' + err.message);
+        parsed = JSON.parse(jsonStr);
+      } catch (e) {
+        status.style.color = '#c00';
+        status.textContent = `Parse error: ${e.message}`;
+        return false;
       }
+      if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.segments)) {
+        status.style.color = '#c00';
+        status.textContent = 'Not a valid diagram config (missing segments array).';
+        return false;
+      }
+      // Sanity-check by running it through the renderer's validator.
+      try {
+        new SVGRenderer(createConfig(parsed));
+      } catch (e) {
+        status.style.color = '#c00';
+        status.textContent = `Invalid: ${e.message}`;
+        return false;
+      }
+      // Replace state and repopulate the form.
+      config = parsed;
+      // Backfill optional sections so the form has somewhere to bind to.
+      config.center = config.center || {};
+      config.scale = config.scale || { min: 1, max: 5, rings: 5 };
+      config.style = config.style || {};
+      jsonDirty = false;
+      render();
+      update();
+      status.style.color = '#0a0';
+      status.textContent = `Loaded ${source} — ${config.segments.length} segments.`;
+      setTimeout(() => { if (status.textContent.startsWith('Loaded')) status.textContent = ''; }, 3000);
+      return true;
     }
+
+    document.getElementById('btn-import-file').addEventListener('click', () => {
+      document.getElementById('file-input').click();
+    });
+    document.getElementById('file-input').addEventListener('change', async (ev) => {
+      const file = ev.target.files?.[0];
+      if (!file) return;
+      const text = await file.text();
+      loadConfig(text, file.name);
+      ev.target.value = ''; // allow re-picking the same file later
+    });
+    document.getElementById('btn-apply-json').addEventListener('click', () => {
+      loadConfig(document.getElementById('json-view').value, 'pasted JSON');
+    });
+    document.getElementById('json-view').addEventListener('input', () => {
+      jsonDirty = true;
+      const status = document.getElementById('json-status');
+      status.style.color = '#888';
+      status.textContent = 'Unapplied changes — click Apply JSON.';
+    });
+
+    // ---------- Boot ----------
+    render();
+    update();
   </script>
 </body>
 </html>

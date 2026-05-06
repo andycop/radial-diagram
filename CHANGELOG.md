@@ -4,6 +4,35 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.2.0
+
+### Added
+
+- **Form-driven editor** — new `demo/editor.html` provides a full UI for
+  building/editing a config: collapsible sections for general / centre /
+  scale / style, plus dynamic add/remove/reorder of segments and facets.
+  Loads the renderer via ES modules in dev mode.
+- **Single-file standalone is now the editor.** `scripts/build-standalone.js`
+  has been rewritten to take `demo/editor.html` as the source-of-truth template
+  and inline the compiled renderer from `dist/` into it. The output
+  `demo/radial-diagram.html` remains a single self-contained file you can
+  upload to a static host. This replaces the previous JSON-textarea-only
+  standalone with a more capable UI (which still includes a JSON paste/edit
+  panel underneath the preview).
+- **Import JSON** — the editor accepts JSON via either a file picker
+  (`Import JSON…` button) or paste-into-the-mirror plus `Apply JSON`.
+- **Download PNG** — bundled as a toolbar button alongside Download SVG.
+  Useful for PowerPoint/Keynote, which silently drop SVG `<textPath>`
+  segment labels.
+- **Transparent PNG export** — clearing the Background field now produces
+  a PNG with a real alpha channel (no rectangle, no chroma-key fringe).
+
+### Changed
+
+- The build script no longer regex-strips TypeScript by hand — it reads
+  the already-compiled JS from `dist/` and concatenates it into the
+  standalone, which is more robust against TS syntax variations.
+
 ## 2.1.0
 
 ### Added
