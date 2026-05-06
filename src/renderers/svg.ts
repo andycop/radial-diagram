@@ -83,6 +83,11 @@ export class SVGRenderer {
       elements.push(this.renderScoreLabels());
     }
 
+    // Flow arrows on top — opt-in via style.flowDirection.
+    if (this.config.style.flowDirection) {
+      elements.push(this.renderFlowArrows());
+    }
+
     return this.wrapSVG(elements.join('\n'));
   }
 
@@ -237,6 +242,63 @@ export class SVGRenderer {
     });
 
     return `<g class="segment-dividers">${elements.join('\n')}</g>`;
+  }
+
+  /**
+   * Draw a small directional arrow on each segment-to-segment boundary,
+   * indicating flow around the wheel. Wrap-around (last → first) is opt-in
+   * via `style.flowCloseLoop`. Triggered by `style.flowDirection` being set.
+   */
+  private renderFlowArrows(): string {
+    const { segments, startAngle, style } = this.config;
+    const direction = style.flowDirection;
+    if (!direction) return '';
+    const segAngle = segmentAngle(segments.length);
+    const arrowSize = style.flowArrowSize ?? 14;
+    const arrowColor = style.flowArrowColor || style.segmentDividerColor || '#ffffff';
+    // Sit just inside the outer wheel edge so the arrow is on the wheel.
+    const arrowRadius = this.outerRadius - arrowSize * 0.6;
+    const closeLoop = !!style.flowCloseLoop;
+    const tipLen = arrowSize;
+    const halfWidth = arrowSize * 0.5;
+
+    const elements: string[] = [];
+    // For n segments, there are n boundaries (i+1 mod n). Skip the last one
+    // (the wrap from segment n-1 back to 0) unless closeLoop is on.
+    for (let i = 0; i < segments.length; i++) {
+      if (i === segments.length - 1 && !closeLoop) break;
+      const boundaryAngle = startAngle + (i + 1) * segAngle;
+      // Tangent in screen-coords with +y down: at angle θ, position is
+      // (cos θ, sin θ); clockwise tangent is (-sin θ, cos θ).
+      const rad = (boundaryAngle * Math.PI) / 180;
+      const cosA = Math.cos(rad);
+      const sinA = Math.sin(rad);
+      const sign = direction === 'clockwise' ? 1 : -1;
+      const tx = -sinA * sign;
+      const ty =  cosA * sign;
+      // Radial unit vector (outward).
+      const rx = cosA;
+      const ry = sinA;
+
+      // Tip on the boundary, offset slightly along the flow direction so the
+      // arrow sits ON the boundary rather than crossing it.
+      const baseX = this.cx + arrowRadius * cosA;
+      const baseY = this.cy + arrowRadius * sinA;
+      const tipX  = baseX + tx * (tipLen * 0.5);
+      const tipY  = baseY + ty * (tipLen * 0.5);
+      const tailX = baseX - tx * (tipLen * 0.5);
+      const tailY = baseY - ty * (tipLen * 0.5);
+      const leftX  = tailX + rx * halfWidth;
+      const leftY  = tailY + ry * halfWidth;
+      const rightX = tailX - rx * halfWidth;
+      const rightY = tailY - ry * halfWidth;
+
+      elements.push(
+        `<polygon points="${tipX.toFixed(2)},${tipY.toFixed(2)} ${leftX.toFixed(2)},${leftY.toFixed(2)} ${rightX.toFixed(2)},${rightY.toFixed(2)}" fill="${arrowColor}" />`
+      );
+    }
+
+    return `<g class="flow-arrows">${elements.join('\n')}</g>`;
   }
 
   private renderFacetDividers(): string {

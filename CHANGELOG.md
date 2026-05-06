@@ -4,6 +4,21 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.3.0
+
+### Added
+
+- **Flow arrows.** New `style.flowDirection` option (`'clockwise'` |
+  `'counterclockwise'`) draws a small triangular arrow on each
+  segment-to-segment boundary, indicating flow around the wheel.
+  Companion options:
+  - `style.flowCloseLoop` (default `false`) — when `true`, the
+    arrow that wraps from the last segment back to the first is
+    also drawn.
+  - `style.flowArrowColor` — falls back to `segmentDividerColor`.
+  - `style.flowArrowSize` — default `14`px.
+  Exposed in the editor as a new "Style — Flow arrows" section.
+
 ## 2.2.0
 
 ### Added

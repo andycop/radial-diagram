@@ -152,6 +152,15 @@ The diagram is configured via JSON. See `demo/configs/example.json` for a comple
 | `segmentFontSize`       | number | 28        | Segment label font size                                              |
 | `segmentLabelPosition`  | string | `outer`   | Where the labelled colour band sits: `outer` (around the wheel) or `inner` (around the centre hub). See [Multi-line labels and label position](#multi-line-labels-and-label-position). |
 
+#### Flow arrows
+
+| Property          | Type    | Default | Description                                                                  |
+| ----------------- | ------- | ------- | ---------------------------------------------------------------------------- |
+| `flowDirection`   | string  |         | `clockwise` or `counterclockwise` to draw arrows on each segment boundary indicating flow. Unset = no arrows. |
+| `flowCloseLoop`   | boolean | false   | Also draw the wrap-around arrow (last segment → first).                      |
+| `flowArrowColor`  | string  |         | Fill colour for the arrows. Falls back to `segmentDividerColor`.             |
+| `flowArrowSize`   | number  | 14      | Length of each arrow in pixels.                                              |
+
 #### General
 
 | Property          | Type   | Default             | Description                              |

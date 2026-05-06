@@ -101,6 +101,14 @@ export interface StyleConfig {
     facetFontColor?: string;
     /** Where to render segment (dimension) labels: 'outer' = curved arc band outside the wheel; 'inner' = curved arc on top of the wedge near the centre hub */
     segmentLabelPosition?: 'outer' | 'inner';
+    /** Draw small directional arrows on each segment boundary indicating flow. Undefined = no arrows. */
+    flowDirection?: 'clockwise' | 'counterclockwise';
+    /** When `flowDirection` is set, also draw the arrow that wraps from the last segment back to the first. Default false. */
+    flowCloseLoop?: boolean;
+    /** Fill colour for flow arrows. Falls back to `segmentDividerColor`. */
+    flowArrowColor?: string;
+    /** Size (length) of flow arrows in pixels. Default 14. */
+    flowArrowSize?: number;
 }
 export interface DiagramConfig {
     /** Center hub configuration */

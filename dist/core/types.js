@@ -30,6 +30,8 @@ export const DEFAULT_STYLE = {
     segmentFontSize: 28,
     facetFontSize: 11,
     segmentLabelPosition: 'outer',
+    flowCloseLoop: false,
+    flowArrowSize: 14,
 };
 /** Default scale configuration */
 export const DEFAULT_SCALE = {

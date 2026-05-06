@@ -326,6 +326,7 @@
         <li><code>backgroundColor</code> — page background. Leave blank for transparent.</li>
         <li><code>showRings</code> + <code>showScoreLabels</code> — toggles for the radar-chart-style score visualisation.</li>
         <li><code>fontFamily</code>, <code>segmentFontSize</code>, <code>facetFontSize</code>, <code>hubFontSize</code> — typography overrides.</li>
+        <li><code>flowDirection</code> + <code>flowCloseLoop</code> — draw arrows on each segment boundary to indicate flow around the wheel; the wrap-around arrow (last → first) is opt-in.</li>
       </ul>
 
       <h3>Multi-line labels</h3>
@@ -572,6 +573,8 @@ const DEFAULT_STYLE = {
     segmentFontSize: 28,
     facetFontSize: 11,
     segmentLabelPosition: 'outer',
+    flowCloseLoop: false,
+    flowArrowSize: 14,
 };
 /** Default scale configuration */
 const DEFAULT_SCALE = {
@@ -724,6 +727,10 @@ class SVGRenderer {
         if (this.config.style.showScoreLabels) {
             elements.push(this.renderScoreLabels());
         }
+        // Flow arrows on top — opt-in via style.flowDirection.
+        if (this.config.style.flowDirection) {
+            elements.push(this.renderFlowArrows());
+        }
         return this.wrapSVG(elements.join('\n'));
     }
     wrapSVG(content) {
@@ -825,6 +832,58 @@ class SVGRenderer {
             elements.push(`<line x1="${inner.x}" y1="${inner.y}" x2="${outer.x}" y2="${outer.y}" stroke="${style.segmentDividerColor}" stroke-width="${style.segmentDividerWidth}" />`);
         });
         return `<g class="segment-dividers">${elements.join('\n')}</g>`;
+    }
+    /**
+     * Draw a small directional arrow on each segment-to-segment boundary,
+     * indicating flow around the wheel. Wrap-around (last → first) is opt-in
+     * via `style.flowCloseLoop`. Triggered by `style.flowDirection` being set.
+     */
+    renderFlowArrows() {
+        const { segments, startAngle, style } = this.config;
+        const direction = style.flowDirection;
+        if (!direction)
+            return '';
+        const segAngle = segmentAngle(segments.length);
+        const arrowSize = style.flowArrowSize ?? 14;
+        const arrowColor = style.flowArrowColor || style.segmentDividerColor || '#ffffff';
+        // Sit just inside the outer wheel edge so the arrow is on the wheel.
+        const arrowRadius = this.outerRadius - arrowSize * 0.6;
+        const closeLoop = !!style.flowCloseLoop;
+        const tipLen = arrowSize;
+        const halfWidth = arrowSize * 0.5;
+        const elements = [];
+        // For n segments, there are n boundaries (i+1 mod n). Skip the last one
+        // (the wrap from segment n-1 back to 0) unless closeLoop is on.
+        for (let i = 0; i < segments.length; i++) {
+            if (i === segments.length - 1 && !closeLoop)
+                break;
+            const boundaryAngle = startAngle + (i + 1) * segAngle;
+            // Tangent in screen-coords with +y down: at angle θ, position is
+            // (cos θ, sin θ); clockwise tangent is (-sin θ, cos θ).
+            const rad = (boundaryAngle * Math.PI) / 180;
+            const cosA = Math.cos(rad);
+            const sinA = Math.sin(rad);
+            const sign = direction === 'clockwise' ? 1 : -1;
+            const tx = -sinA * sign;
+            const ty = cosA * sign;
+            // Radial unit vector (outward).
+            const rx = cosA;
+            const ry = sinA;
+            // Tip on the boundary, offset slightly along the flow direction so the
+            // arrow sits ON the boundary rather than crossing it.
+            const baseX = this.cx + arrowRadius * cosA;
+            const baseY = this.cy + arrowRadius * sinA;
+            const tipX = baseX + tx * (tipLen * 0.5);
+            const tipY = baseY + ty * (tipLen * 0.5);
+            const tailX = baseX - tx * (tipLen * 0.5);
+            const tailY = baseY - ty * (tipLen * 0.5);
+            const leftX = tailX + rx * halfWidth;
+            const leftY = tailY + ry * halfWidth;
+            const rightX = tailX - rx * halfWidth;
+            const rightY = tailY - ry * halfWidth;
+            elements.push(`<polygon points="${tipX.toFixed(2)},${tipY.toFixed(2)} ${leftX.toFixed(2)},${leftY.toFixed(2)} ${rightX.toFixed(2)},${rightY.toFixed(2)}" fill="${arrowColor}" />`);
+        }
+        return `<g class="flow-arrows">${elements.join('\n')}</g>`;
     }
     renderFacetDividers() {
         const { segments, center, startAngle, style } = this.config;
@@ -1293,6 +1352,12 @@ function renderDiagram(config) {
         ['style.scoreLabelColor', 'Score fill', 'color'],
         ['style.scoreLabelStrokeColor', 'Score stroke', 'color'],
       ]},
+      { title: 'Style — Flow arrows', fields: [
+        ['style.flowDirection', 'Direction', 'select', { options: [['', 'None'], ['clockwise', 'Clockwise'], ['counterclockwise', 'Counter-clockwise']] }],
+        ['style.flowCloseLoop', 'Close the loop (last → first)', 'check'],
+        ['style.flowArrowColor', 'Arrow colour', 'colorish', { placeholder: 'inherits divider' }],
+        ['style.flowArrowSize', 'Arrow size', 'num', { min: 4, max: 40, step: 1 }],
+      ]},
     ];
 
     // ---------- State ----------
@@ -1367,10 +1432,15 @@ function renderDiagram(config) {
         input = el('select', { id });
         for (const [v, lbl] of opts.options) {
           const o = el('option', { value: v }, [lbl]);
-          if (v === value) o.selected = true;
+          if (v === (value ?? '')) o.selected = true;
           input.appendChild(o);
         }
-        input.addEventListener('change', () => { setPath(config, path, input.value); update(); });
+        // Treat the empty-string option as "unset" so it becomes undefined
+        // in the JSON, not a literal "" that strict consumers would reject.
+        input.addEventListener('change', () => {
+          setPath(config, path, input.value === '' ? undefined : input.value);
+          update();
+        });
       } else {
         input = el('input', { type: 'text', id });
         input.value = value ?? '';
@@ -1524,7 +1594,10 @@ function renderDiagram(config) {
     function stripBlanks(c) {
       // Drop empty-string optional values so the rendered JSON stays tidy.
       const out = JSON.parse(JSON.stringify(c));
-      if (out.style && out.style.backgroundColor === '') delete out.style.backgroundColor;
+      if (out.style) {
+        if (out.style.backgroundColor === '') delete out.style.backgroundColor;
+        if (out.style.flowArrowColor === '') delete out.style.flowArrowColor;
+      }
       return out;
     }
 

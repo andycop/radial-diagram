@@ -322,6 +322,7 @@
         <li><code>backgroundColor</code> — page background. Leave blank for transparent.</li>
         <li><code>showRings</code> + <code>showScoreLabels</code> — toggles for the radar-chart-style score visualisation.</li>
         <li><code>fontFamily</code>, <code>segmentFontSize</code>, <code>facetFontSize</code>, <code>hubFontSize</code> — typography overrides.</li>
+        <li><code>flowDirection</code> + <code>flowCloseLoop</code> — draw arrows on each segment boundary to indicate flow around the wheel; the wrap-around arrow (last → first) is opt-in.</li>
       </ul>
 
       <h3>Multi-line labels</h3>
@@ -379,6 +380,10 @@
         showScoreLabels: true,
         scoreLabelFontSize: 12,
         scoreLabelColor: '#333',
+        // flowDirection intentionally undefined (opt-in feature).
+        flowCloseLoop: false,
+        flowArrowSize: 14,
+        flowArrowColor: '',
         scoreLabelStrokeColor: '#ffffff',
         hubFontSize: 14,
         hubFontColor: '#ffffff',
@@ -439,6 +444,12 @@
         ['style.scoreLabelFontSize', 'Score font size', 'num', { min: 6, max: 30, step: 1 }],
         ['style.scoreLabelColor', 'Score fill', 'color'],
         ['style.scoreLabelStrokeColor', 'Score stroke', 'color'],
+      ]},
+      { title: 'Style — Flow arrows', fields: [
+        ['style.flowDirection', 'Direction', 'select', { options: [['', 'None'], ['clockwise', 'Clockwise'], ['counterclockwise', 'Counter-clockwise']] }],
+        ['style.flowCloseLoop', 'Close the loop (last → first)', 'check'],
+        ['style.flowArrowColor', 'Arrow colour', 'colorish', { placeholder: 'inherits divider' }],
+        ['style.flowArrowSize', 'Arrow size', 'num', { min: 4, max: 40, step: 1 }],
       ]},
     ];
 
@@ -514,10 +525,15 @@
         input = el('select', { id });
         for (const [v, lbl] of opts.options) {
           const o = el('option', { value: v }, [lbl]);
-          if (v === value) o.selected = true;
+          if (v === (value ?? '')) o.selected = true;
           input.appendChild(o);
         }
-        input.addEventListener('change', () => { setPath(config, path, input.value); update(); });
+        // Treat the empty-string option as "unset" so it becomes undefined
+        // in the JSON, not a literal "" that strict consumers would reject.
+        input.addEventListener('change', () => {
+          setPath(config, path, input.value === '' ? undefined : input.value);
+          update();
+        });
       } else {
         input = el('input', { type: 'text', id });
         input.value = value ?? '';
@@ -671,7 +687,10 @@
     function stripBlanks(c) {
       // Drop empty-string optional values so the rendered JSON stays tidy.
       const out = JSON.parse(JSON.stringify(c));
-      if (out.style && out.style.backgroundColor === '') delete out.style.backgroundColor;
+      if (out.style) {
+        if (out.style.backgroundColor === '') delete out.style.backgroundColor;
+        if (out.style.flowArrowColor === '') delete out.style.flowArrowColor;
+      }
       return out;
     }
 
