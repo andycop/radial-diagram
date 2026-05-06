@@ -882,7 +882,13 @@ class SVGRenderer {
             const tip = polarToCartesian(this.cx, this.cy, bandMid, tipAngle);
             const baseInner = polarToCartesian(this.cx, this.cy, bandInner, boundaryAngle);
             const baseOuter = polarToCartesian(this.cx, this.cy, bandOuter, boundaryAngle);
-            elements.push(`<polygon points="${tip.x.toFixed(2)},${tip.y.toFixed(2)} ${baseInner.x.toFixed(2)},${baseInner.y.toFixed(2)} ${baseOuter.x.toFixed(2)},${baseOuter.y.toFixed(2)}" fill="${fill}" stroke="${stroke}" stroke-width="${dividerWidth}" stroke-linejoin="round" />`);
+            // Filled triangle (no stroke — strokes centred on a polygon edge bleed
+            // half-width into the interior, which would draw a visible line down
+            // the base side of the arrow on top of the fill).
+            elements.push(`<polygon points="${tip.x.toFixed(2)},${tip.y.toFixed(2)} ${baseInner.x.toFixed(2)},${baseInner.y.toFixed(2)} ${baseOuter.x.toFixed(2)},${baseOuter.y.toFixed(2)}" fill="${fill}" />`);
+            // Outline on the two slanted sides only (baseInner → tip → baseOuter,
+            // open polyline so the base edge stays unstroked).
+            elements.push(`<polyline points="${baseInner.x.toFixed(2)},${baseInner.y.toFixed(2)} ${tip.x.toFixed(2)},${tip.y.toFixed(2)} ${baseOuter.x.toFixed(2)},${baseOuter.y.toFixed(2)}" fill="none" stroke="${stroke}" stroke-width="${dividerWidth}" stroke-linejoin="round" />`);
         }
         return `<g class="flow-arrows">${elements.join('\n')}</g>`;
     }

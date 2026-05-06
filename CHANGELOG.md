@@ -4,6 +4,16 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.3.2
+
+### Fixed
+
+- **Flow arrow base no longer shows a stroke through the fill.** SVG strokes
+  centre on the path edge, which painted half the divider-coloured outline
+  inside the filled triangle as a vertical line through the arrow. Arrows
+  now stroke only the two slanted edges (baseInner → tip → baseOuter); the
+  base side stays unstroked.
+
 ## 2.3.1
 
 ### Changed
