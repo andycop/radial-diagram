@@ -232,6 +232,11 @@ export class SVGRenderer {
     const elements: string[] = [];
 
     segments.forEach((_, i) => {
+      // Suppress the divider at boundaries where a flow arrow already
+      // sits on the band — the line previously appeared to "go through"
+      // the arrow because it kept extending into the wedge area.
+      if (this.hasFlowArrowAt(i, segments.length)) return;
+
       const angle = startAngle + i * segAngle;
       const inner = polarToCartesian(this.cx, this.cy, center.radius, angle);
       const outer = polarToCartesian(this.cx, this.cy, this.outerRadius, angle);
@@ -242,6 +247,19 @@ export class SVGRenderer {
     });
 
     return `<g class="segment-dividers">${elements.join('\n')}</g>`;
+  }
+
+  /**
+   * True when a flow arrow is rendered at the given segment boundary index.
+   * Boundary 0 is the wrap-around (between segment n-1 and segment 0); the
+   * arrow there is opt-in via `style.flowCloseLoop`. Boundaries 1..n-1 are
+   * the in-between divisions and always carry an arrow when flow is enabled.
+   */
+  private hasFlowArrowAt(boundaryIndex: number, totalSegments: number): boolean {
+    const style = this.config.style;
+    if (!style.flowDirection) return false;
+    if (boundaryIndex === 0) return !!style.flowCloseLoop;
+    return boundaryIndex >= 1 && boundaryIndex < totalSegments;
   }
 
   /**
@@ -498,8 +516,10 @@ export class SVGRenderer {
       );
       backgrounds.push(`<path d="${bgPath}" fill="${segment.labelColor || segment.color}" />`);
 
-      // Radial dividers between segments along the band
-      if (style.showSegmentDividers) {
+      // Radial dividers between segments along the band — skipped where a
+      // flow arrow already sits, so it doesn't re-introduce the line that
+      // appears to cut through the arrow.
+      if (style.showSegmentDividers && !this.hasFlowArrowAt(i, segments.length)) {
         const inner = polarToCartesian(this.cx, this.cy, innerLabelRadius, segStart);
         const outer = polarToCartesian(this.cx, this.cy, outerLabelRadius, segStart);
         dividers.push(
@@ -631,8 +651,8 @@ export class SVGRenderer {
         `<path d="${bgPath}" fill="${segment.labelColor || segment.color}" />`
       );
 
-      // Segment divider line (same as main segments)
-      if (style.showSegmentDividers) {
+      // Segment divider line (same as main segments) — skipped at flow-arrow boundaries.
+      if (style.showSegmentDividers && !this.hasFlowArrowAt(i, segments.length)) {
         const inner = polarToCartesian(this.cx, this.cy, innerLabelRadius, segStart);
         const outer = polarToCartesian(this.cx, this.cy, outerLabelRadius, segStart);
         dividers.push(

@@ -28,6 +28,13 @@ export declare class SVGRenderer {
     private renderScoreFills;
     private renderSegmentDividers;
     /**
+     * True when a flow arrow is rendered at the given segment boundary index.
+     * Boundary 0 is the wrap-around (between segment n-1 and segment 0); the
+     * arrow there is opt-in via `style.flowCloseLoop`. Boundaries 1..n-1 are
+     * the in-between divisions and always carry an arrow when flow is enabled.
+     */
+    private hasFlowArrowAt;
+    /**
      * Draw a chunky wedge-shaped arrow on each segment-to-segment boundary,
      * indicating flow around the wheel. The arrow lives on the dimension
      * label band (whichever side `style.segmentLabelPosition` puts it),

@@ -4,6 +4,17 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.3.3
+
+### Fixed
+
+- **Segment dividers no longer cut through flow arrows.** When
+  `style.flowDirection` is set, the radial divider line at every
+  boundary that carries a flow arrow is suppressed (both the main
+  wedge divider and the band's own divider). The wrap-around boundary
+  still draws a divider when `flowCloseLoop` is `false` because no
+  arrow sits there.
+
 ## 2.3.2
 
 ### Fixed
