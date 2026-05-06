@@ -1,6 +1,6 @@
 {
   "name": "radial-diagram",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "Configurable circular/radial diagram generator",
   "type": "module",
   "main": "dist/index.js",

@@ -28,9 +28,12 @@ export declare class SVGRenderer {
     private renderScoreFills;
     private renderSegmentDividers;
     /**
-     * Draw a small directional arrow on each segment-to-segment boundary,
-     * indicating flow around the wheel. Wrap-around (last → first) is opt-in
-     * via `style.flowCloseLoop`. Triggered by `style.flowDirection` being set.
+     * Draw a chunky wedge-shaped arrow on each segment-to-segment boundary,
+     * indicating flow around the wheel. The arrow lives on the dimension
+     * label band (whichever side `style.segmentLabelPosition` puts it),
+     * coloured to match the source segment by default. Wrap-around
+     * (last → first) is opt-in via `style.flowCloseLoop`. Triggered by
+     * `style.flowDirection` being set.
      */
     private renderFlowArrows;
     private renderFacetDividers;

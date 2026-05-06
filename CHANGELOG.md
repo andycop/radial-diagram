@@ -4,6 +4,19 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.3.1
+
+### Changed
+
+- **Flow arrows redesigned.** Arrows now sit on the dimension label band
+  (outer band for `segmentLabelPosition: 'outer'`, inner band for
+  `'inner'`), making them feel attached to the labelled segment. Each
+  arrow defaults to the source segment's `labelColor || color`, gets the
+  `segmentDividerColor` outline, and the default tip length is the band
+  thickness — so the arrow is roughly as long tangentially as the
+  segment is "tall" radially. `style.flowArrowSize` still overrides;
+  `style.flowArrowColor` still forces a single colour for all arrows.
+
 ## 2.3.0
 
 ### Added

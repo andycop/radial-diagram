@@ -162,54 +162,55 @@ export class SVGRenderer {
         return `<g class="segment-dividers">${elements.join('\n')}</g>`;
     }
     /**
-     * Draw a small directional arrow on each segment-to-segment boundary,
-     * indicating flow around the wheel. Wrap-around (last → first) is opt-in
-     * via `style.flowCloseLoop`. Triggered by `style.flowDirection` being set.
+     * Draw a chunky wedge-shaped arrow on each segment-to-segment boundary,
+     * indicating flow around the wheel. The arrow lives on the dimension
+     * label band (whichever side `style.segmentLabelPosition` puts it),
+     * coloured to match the source segment by default. Wrap-around
+     * (last → first) is opt-in via `style.flowCloseLoop`. Triggered by
+     * `style.flowDirection` being set.
      */
     renderFlowArrows() {
-        const { segments, startAngle, style } = this.config;
+        const { segments, startAngle, style, center } = this.config;
         const direction = style.flowDirection;
         if (!direction)
             return '';
-        const segAngle = segmentAngle(segments.length);
-        const arrowSize = style.flowArrowSize ?? 14;
-        const arrowColor = style.flowArrowColor || style.segmentDividerColor || '#ffffff';
-        // Sit just inside the outer wheel edge so the arrow is on the wheel.
-        const arrowRadius = this.outerRadius - arrowSize * 0.6;
+        const segAngleDeg = segmentAngle(segments.length);
+        // Place the arrow on the same band as the dimension labels so it
+        // visually attaches to the source segment. Computed exactly the same
+        // way as renderSegmentLabelsInner / renderSegmentLabelsOuter.
+        const labelPosition = style.segmentLabelPosition || 'outer';
+        const baseFontSize = style.segmentFontSize || 28;
+        const phi = 1.618;
+        const maxLines = Math.max(...segments.map((s) => s.name.split('\n').length));
+        const arcThickness = (baseFontSize * phi) + baseFontSize + (maxLines - 1) * baseFontSize * 1.2;
+        const dividerWidth = style.segmentDividerWidth || 4;
+        const bandInner = labelPosition === 'outer'
+            ? this.outerRadius + dividerWidth / 2
+            : center.radius + dividerWidth / 2;
+        const bandOuter = bandInner + arcThickness;
+        const bandMid = (bandInner + bandOuter) / 2;
+        // Default: tip extends tangentially by the band's radial thickness, so
+        // the arrow is roughly as long as the segment is "tall".
+        const arrowSize = style.flowArrowSize ?? arcThickness;
+        // Convert pixel length into angular degrees at bandMid; cap so the arrow
+        // never spills more than 30 % of a segment into the neighbour.
+        const rawAngular = (arrowSize / bandMid) * (180 / Math.PI);
+        const tipAngularOffset = Math.min(rawAngular, segAngleDeg * 0.3);
         const closeLoop = !!style.flowCloseLoop;
-        const tipLen = arrowSize;
-        const halfWidth = arrowSize * 0.5;
+        const stroke = style.segmentDividerColor || '#ffffff';
         const elements = [];
-        // For n segments, there are n boundaries (i+1 mod n). Skip the last one
-        // (the wrap from segment n-1 back to 0) unless closeLoop is on.
         for (let i = 0; i < segments.length; i++) {
             if (i === segments.length - 1 && !closeLoop)
                 break;
-            const boundaryAngle = startAngle + (i + 1) * segAngle;
-            // Tangent in screen-coords with +y down: at angle θ, position is
-            // (cos θ, sin θ); clockwise tangent is (-sin θ, cos θ).
-            const rad = (boundaryAngle * Math.PI) / 180;
-            const cosA = Math.cos(rad);
-            const sinA = Math.sin(rad);
+            const sourceSeg = segments[i];
+            const fill = style.flowArrowColor || sourceSeg.labelColor || sourceSeg.color;
+            const boundaryAngle = startAngle + (i + 1) * segAngleDeg;
             const sign = direction === 'clockwise' ? 1 : -1;
-            const tx = -sinA * sign;
-            const ty = cosA * sign;
-            // Radial unit vector (outward).
-            const rx = cosA;
-            const ry = sinA;
-            // Tip on the boundary, offset slightly along the flow direction so the
-            // arrow sits ON the boundary rather than crossing it.
-            const baseX = this.cx + arrowRadius * cosA;
-            const baseY = this.cy + arrowRadius * sinA;
-            const tipX = baseX + tx * (tipLen * 0.5);
-            const tipY = baseY + ty * (tipLen * 0.5);
-            const tailX = baseX - tx * (tipLen * 0.5);
-            const tailY = baseY - ty * (tipLen * 0.5);
-            const leftX = tailX + rx * halfWidth;
-            const leftY = tailY + ry * halfWidth;
-            const rightX = tailX - rx * halfWidth;
-            const rightY = tailY - ry * halfWidth;
-            elements.push(`<polygon points="${tipX.toFixed(2)},${tipY.toFixed(2)} ${leftX.toFixed(2)},${leftY.toFixed(2)} ${rightX.toFixed(2)},${rightY.toFixed(2)}" fill="${arrowColor}" />`);
+            const tipAngle = boundaryAngle + tipAngularOffset * sign;
+            const tip = polarToCartesian(this.cx, this.cy, bandMid, tipAngle);
+            const baseInner = polarToCartesian(this.cx, this.cy, bandInner, boundaryAngle);
+            const baseOuter = polarToCartesian(this.cx, this.cy, bandOuter, boundaryAngle);
+            elements.push(`<polygon points="${tip.x.toFixed(2)},${tip.y.toFixed(2)} ${baseInner.x.toFixed(2)},${baseInner.y.toFixed(2)} ${baseOuter.x.toFixed(2)},${baseOuter.y.toFixed(2)}" fill="${fill}" stroke="${stroke}" stroke-width="${dividerWidth}" stroke-linejoin="round" />`);
         }
         return `<g class="flow-arrows">${elements.join('\n')}</g>`;
     }
