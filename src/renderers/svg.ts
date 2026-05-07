@@ -263,6 +263,21 @@ export class SVGRenderer {
   }
 
   /**
+   * When flow arrows are enabled, each segment's label is shifted in the flow
+   * direction by half the arrow's tip extent so the label sits centred over
+   * the segment-plus-arrow combined extent. Returns shift in degrees (signed).
+   */
+  private flowLabelShiftDeg(bandMid: number, segAngleDeg: number, arcThickness: number): number {
+    const style = this.config.style;
+    if (!style.flowDirection) return 0;
+    const arrowSize = style.flowArrowSize ?? arcThickness;
+    const rawAngular = (arrowSize / bandMid) * (180 / Math.PI);
+    const tipAngularOffset = Math.min(rawAngular, segAngleDeg * 0.3);
+    const sign = style.flowDirection === 'clockwise' ? 1 : -1;
+    return (tipAngularOffset / 2) * sign;
+  }
+
+  /**
    * Draw a chunky wedge-shaped arrow on each segment-to-segment boundary,
    * indicating flow around the wheel. The arrow lives on the dimension
    * label band (whichever side `style.segmentLabelPosition` puts it),
@@ -501,6 +516,7 @@ export class SVGRenderer {
     const textRadius = innerLabelRadius + (arcThickness / 2);
 
     const scaledFontSize = this.scaleSegmentFontSize(segments, segAngle, textRadius, baseFontSize);
+    const flowShiftDeg = this.flowLabelShiftDeg(textRadius, segAngle, arcThickness);
 
     segments.forEach((segment, i) => {
       const segStart = startAngle + i * segAngle;
@@ -527,7 +543,7 @@ export class SVGRenderer {
         );
       }
 
-      this.emitSegmentLabelLines(defs, texts, pathId, segStart, segEnd, midAngle, textRadius, scaledFontSize, segment.name);
+      this.emitSegmentLabelLines(defs, texts, pathId, segStart, segEnd, midAngle, textRadius, scaledFontSize, segment.name, flowShiftDeg);
     });
 
     // Ring dividers on both edges of the inner band: one between the band and
@@ -573,7 +589,8 @@ export class SVGRenderer {
     midAngle: number,
     textRadius: number,
     fontSize: number,
-    rawName: string
+    rawName: string,
+    flowShiftDeg = 0
   ): void {
     const segAngle = segEnd - segStart;
     const safe = rawName.replace(/&/g, '&amp;');
@@ -586,6 +603,10 @@ export class SVGRenderer {
     // arcs) read with it at the smaller radius (closer to the hub).
     const sign = useClockwise ? -1 : 1;
     const largeArc = segAngle - 6 > 180 ? 1 : 0;
+    // Shift the path's start/end by the same amount so the textPath midpoint
+    // (and therefore the rendered text) moves in the flow direction.
+    const startAng = segStart + 3 + flowShiftDeg;
+    const endAng = segEnd - 3 + flowShiftDeg;
 
     lines.forEach((line, idx) => {
       const offset = sign * (idx - (lines.length - 1) / 2) * lineHeight;
@@ -593,14 +614,14 @@ export class SVGRenderer {
       const linePathId = `${pathIdBase}-${idx}`;
 
       if (useClockwise) {
-        const s = polarToCartesian(this.cx, this.cy, lineRadius, segStart + 3);
-        const e = polarToCartesian(this.cx, this.cy, lineRadius, segEnd - 3);
+        const s = polarToCartesian(this.cx, this.cy, lineRadius, startAng);
+        const e = polarToCartesian(this.cx, this.cy, lineRadius, endAng);
         defs.push(
           `<path id="${linePathId}" d="M ${s.x} ${s.y} A ${lineRadius} ${lineRadius} 0 ${largeArc} 1 ${e.x} ${e.y}" fill="none" />`
         );
       } else {
-        const s = polarToCartesian(this.cx, this.cy, lineRadius, segEnd - 3);
-        const e = polarToCartesian(this.cx, this.cy, lineRadius, segStart + 3);
+        const s = polarToCartesian(this.cx, this.cy, lineRadius, endAng);
+        const e = polarToCartesian(this.cx, this.cy, lineRadius, startAng);
         defs.push(
           `<path id="${linePathId}" d="M ${s.x} ${s.y} A ${lineRadius} ${lineRadius} 0 ${largeArc} 0 ${e.x} ${e.y}" fill="none" />`
         );
@@ -634,6 +655,7 @@ export class SVGRenderer {
     const textRadius = innerLabelRadius + (arcThickness / 2); // Vertically centered
 
     const scaledFontSize = this.scaleSegmentFontSize(segments, segAngle, textRadius, baseFontSize);
+    const flowShiftDeg = this.flowLabelShiftDeg(textRadius, segAngle, arcThickness);
 
     segments.forEach((segment, i) => {
       const segStart = startAngle + i * segAngle;
@@ -660,7 +682,7 @@ export class SVGRenderer {
         );
       }
 
-      this.emitSegmentLabelLines(defs, texts, pathId, segStart, segEnd, midAngle, textRadius, scaledFontSize, segment.name);
+      this.emitSegmentLabelLines(defs, texts, pathId, segStart, segEnd, midAngle, textRadius, scaledFontSize, segment.name, flowShiftDeg);
     });
 
     // Add divider ring between main segments and label arc

@@ -4,6 +4,16 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.3.4
+
+### Fixed
+
+- **Segment labels follow flow.** When `style.flowDirection` is set,
+  each segment label is now shifted in the flow direction by half the
+  arrow's tip extent, so the label stays visually centred over the
+  segment-plus-arrow combined extent instead of crowding the trailing
+  edge.
+
 ## 2.3.3
 
 ### Fixed

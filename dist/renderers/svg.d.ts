@@ -35,6 +35,12 @@ export declare class SVGRenderer {
      */
     private hasFlowArrowAt;
     /**
+     * When flow arrows are enabled, each segment's label is shifted in the flow
+     * direction by half the arrow's tip extent so the label sits centred over
+     * the segment-plus-arrow combined extent. Returns shift in degrees (signed).
+     */
+    private flowLabelShiftDeg;
+    /**
      * Draw a chunky wedge-shaped arrow on each segment-to-segment boundary,
      * indicating flow around the wheel. The arrow lives on the dimension
      * label band (whichever side `style.segmentLabelPosition` puts it),
