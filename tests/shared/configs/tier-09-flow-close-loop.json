@@ -1,0 +1,66 @@
+{
+  "_comment": "Tier 09 — flow arrows with wrap-around (close loop) and counterclockwise direction. Tests the both flowCloseLoop=true and the opposite flow direction.",
+  "size": 700,
+  "startAngle": -90,
+  "center": {
+    "label": "Cycle",
+    "radius": 80,
+    "color": "#333333"
+  },
+  "scale": {
+    "min": 1,
+    "max": 5,
+    "rings": 5
+  },
+  "segments": [
+    {
+      "name": "Plan",
+      "color": "#4A90E2",
+      "facets": [
+        { "name": "P1", "score": 3 },
+        { "name": "P2", "score": 4 }
+      ]
+    },
+    {
+      "name": "Do",
+      "color": "#E27D60",
+      "facets": [
+        { "name": "D1", "score": 2 },
+        { "name": "D2", "score": 5 }
+      ]
+    },
+    {
+      "name": "Check",
+      "color": "#41B883",
+      "facets": [
+        { "name": "C1", "score": 4 },
+        { "name": "C2", "score": 3 }
+      ]
+    },
+    {
+      "name": "Act",
+      "color": "#C56CF0",
+      "facets": [
+        { "name": "A1", "score": 1 },
+        { "name": "A2", "score": 5 }
+      ]
+    }
+  ],
+  "style": {
+    "showRings": true,
+    "showScoreLabels": true,
+    "showSegmentDividers": true,
+    "segmentDividerWidth": 4,
+    "segmentDividerColor": "#ffffff",
+    "showFacetPoints": true,
+    "facetPointStyle": "circle",
+    "facetOpacity": 1,
+    "fontFamily": "Arial, sans-serif",
+    "segmentFontSize": 24,
+    "facetFontSize": 11,
+    "facetFontColor": "#000000",
+    "segmentLabelPosition": "outer",
+    "flowDirection": "counterclockwise",
+    "flowCloseLoop": true
+  }
+}

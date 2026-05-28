@@ -1,0 +1,46 @@
+{
+  "_comment": "Tier 03 — adds the 1..N score labels on the top of each ring.",
+  "size": 600,
+  "startAngle": -90,
+  "center": {
+    "label": "Core",
+    "radius": 80,
+    "color": "#333333"
+  },
+  "scale": {
+    "min": 1,
+    "max": 5,
+    "rings": 5
+  },
+  "segments": [
+    {
+      "name": "Alpha",
+      "color": "#4A90E2",
+      "facets": [
+        { "name": "A1", "score": 3 }
+      ]
+    },
+    {
+      "name": "Beta",
+      "color": "#E27D60",
+      "facets": [
+        { "name": "B1", "score": 4 }
+      ]
+    }
+  ],
+  "style": {
+    "showRings": true,
+    "ringColor": "#cccccc",
+    "ringWidth": 1,
+    "ringStyle": "dashed",
+    "showScoreLabels": true,
+    "scoreLabelFontSize": 14,
+    "scoreLabelColor": "#ffffff",
+    "scoreLabelStrokeColor": "#333333",
+    "showSegmentDividers": false,
+    "showFacetPoints": false,
+    "facetOpacity": 1,
+    "fontFamily": "Arial, sans-serif",
+    "segmentDividerColor": "#ffffff"
+  }
+}

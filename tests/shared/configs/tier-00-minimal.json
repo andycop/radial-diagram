@@ -1,0 +1,40 @@
+{
+  "_comment": "Tier 00 — absolute minimum. 2 segments, 1 facet each, no scores, all default style with most features OFF. This is the foundation case; if this breaks, everything breaks. Held stable across releases.",
+  "size": 600,
+  "startAngle": -90,
+  "center": {
+    "label": "Core",
+    "radius": 80,
+    "color": "#333333"
+  },
+  "scale": {
+    "min": 1,
+    "max": 5,
+    "rings": 5
+  },
+  "segments": [
+    {
+      "name": "Alpha",
+      "color": "#4A90E2",
+      "facets": [
+        { "name": "A1" }
+      ]
+    },
+    {
+      "name": "Beta",
+      "color": "#E27D60",
+      "facets": [
+        { "name": "B1" }
+      ]
+    }
+  ],
+  "style": {
+    "showRings": false,
+    "showScoreLabels": false,
+    "showSegmentDividers": false,
+    "showFacetPoints": false,
+    "facetOpacity": 1,
+    "fontFamily": "Arial, sans-serif",
+    "segmentDividerColor": "#ffffff"
+  }
+}

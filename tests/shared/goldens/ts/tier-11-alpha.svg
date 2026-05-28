@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-70 -70 740 740" width="600" height="600">
+  <style>
+    .segment-label { font-family: Arial, sans-serif; font-weight: bold; font-size: 28px; fill: white; dominant-baseline: middle; }
+    .facet-label { font-family: Arial, sans-serif; font-size: 11px; font-style: italic; fill: #000000; }
+    .center-label { font-family: Arial, sans-serif; font-weight: bold; font-size: 14px; fill: #ffffff; text-anchor: middle; }
+    .ring-label { font-family: Arial, sans-serif; font-size: 10px; fill: #666; }
+  </style>
+  <g class="segment-backgrounds"><path d="M 300 30 A 270 270 0 0 1 300 570 L 300 380 A 80 80 0 0 0 300 220 Z" fill="#4A90E2" opacity="0.3" />
+<path d="M 300 570 A 270 270 0 0 1 299.99999999999994 30 L 300 220 A 80 80 0 0 0 300 380 Z" fill="#E27D60" opacity="0.3" /></g>
+<g class="score-fills"><path d="M 300 106 A 194 194 0 0 1 300 494 L 300 380 A 80 80 0 0 0 300 220 Z" fill="#4A90E2" opacity="0.7" />
+<path d="M 300 532 A 232 232 0 0 1 299.99999999999994 68 L 300 220 A 80 80 0 0 0 300 380 Z" fill="#E27D60" opacity="0.7" /></g>
+<g class="segment-dividers"><line x1="300" y1="220" x2="300" y2="30" stroke="#ffffff" stroke-width="2" />
+<line x1="300" y1="380" x2="300" y2="570" stroke="#ffffff" stroke-width="2" /></g>
+<g class="facet-dividers"></g>
+<g class="center-hub"><circle cx="300" cy="300" r="80" fill="#8B3A6280" />
+<text x="300" y="300" class="center-label" style="font-size: 42px" dominant-baseline="middle">Glass</text></g>
+<g class="facet-labels"><text x="550" y="300" class="facet-label" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 550, 300)">A1</text>
+<text x="50" y="300.00000000000006" class="facet-label" text-anchor="start" dominant-baseline="middle" transform="rotate(360, 50, 300.00000000000006)">B1</text></g>
+<defs><path id="segment-path-0-0" d="M 316.10126161005417 -7.230373626314133 A 307.652 307.652 0 0 1 316.10126161005417 607.2303736263141" fill="none" />
+<path id="segment-path-1-0" d="M 283.8987383899459 607.2303736263141 A 307.652 307.652 0 0 1 283.8987383899457 -7.230373626314133" fill="none" /></defs>
+<circle cx="300" cy="300" r="270" fill="none" stroke="#ffffff" stroke-width="2" />
+<g class="segment-label-backgrounds"><path d="M 300 -44.303999999999974 A 344.304 344.304 0 0 1 300 644.304 L 300 571 A 271 271 0 0 0 300 29 Z" fill="#4A90E2" />
+<path d="M 300 644.304 A 344.304 344.304 0 0 1 299.99999999999994 -44.303999999999974 L 299.99999999999994 29 A 271 271 0 0 0 300 571 Z" fill="#E27D60" /></g>
+<g class="segment-label-dividers"><line x1="300" y1="29" x2="300" y2="-44.303999999999974" stroke="#ffffff" stroke-width="2" />
+<line x1="300" y1="571" x2="300" y2="644.304" stroke="#ffffff" stroke-width="2" /></g>
+<g class="segment-labels"><text class="segment-label" fill="white" style="font-size: 28px"><textPath href="#segment-path-0-0" startOffset="50%" text-anchor="middle">Alpha</textPath></text>
+<text class="segment-label" fill="white" style="font-size: 28px"><textPath href="#segment-path-1-0" startOffset="50%" text-anchor="middle">Beta</textPath></text></g>
+<g class="rings"><circle cx="300" cy="300" r="118" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="300" cy="300" r="156" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="300" cy="300" r="194" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="300" cy="300" r="232" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="300" cy="300" r="270" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" /></g>
+</svg>

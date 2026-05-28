@@ -4,6 +4,23 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.4.0
+
+### Added
+
+- **Python port.** A stdlib-only Python implementation of the renderer
+  lives in `python/`, mirroring the public API of `src/index.ts`. The
+  same JSON config produces visually identical SVG, so server-side
+  callers (e.g. PDF report pipelines) can render diagrams without
+  spinning up Node.
+- **Cross-language test harness.** New `tests/shared/` directory holds
+  a progressive tier ladder of fixtures (`tier-00-minimal` →
+  `tier-11-alpha`), where each tier turns on one additional feature on
+  top of the previous. Both renderers rasterise through the same
+  `@resvg/resvg-js` helper, and a `npm run regenerate-goldens` command
+  produces a 3-up (TS | diff | Python) HTML contact sheet for visual
+  eyeballing. Current state: pixel-identical output across every tier.
+
 ## 2.3.4
 
 ### Fixed

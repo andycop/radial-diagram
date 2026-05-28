@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-70 -70 740 740" width="600" height="600">
+  <style>
+    .segment-label { font-family: Arial, sans-serif; font-weight: bold; font-size: 28px; fill: white; dominant-baseline: middle; }
+    .facet-label { font-family: Arial, sans-serif; font-size: 11px; font-style: italic; fill: #000000; }
+    .center-label { font-family: Arial, sans-serif; font-weight: bold; font-size: 14px; fill: #ffffff; text-anchor: middle; }
+    .ring-label { font-family: Arial, sans-serif; font-size: 10px; fill: #666; }
+  </style>
+  <g class="segment-backgrounds"><path d="M 300 30 A 270 270 0 0 1 300 570 L 300 380 A 80 80 0 0 0 300 220 Z" fill="#4A90E2" opacity="0.3" />
+<path d="M 300 570 A 270 270 0 0 1 299.99999999999994 30 L 300 220 A 80 80 0 0 0 300 380 Z" fill="#E27D60" opacity="0.3" /></g>
+<g class="score-fills"><path d="M 300 106 A 194 194 0 0 1 300 494 L 300 380 A 80 80 0 0 0 300 220 Z" fill="#4A90E2" opacity="1" />
+<path d="M 300 532 A 232 232 0 0 1 299.99999999999994 68 L 300 220 A 80 80 0 0 0 300 380 Z" fill="#E27D60" opacity="1" /></g>
+<g class="facet-dividers"></g>
+<g class="center-hub"><circle cx="300" cy="300" r="80" fill="#333333" />
+<text x="300" y="300" class="center-label" style="font-size: 53px" dominant-baseline="middle">Core</text></g>
+<g class="facet-labels"><text x="550" y="300" class="facet-label" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 550, 300)">A1</text>
+<text x="50" y="300.00000000000006" class="facet-label" text-anchor="start" dominant-baseline="middle" transform="rotate(360, 50, 300.00000000000006)">B1</text></g>
+<defs><path id="segment-path-0-0" d="M 316.15359756629715 -8.229003161068704 A 308.652 308.652 0 0 1 316.15359756629715 608.2290031610687" fill="none" />
+<path id="segment-path-1-0" d="M 283.84640243370296 608.2290031610687 A 308.652 308.652 0 0 1 283.84640243370274 -8.229003161068704" fill="none" /></defs>
+
+<g class="segment-label-backgrounds"><path d="M 300 -45.303999999999974 A 345.304 345.304 0 0 1 300 645.304 L 300 572 A 272 272 0 0 0 300 28 Z" fill="#4A90E2" />
+<path d="M 300 645.304 A 345.304 345.304 0 0 1 299.99999999999994 -45.303999999999974 L 299.99999999999994 28 A 272 272 0 0 0 300 572 Z" fill="#E27D60" /></g>
+<g class="segment-label-dividers"></g>
+<g class="segment-labels"><text class="segment-label" fill="white" style="font-size: 28px"><textPath href="#segment-path-0-0" startOffset="50%" text-anchor="middle">Alpha</textPath></text>
+<text class="segment-label" fill="white" style="font-size: 28px"><textPath href="#segment-path-1-0" startOffset="50%" text-anchor="middle">Beta</textPath></text></g>
+<g class="rings"><circle cx="300" cy="300" r="118" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="300" cy="300" r="156" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="300" cy="300" r="194" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="300" cy="300" r="232" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="300" cy="300" r="270" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" /></g>
+<g class="score-labels"><text x="300" y="201" font-family="Arial, sans-serif" font-size="14px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" stroke="#333333" stroke-width="3" paint-order="stroke">1</text>
+<text x="300" y="163" font-family="Arial, sans-serif" font-size="14px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" stroke="#333333" stroke-width="3" paint-order="stroke">2</text>
+<text x="300" y="125" font-family="Arial, sans-serif" font-size="14px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" stroke="#333333" stroke-width="3" paint-order="stroke">3</text>
+<text x="300" y="87" font-family="Arial, sans-serif" font-size="14px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" stroke="#333333" stroke-width="3" paint-order="stroke">4</text>
+<text x="300" y="49" font-family="Arial, sans-serif" font-size="14px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" stroke="#333333" stroke-width="3" paint-order="stroke">5</text></g>
+</svg>

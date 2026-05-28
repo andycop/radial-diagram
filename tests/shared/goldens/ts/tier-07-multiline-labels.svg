@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-70 -70 840 840" width="700" height="700">
+  <style>
+    .segment-label { font-family: Arial, sans-serif; font-weight: bold; font-size: 22px; fill: white; dominant-baseline: middle; }
+    .facet-label { font-family: Arial, sans-serif; font-size: 10px; font-style: italic; fill: #000000; }
+    .center-label { font-family: Arial, sans-serif; font-weight: bold; font-size: 14px; fill: #ffffff; text-anchor: middle; }
+    .ring-label { font-family: Arial, sans-serif; font-size: 10px; fill: #666; }
+  </style>
+  <g class="segment-backgrounds"><path d="M 350 35 A 315 315 0 0 1 665 350 L 440 350 A 90 90 0 0 0 350 260 Z" fill="#4A90E2" opacity="0.3" />
+<path d="M 665 350 A 315 315 0 0 1 350 665 L 350 440 A 90 90 0 0 0 440 350 Z" fill="#E27D60" opacity="0.3" />
+<path d="M 350 665 A 315 315 0 0 1 35 350.00000000000006 L 260 350 A 90 90 0 0 0 350 440 Z" fill="#41B883" opacity="0.3" />
+<path d="M 35 350.00000000000006 A 315 315 0 0 1 349.99999999999994 35 L 350 260 A 90 90 0 0 0 260 350 Z" fill="#C56CF0" opacity="0.3" /></g>
+<g class="score-fills"><path d="M 350 125 A 225 225 0 0 1 509.0990257669732 190.90097423302683 L 413.6396103067893 286.3603896932107 A 90 90 0 0 0 350 260 Z" fill="#4A90E2" opacity="1" />
+<path d="M 540.9188309203678 159.0811690796322 A 270 270 0 0 1 620 350 L 440 350 A 90 90 0 0 0 413.6396103067893 286.3603896932107 Z" fill="#4A90E2" opacity="1" />
+<path d="M 530 350 A 180 180 0 0 1 477.27922061357856 477.27922061357856 L 413.6396103067893 413.6396103067893 A 90 90 0 0 0 440 350 Z" fill="#E27D60" opacity="1" />
+<path d="M 572.7386360737624 572.7386360737624 A 315 315 0 0 1 350 665 L 350 440 A 90 90 0 0 0 413.6396103067893 413.6396103067893 Z" fill="#E27D60" opacity="1" />
+<path d="M 350 620 A 270 270 0 0 1 159.0811690796322 540.9188309203678 L 286.3603896932107 413.6396103067893 A 90 90 0 0 0 350 440 Z" fill="#41B883" opacity="1" />
+<path d="M 190.90097423302683 509.0990257669732 A 225 225 0 0 1 125 350 L 260 350 A 90 90 0 0 0 286.3603896932107 413.6396103067893 Z" fill="#41B883" opacity="1" />
+<path d="M 215 350 A 135 135 0 0 1 254.54058453981605 254.5405845398161 L 286.3603896932107 286.3603896932107 A 90 90 0 0 0 260 350 Z" fill="#C56CF0" opacity="1" />
+<path d="M 127.2613639262375 127.26136392623755 A 315 315 0 0 1 349.99999999999994 35 L 350 260 A 90 90 0 0 0 286.3603896932107 286.3603896932107 Z" fill="#C56CF0" opacity="1" /></g>
+<g class="segment-dividers"><line x1="350" y1="260" x2="350" y2="35" stroke="#ffffff" stroke-width="2" />
+<line x1="440" y1="350" x2="665" y2="350" stroke="#ffffff" stroke-width="2" />
+<line x1="350" y1="440" x2="350" y2="665" stroke="#ffffff" stroke-width="2" />
+<line x1="260" y1="350" x2="35" y2="350.00000000000006" stroke="#ffffff" stroke-width="2" /></g>
+<g class="facet-dividers"><line x1="413.6396103067893" y1="286.3603896932107" x2="572.7386360737624" y2="127.26136392623755" stroke="#ffffff" stroke-width="1" opacity="0.5" />
+<circle cx="462.89161254770147" cy="77.4555379091704" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<circle cx="622.5444620908296" cy="237.10838745229853" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<line x1="413.6396103067893" y1="413.6396103067893" x2="572.7386360737624" y2="572.7386360737624" stroke="#ffffff" stroke-width="1" opacity="0.5" />
+<circle cx="622.5444620908296" cy="462.89161254770147" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<circle cx="462.89161254770147" cy="622.5444620908296" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<line x1="286.3603896932107" y1="413.6396103067893" x2="127.26136392623755" y2="572.7386360737624" stroke="#ffffff" stroke-width="1" opacity="0.5" />
+<circle cx="237.10838745229853" cy="622.5444620908296" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<circle cx="77.4555379091704" cy="462.8916125477015" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<line x1="286.3603896932107" y1="286.3603896932107" x2="127.2613639262375" y2="127.26136392623755" stroke="#ffffff" stroke-width="1" opacity="0.5" />
+<circle cx="77.45553790917035" cy="237.10838745229867" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<circle cx="237.1083874522986" cy="77.4555379091704" r="6" fill="white" stroke="#ffffff" stroke-width="1" /></g>
+<g class="center-hub"><circle cx="350" cy="350" r="90" fill="#333333" />
+<text x="350" y="334.4" class="center-label" style="font-size: 26px" dominant-baseline="middle">People</text>
+<text x="350" y="365.59999999999997" class="center-label" style="font-size: 26px" dominant-baseline="middle">&amp; Process</text></g>
+<g class="facet-labels"><text x="462.89161254770147" y="77.4555379091704" class="facet-label" text-anchor="end" dominant-baseline="middle" transform="rotate(-67.5, 462.89161254770147, 77.4555379091704)"><tspan x="462.89161254770147" dy="-0.6em">Sourcing</tspan><tspan x="462.89161254770147" dy="1.2em">&amp; Pipeline</tspan></text>
+<text x="622.5444620908296" y="237.10838745229853" class="facet-label" text-anchor="end" dominant-baseline="middle" transform="rotate(-22.5, 622.5444620908296, 237.10838745229853)"><tspan x="622.5444620908296" dy="-0.6em">Interview</tspan><tspan x="622.5444620908296" dy="1.2em">Loop</tspan></text>
+<text x="622.5444620908296" y="462.89161254770147" class="facet-label" text-anchor="end" dominant-baseline="middle" transform="rotate(22.5, 622.5444620908296, 462.89161254770147)"><tspan x="622.5444620908296" dy="-0.6em">Roles &amp;</tspan><tspan x="622.5444620908296" dy="1.2em">Levels</tspan></text>
+<text x="462.89161254770147" y="622.5444620908296" class="facet-label" text-anchor="end" dominant-baseline="middle" transform="rotate(67.5, 462.89161254770147, 622.5444620908296)"><tspan x="462.89161254770147" dy="-0.6em">Span of</tspan><tspan x="462.89161254770147" dy="1.2em">Control</tspan></text>
+<text x="237.10838745229853" y="622.5444620908296" class="facet-label" text-anchor="start" dominant-baseline="middle" transform="rotate(292.5, 237.10838745229853, 622.5444620908296)">Onboarding</text>
+<text x="77.4555379091704" y="462.8916125477015" class="facet-label" text-anchor="start" dominant-baseline="middle" transform="rotate(337.5, 77.4555379091704, 462.8916125477015)"><tspan x="77.4555379091704" dy="-0.6em">Career</tspan><tspan x="77.4555379091704" dy="1.2em">Paths</tspan></text>
+<text x="77.45553790917035" y="237.10838745229867" class="facet-label" text-anchor="start" dominant-baseline="middle" transform="rotate(382.5, 77.45553790917035, 237.10838745229867)">Goals</text>
+<text x="237.1083874522986" y="77.4555379091704" class="facet-label" text-anchor="start" dominant-baseline="middle" transform="rotate(427.5, 237.1083874522986, 77.4555379091704)">Reviews</text></g>
+<defs><path id="segment-path-0-0" d="M 369.4270022854683 -20.689286041828268 A 371.198 371.198 0 0 1 720.6892860418283 330.57299771453177" fill="none" />
+<path id="segment-path-0-1" d="M 368.0453330406546 5.67453367569243 A 344.798 344.798 0 0 1 694.3254663243076 331.95466695934545" fill="none" />
+<path id="segment-path-1-0" d="M 368.0453330406546 694.3254663243076 A 344.798 344.798 0 0 0 694.3254663243076 368.04533304065455" fill="none" />
+<path id="segment-path-1-1" d="M 369.4270022854683 720.6892860418283 A 371.198 371.198 0 0 0 720.6892860418283 369.42700228546823" fill="none" />
+<path id="segment-path-2-0" d="M 5.67453367569243 368.04533304065455 A 344.798 344.798 0 0 0 331.9546669593455 694.3254663243076" fill="none" />
+<path id="segment-path-2-1" d="M -20.689286041828268 369.42700228546823 A 371.198 371.198 0 0 0 330.5729977145318 720.6892860418283" fill="none" />
+<path id="segment-path-3-0" d="M -7.5073761830678905 331.26383233693866 A 357.998 357.998 0 0 1 331.26383233693844 -7.5073761830678905" fill="none" /></defs>
+<circle cx="350" cy="350" r="315" fill="none" stroke="#ffffff" stroke-width="2" />
+<g class="segment-label-backgrounds"><path d="M 350 -49.99599999999998 A 399.996 399.996 0 0 1 749.996 350 L 666 350 A 316 316 0 0 0 350 34 Z" fill="#4A90E2" />
+<path d="M 749.996 350 A 399.996 399.996 0 0 1 350 749.996 L 350 666 A 316 316 0 0 0 666 350 Z" fill="#E27D60" />
+<path d="M 350 749.996 A 399.996 399.996 0 0 1 -49.99599999999998 350.00000000000006 L 34 350.00000000000006 A 316 316 0 0 0 350 666 Z" fill="#41B883" />
+<path d="M -49.99599999999998 350.00000000000006 A 399.996 399.996 0 0 1 349.99999999999994 -49.99599999999998 L 349.99999999999994 34 A 316 316 0 0 0 34 350.00000000000006 Z" fill="#C56CF0" /></g>
+<g class="segment-label-dividers"><line x1="350" y1="34" x2="350" y2="-49.99599999999998" stroke="#ffffff" stroke-width="2" />
+<line x1="666" y1="350" x2="749.996" y2="350" stroke="#ffffff" stroke-width="2" />
+<line x1="350" y1="666" x2="350" y2="749.996" stroke="#ffffff" stroke-width="2" />
+<line x1="34" y1="350.00000000000006" x2="-49.99599999999998" y2="350.00000000000006" stroke="#ffffff" stroke-width="2" /></g>
+<g class="segment-labels"><text class="segment-label" fill="white" style="font-size: 22px"><textPath href="#segment-path-0-0" startOffset="50%" text-anchor="middle">Talent</textPath></text>
+<text class="segment-label" fill="white" style="font-size: 22px"><textPath href="#segment-path-0-1" startOffset="50%" text-anchor="middle">Acquisition</textPath></text>
+<text class="segment-label" fill="white" style="font-size: 22px"><textPath href="#segment-path-1-0" startOffset="50%" text-anchor="middle">Org</textPath></text>
+<text class="segment-label" fill="white" style="font-size: 22px"><textPath href="#segment-path-1-1" startOffset="50%" text-anchor="middle">Design</textPath></text>
+<text class="segment-label" fill="white" style="font-size: 22px"><textPath href="#segment-path-2-0" startOffset="50%" text-anchor="middle">Learning</textPath></text>
+<text class="segment-label" fill="white" style="font-size: 22px"><textPath href="#segment-path-2-1" startOffset="50%" text-anchor="middle">&amp; Dev</textPath></text>
+<text class="segment-label" fill="white" style="font-size: 22px"><textPath href="#segment-path-3-0" startOffset="50%" text-anchor="middle">Performance</textPath></text></g>
+<g class="rings"><circle cx="350" cy="350" r="135" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="350" cy="350" r="180" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="350" cy="350" r="225" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="350" cy="350" r="270" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="350" cy="350" r="315" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" /></g>
+<g class="score-labels"><text x="350" y="237.5" font-family="Arial, sans-serif" font-size="14px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" stroke="#333333" stroke-width="3" paint-order="stroke">1</text>
+<text x="350" y="192.5" font-family="Arial, sans-serif" font-size="14px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" stroke="#333333" stroke-width="3" paint-order="stroke">2</text>
+<text x="350" y="147.5" font-family="Arial, sans-serif" font-size="14px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" stroke="#333333" stroke-width="3" paint-order="stroke">3</text>
+<text x="350" y="102.5" font-family="Arial, sans-serif" font-size="14px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" stroke="#333333" stroke-width="3" paint-order="stroke">4</text>
+<text x="350" y="57.5" font-family="Arial, sans-serif" font-size="14px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" stroke="#333333" stroke-width="3" paint-order="stroke">5</text></g>
+</svg>

@@ -1,0 +1,46 @@
+[project]
+name = "radial-diagram"
+version = "2.4.0"
+description = "Configurable circular/radial diagram generator (Python port)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "CGA Management Ltd" }]
+keywords = [
+    "diagram",
+    "svg",
+    "radial",
+    "circular",
+    "radar-chart",
+    "wheel-chart",
+    "maturity-model",
+    "capability-assessment",
+]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Graphics",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "Pillow>=10"]
+
+[project.urls]
+Homepage = "https://www.cgamanagement.co.uk/category/tools"
+Repository = "https://github.com/andycop/radial-diagram"
+Issues = "https://github.com/andycop/radial-diagram/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["radial_diagram"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

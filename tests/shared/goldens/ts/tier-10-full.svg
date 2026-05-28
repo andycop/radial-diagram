@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-70 -70 940 940" width="800" height="800">
+  <style>
+    .segment-label { font-family: Arial, sans-serif; font-weight: bold; font-size: 22px; fill: white; dominant-baseline: middle; }
+    .facet-label { font-family: Arial, sans-serif; font-size: 11px; font-style: italic; fill: #000000; }
+    .center-label { font-family: Arial, sans-serif; font-weight: bold; font-size: 16px; fill: #ffffff; text-anchor: middle; }
+    .ring-label { font-family: Arial, sans-serif; font-size: 10px; fill: #666; }
+  </style>
+  <rect x="-70" y="-70" width="940" height="940" fill="#f5f5f0" />
+<g class="segment-backgrounds"><path d="M 400 40 A 360 360 0 0 1 760 400 L 500 400 A 100 100 0 0 0 400 300 Z" fill="#4A90E2" opacity="0.3" />
+<path d="M 760 400 A 360 360 0 0 1 400 760 L 400 500 A 100 100 0 0 0 500 400 Z" fill="#E27D60" opacity="0.3" />
+<path d="M 400 760 A 360 360 0 0 1 40 400.00000000000006 L 300 400 A 100 100 0 0 0 400 500 Z" fill="#41B883" opacity="0.3" />
+<path d="M 40 400.00000000000006 A 360 360 0 0 1 399.99999999999994 40 L 400 300 A 100 100 0 0 0 300 400 Z" fill="#C56CF0" opacity="0.3" /></g>
+<g class="score-fills"><path d="M 400 144 A 256 256 0 0 1 528 178.29749663118372 L 450 313.39745962155615 A 100 100 0 0 0 400 300 Z" fill="#4A90E2" opacity="1" />
+<path d="M 554 133.26417563439293 A 308 308 0 0 1 666.7358243656072 246.00000000000003 L 486.6025403784439 350 A 100 100 0 0 0 450 313.39745962155615 Z" fill="#4A90E2" opacity="1" />
+<path d="M 576.6691823720255 298 A 204 204 0 0 1 604 400 L 500 400 A 100 100 0 0 0 486.6025403784439 350 Z" fill="#4A90E2" opacity="1" />
+<path d="M 708 400 A 308 308 0 0 1 666.7358243656072 554 L 486.6025403784439 450 A 100 100 0 0 0 500 400 Z" fill="#E27D60" opacity="1" />
+<path d="M 621.7025033688163 528 A 256 256 0 0 1 528 621.7025033688162 L 450 486.60254037844385 A 100 100 0 0 0 486.6025403784439 450 Z" fill="#E27D60" opacity="1" />
+<path d="M 580 711.7691453623979 A 360 360 0 0 1 400 760 L 400 500 A 100 100 0 0 0 450 486.60254037844385 Z" fill="#E27D60" opacity="1" />
+<path d="M 400 656 A 256 256 0 0 1 272.00000000000006 621.7025033688163 L 350 486.6025403784439 A 100 100 0 0 0 400 500 Z" fill="#41B883" opacity="1" />
+<path d="M 246.00000000000006 666.7358243656072 A 308 308 0 0 1 133.26417563439287 554 L 313.3974596215561 450 A 100 100 0 0 0 350 486.6025403784439 Z" fill="#41B883" opacity="1" />
+<path d="M 223.3308176279745 502 A 204 204 0 0 1 196 400 L 300 400 A 100 100 0 0 0 313.3974596215561 450 Z" fill="#41B883" opacity="1" />
+<path d="M 40 400.00000000000006 A 360 360 0 0 1 88.23085463760208 219.99999999999997 L 313.39745962155615 350 A 100 100 0 0 0 300 400 Z" fill="#C56CF0" opacity="1" />
+<path d="M 178.29749663118372 272 A 256 256 0 0 1 271.9999999999999 178.29749663118375 L 349.99999999999994 313.39745962155615 A 100 100 0 0 0 313.39745962155615 350 Z" fill="#C56CF0" opacity="1" />
+<path d="M 245.99999999999986 133.26417563439293 A 308 308 0 0 1 399.99999999999994 92 L 400 300 A 100 100 0 0 0 349.99999999999994 313.39745962155615 Z" fill="#C56CF0" opacity="1" /></g>
+<g class="segment-dividers"></g>
+<g class="facet-dividers"><line x1="450" y1="313.39745962155615" x2="580" y2="88.23085463760208" stroke="#ffffff" stroke-width="1" opacity="0.5" />
+<line x1="486.6025403784439" y1="350" x2="711.7691453623979" y2="220.00000000000003" stroke="#ffffff" stroke-width="1" opacity="0.5" />
+<circle cx="487.99847533485706" cy="71.58521906171677" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<circle cx="640.4163056034262" cy="159.58369439657386" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<circle cx="728.4147809382832" cy="312.00152466514294" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<line x1="486.6025403784439" y1="450" x2="711.7691453623979" y2="580" stroke="#ffffff" stroke-width="1" opacity="0.5" />
+<line x1="450" y1="486.60254037844385" x2="580" y2="711.7691453623979" stroke="#ffffff" stroke-width="1" opacity="0.5" />
+<circle cx="728.4147809382832" cy="487.99847533485706" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<circle cx="640.4163056034262" cy="640.4163056034262" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<circle cx="487.99847533485706" cy="728.4147809382832" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<line x1="350" y1="486.6025403784439" x2="220.00000000000009" y2="711.7691453623979" stroke="#ffffff" stroke-width="1" opacity="0.5" />
+<line x1="313.3974596215561" y1="450" x2="88.23085463760208" y2="580" stroke="#ffffff" stroke-width="1" opacity="0.5" />
+<circle cx="312.00152466514294" cy="728.4147809382832" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<circle cx="159.58369439657386" cy="640.4163056034262" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<circle cx="71.58521906171683" cy="487.9984753348572" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<line x1="313.39745962155615" y1="350" x2="88.23085463760208" y2="219.99999999999997" stroke="#ffffff" stroke-width="1" opacity="0.5" />
+<line x1="349.99999999999994" y1="313.39745962155615" x2="219.99999999999983" y2="88.23085463760214" stroke="#ffffff" stroke-width="1" opacity="0.5" />
+<circle cx="71.58521906171671" cy="312.00152466514305" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<circle cx="159.58369439657378" cy="159.58369439657386" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<circle cx="312.001524665143" cy="71.58521906171677" r="6" fill="white" stroke="#ffffff" stroke-width="1" /></g>
+<g class="center-hub"><circle cx="400" cy="400" r="100" fill="#1f2d3d" stroke="#ffffff" stroke-width="4" />
+<text x="400" y="384.4" class="center-label" style="font-size: 26px" dominant-baseline="middle">Capability</text>
+<text x="400" y="415.59999999999997" class="center-label" style="font-size: 26px" dominant-baseline="middle">Maturity</text></g>
+<g class="facet-labels"><text x="487.99847533485706" y="71.58521906171677" class="facet-label" text-anchor="end" dominant-baseline="middle" transform="rotate(-75, 487.99847533485706, 71.58521906171677)">Direction</text>
+<text x="640.4163056034262" y="159.58369439657386" class="facet-label" text-anchor="end" dominant-baseline="middle" transform="rotate(-45, 640.4163056034262, 159.58369439657386)">Alignment</text>
+<text x="728.4147809382832" y="312.00152466514294" class="facet-label" text-anchor="end" dominant-baseline="middle" transform="rotate(-15, 728.4147809382832, 312.00152466514294)">Governance</text>
+<text x="728.4147809382832" y="487.99847533485706" class="facet-label" text-anchor="end" dominant-baseline="middle" transform="rotate(15, 728.4147809382832, 487.99847533485706)">Talent</text>
+<text x="640.4163056034262" y="640.4163056034262" class="facet-label" text-anchor="end" dominant-baseline="middle" transform="rotate(45, 640.4163056034262, 640.4163056034262)">Culture</text>
+<text x="487.99847533485706" y="728.4147809382832" class="facet-label" text-anchor="end" dominant-baseline="middle" transform="rotate(75, 487.99847533485706, 728.4147809382832)">Skills</text>
+<text x="312.00152466514294" y="728.4147809382832" class="facet-label" text-anchor="start" dominant-baseline="middle" transform="rotate(285, 312.00152466514294, 728.4147809382832)">Delivery</text>
+<text x="159.58369439657386" y="640.4163056034262" class="facet-label" text-anchor="start" dominant-baseline="middle" transform="rotate(315, 159.58369439657386, 640.4163056034262)">Quality</text>
+<text x="71.58521906171683" y="487.9984753348572" class="facet-label" text-anchor="start" dominant-baseline="middle" transform="rotate(345, 71.58521906171683, 487.9984753348572)">Improvement</text>
+<text x="71.58521906171671" y="312.00152466514305" class="facet-label" text-anchor="start" dominant-baseline="middle" transform="rotate(375, 71.58521906171671, 312.00152466514305)">Platforms</text>
+<text x="159.58369439657378" y="159.58369439657386" class="facet-label" text-anchor="start" dominant-baseline="middle" transform="rotate(405, 159.58369439657378, 159.58369439657386)">Data</text>
+<text x="312.001524665143" y="71.58521906171677" class="facet-label" text-anchor="start" dominant-baseline="middle" transform="rotate(435, 312.001524665143, 71.58521906171677)">Security</text></g>
+<defs><path id="segment-path-0-0" d="M 432.1392965470681 -15.958215234967554 A 417.198 417.198 0 0 1 817.0390238880525 388.48376109572615" fill="none" />
+<path id="segment-path-0-1" d="M 430.1055441588913 10.36333204522822 A 390.798 390.798 0 0 1 790.6490837861236 389.2125007039525" fill="none" />
+<path id="segment-path-1-0" d="M 410.78749929604743 790.6490837861236 A 390.798 390.798 0 0 0 789.6366679547718 430.10554415889123" fill="none" />
+<path id="segment-path-1-1" d="M 411.51623890427385 817.0390238880525 A 417.198 417.198 0 0 0 815.9582152349676 432.1392965470681" fill="none" />
+<path id="segment-path-2-0" d="M -3.8440538370880404 411.15186910016075 A 403.998 403.998 0 0 0 368.87757964702024 802.7974415948697" fill="none" />
+<path id="segment-path-3-0" d="M -15.958215234967554 367.86070345293194 A 417.198 417.198 0 0 1 388.4837610957262 -17.039023888052554" fill="none" />
+<path id="segment-path-3-1" d="M 10.36333204522822 369.89445584110877 A 390.798 390.798 0 0 1 389.21250070395257 9.350916213876474" fill="none" /></defs>
+<circle cx="400" cy="400" r="360" fill="none" stroke="#ffffff" stroke-width="4" />
+<g class="segment-label-backgrounds"><path d="M 400 -45.99599999999998 A 445.996 445.996 0 0 1 845.996 400 L 762 400 A 362 362 0 0 0 400 38 Z" fill="#2e6cb8" />
+<path d="M 845.996 400 A 445.996 445.996 0 0 1 400 845.996 L 400 762 A 362 362 0 0 0 762 400 Z" fill="#b85c43" />
+<path d="M 400 845.996 A 445.996 445.996 0 0 1 -45.99599999999998 400.00000000000006 L 38 400.00000000000006 A 362 362 0 0 0 400 762 Z" fill="#2e8a61" />
+<path d="M -45.99599999999998 400.00000000000006 A 445.996 445.996 0 0 1 399.99999999999994 -45.99599999999998 L 399.99999999999994 38 A 362 362 0 0 0 38 400.00000000000006 Z" fill="#9249bd" /></g>
+<g class="segment-label-dividers"></g>
+<g class="segment-labels"><text class="segment-label" fill="white" style="font-size: 22px"><textPath href="#segment-path-0-0" startOffset="50%" text-anchor="middle">Strategy</textPath></text>
+<text class="segment-label" fill="white" style="font-size: 22px"><textPath href="#segment-path-0-1" startOffset="50%" text-anchor="middle">&amp; Vision</textPath></text>
+<text class="segment-label" fill="white" style="font-size: 22px"><textPath href="#segment-path-1-0" startOffset="50%" text-anchor="middle">People</textPath></text>
+<text class="segment-label" fill="white" style="font-size: 22px"><textPath href="#segment-path-1-1" startOffset="50%" text-anchor="middle">&amp; Org</textPath></text>
+<text class="segment-label" fill="white" style="font-size: 22px"><textPath href="#segment-path-2-0" startOffset="50%" text-anchor="middle">Process</textPath></text>
+<text class="segment-label" fill="white" style="font-size: 22px"><textPath href="#segment-path-3-0" startOffset="50%" text-anchor="middle">Tech &amp;</textPath></text>
+<text class="segment-label" fill="white" style="font-size: 22px"><textPath href="#segment-path-3-1" startOffset="50%" text-anchor="middle">Data</textPath></text></g>
+<g class="rings"><circle cx="400" cy="400" r="152" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="400" cy="400" r="204" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="400" cy="400" r="256" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="400" cy="400" r="308" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="400" cy="400" r="360" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" /></g>
+<g class="score-labels"><text x="400" y="274" font-family="Arial, sans-serif" font-size="14px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" stroke="#333333" stroke-width="3" paint-order="stroke">1</text>
+<text x="400" y="222" font-family="Arial, sans-serif" font-size="14px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" stroke="#333333" stroke-width="3" paint-order="stroke">2</text>
+<text x="400" y="170" font-family="Arial, sans-serif" font-size="14px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" stroke="#333333" stroke-width="3" paint-order="stroke">3</text>
+<text x="400" y="118" font-family="Arial, sans-serif" font-size="14px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" stroke="#333333" stroke-width="3" paint-order="stroke">4</text>
+<text x="400" y="66" font-family="Arial, sans-serif" font-size="14px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" stroke="#333333" stroke-width="3" paint-order="stroke">5</text></g>
+<g class="flow-arrows"><polygon points="803.50,419.99 762.00,400.00 846.00,400.00" fill="#2e6cb8" />
+<polyline points="762.00,400.00 803.50,419.99 846.00,400.00" fill="none" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" />
+<polygon points="380.01,803.50 400.00,762.00 400.00,846.00" fill="#b85c43" />
+<polyline points="400.00,762.00 380.01,803.50 400.00,846.00" fill="none" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" />
+<polygon points="-3.50,380.01 38.00,400.00 -46.00,400.00" fill="#2e8a61" />
+<polyline points="38.00,400.00 -3.50,380.01 -46.00,400.00" fill="none" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" />
+<polygon points="419.99,-3.50 400.00,38.00 400.00,-46.00" fill="#9249bd" />
+<polyline points="400.00,38.00 419.99,-3.50 400.00,-46.00" fill="none" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" /></g>
+</svg>

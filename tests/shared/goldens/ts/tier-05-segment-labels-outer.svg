@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-70 -70 840 840" width="700" height="700">
+  <style>
+    .segment-label { font-family: Arial, sans-serif; font-weight: bold; font-size: 24px; fill: white; dominant-baseline: middle; }
+    .facet-label { font-family: Arial, sans-serif; font-size: 11px; font-style: italic; fill: #000000; }
+    .center-label { font-family: Arial, sans-serif; font-weight: bold; font-size: 14px; fill: #ffffff; text-anchor: middle; }
+    .ring-label { font-family: Arial, sans-serif; font-size: 10px; fill: #666; }
+  </style>
+  <g class="segment-backgrounds"><path d="M 350 35 A 315 315 0 0 1 665 350 L 430 350 A 80 80 0 0 0 350 270 Z" fill="#4A90E2" opacity="0.3" />
+<path d="M 665 350 A 315 315 0 0 1 350 665 L 350 430 A 80 80 0 0 0 430 350 Z" fill="#E27D60" opacity="0.3" />
+<path d="M 350 665 A 315 315 0 0 1 35 350.00000000000006 L 270 350 A 80 80 0 0 0 350 430 Z" fill="#41B883" opacity="0.3" />
+<path d="M 35 350.00000000000006 A 315 315 0 0 1 349.99999999999994 35 L 350 270 A 80 80 0 0 0 270 350 Z" fill="#C56CF0" opacity="0.3" /></g>
+<g class="score-fills"><path d="M 350 129 A 221 221 0 0 1 506.270598642227 193.729401357773 L 406.5685424949238 293.4314575050762 A 80 80 0 0 0 350 270 Z" fill="#4A90E2" opacity="1" />
+<path d="M 539.5046173579948 160.49538264200527 A 268 268 0 0 1 618 350 L 430 350 A 80 80 0 0 0 406.5685424949238 293.4314575050762 Z" fill="#4A90E2" opacity="1" />
+<path d="M 524 350 A 174 174 0 0 1 473.0365799264593 473.03657992645924 L 406.5685424949238 406.5685424949238 A 80 80 0 0 0 430 350 Z" fill="#E27D60" opacity="1" />
+<path d="M 572.7386360737624 572.7386360737624 A 315 315 0 0 1 350 665 L 350 430 A 80 80 0 0 0 406.5685424949238 406.5685424949238 Z" fill="#E27D60" opacity="1" />
+<path d="M 350 618 A 268 268 0 0 1 160.49538264200527 539.5046173579948 L 293.4314575050762 406.5685424949238 A 80 80 0 0 0 350 430 Z" fill="#41B883" opacity="1" />
+<path d="M 193.729401357773 506.270598642227 A 221 221 0 0 1 129 350 L 270 350 A 80 80 0 0 0 293.4314575050762 406.5685424949238 Z" fill="#41B883" opacity="1" />
+<path d="M 223 350 A 127 127 0 0 1 260.1974387893084 260.1974387893085 L 293.4314575050762 293.4314575050762 A 80 80 0 0 0 270 350 Z" fill="#C56CF0" opacity="1" />
+<path d="M 127.2613639262375 127.26136392623755 A 315 315 0 0 1 349.99999999999994 35 L 350 270 A 80 80 0 0 0 293.4314575050762 293.4314575050762 Z" fill="#C56CF0" opacity="1" /></g>
+<g class="segment-dividers"><line x1="350" y1="270" x2="350" y2="35" stroke="#ffffff" stroke-width="2" />
+<line x1="430" y1="350" x2="665" y2="350" stroke="#ffffff" stroke-width="2" />
+<line x1="350" y1="430" x2="350" y2="665" stroke="#ffffff" stroke-width="2" />
+<line x1="270" y1="350" x2="35" y2="350.00000000000006" stroke="#ffffff" stroke-width="2" /></g>
+<g class="facet-dividers"><line x1="406.5685424949238" y1="293.4314575050762" x2="572.7386360737624" y2="127.26136392623755" stroke="#ffffff" stroke-width="1" opacity="0.5" />
+<circle cx="462.89161254770147" cy="77.4555379091704" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<circle cx="622.5444620908296" cy="237.10838745229853" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<line x1="406.5685424949238" y1="406.5685424949238" x2="572.7386360737624" y2="572.7386360737624" stroke="#ffffff" stroke-width="1" opacity="0.5" />
+<circle cx="622.5444620908296" cy="462.89161254770147" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<circle cx="462.89161254770147" cy="622.5444620908296" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<line x1="293.4314575050762" y1="406.5685424949238" x2="127.26136392623755" y2="572.7386360737624" stroke="#ffffff" stroke-width="1" opacity="0.5" />
+<circle cx="237.10838745229853" cy="622.5444620908296" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<circle cx="77.4555379091704" cy="462.8916125477015" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<line x1="293.4314575050762" y1="293.4314575050762" x2="127.2613639262375" y2="127.26136392623755" stroke="#ffffff" stroke-width="1" opacity="0.5" />
+<circle cx="77.45553790917035" cy="237.10838745229867" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<circle cx="237.1083874522986" cy="77.4555379091704" r="6" fill="white" stroke="#ffffff" stroke-width="1" /></g>
+<g class="center-hub"><circle cx="350" cy="350" r="80" fill="#333333" />
+<text x="350" y="350" class="center-label" style="font-size: 53px" dominant-baseline="middle">Core</text></g>
+<g class="facet-labels"><text x="462.89161254770147" y="77.4555379091704" class="facet-label" text-anchor="end" dominant-baseline="middle" transform="rotate(-67.5, 462.89161254770147, 77.4555379091704)">N1</text>
+<text x="622.5444620908296" y="237.10838745229853" class="facet-label" text-anchor="end" dominant-baseline="middle" transform="rotate(-22.5, 622.5444620908296, 237.10838745229853)">N2</text>
+<text x="622.5444620908296" y="462.89161254770147" class="facet-label" text-anchor="end" dominant-baseline="middle" transform="rotate(22.5, 622.5444620908296, 462.89161254770147)">E1</text>
+<text x="462.89161254770147" y="622.5444620908296" class="facet-label" text-anchor="end" dominant-baseline="middle" transform="rotate(67.5, 462.89161254770147, 622.5444620908296)">E2</text>
+<text x="237.10838745229853" y="622.5444620908296" class="facet-label" text-anchor="start" dominant-baseline="middle" transform="rotate(292.5, 237.10838745229853, 622.5444620908296)">S1</text>
+<text x="77.4555379091704" y="462.8916125477015" class="facet-label" text-anchor="start" dominant-baseline="middle" transform="rotate(337.5, 77.4555379091704, 462.8916125477015)">S2</text>
+<text x="77.45553790917035" y="237.10838745229867" class="facet-label" text-anchor="start" dominant-baseline="middle" transform="rotate(382.5, 77.45553790917035, 237.10838745229867)">W1</text>
+<text x="237.1083874522986" y="77.4555379091704" class="facet-label" text-anchor="start" dominant-baseline="middle" transform="rotate(427.5, 237.1083874522986, 77.4555379091704)">W2</text></g>
+<defs><path id="segment-path-0-0" d="M 368.1823485740986 3.0601215537049598 A 347.416 347.416 0 0 1 696.9398784462951 331.81765142590143" fill="none" />
+<path id="segment-path-1-0" d="M 368.1823485740986 696.9398784462951 A 347.416 347.416 0 0 0 696.9398784462951 368.18234857409857" fill="none" />
+<path id="segment-path-2-0" d="M 3.0601215537049598 368.18234857409857 A 347.416 347.416 0 0 0 331.8176514259015 696.9398784462951" fill="none" />
+<path id="segment-path-3-0" d="M 3.0601215537049598 331.81765142590154 A 347.416 347.416 0 0 1 331.81765142590126 3.0601215537049598" fill="none" /></defs>
+<circle cx="350" cy="350" r="315" fill="none" stroke="#ffffff" stroke-width="2" />
+<g class="segment-label-backgrounds"><path d="M 350 -28.831999999999994 A 378.832 378.832 0 0 1 728.832 350 L 666 350 A 316 316 0 0 0 350 34 Z" fill="#4A90E2" />
+<path d="M 728.832 350 A 378.832 378.832 0 0 1 350 728.832 L 350 666 A 316 316 0 0 0 666 350 Z" fill="#E27D60" />
+<path d="M 350 728.832 A 378.832 378.832 0 0 1 -28.831999999999994 350.00000000000006 L 34 350.00000000000006 A 316 316 0 0 0 350 666 Z" fill="#41B883" />
+<path d="M -28.831999999999994 350.00000000000006 A 378.832 378.832 0 0 1 349.99999999999994 -28.831999999999994 L 349.99999999999994 34 A 316 316 0 0 0 34 350.00000000000006 Z" fill="#C56CF0" /></g>
+<g class="segment-label-dividers"><line x1="350" y1="34" x2="350" y2="-28.831999999999994" stroke="#ffffff" stroke-width="2" />
+<line x1="666" y1="350" x2="728.832" y2="350" stroke="#ffffff" stroke-width="2" />
+<line x1="350" y1="666" x2="350" y2="728.832" stroke="#ffffff" stroke-width="2" />
+<line x1="34" y1="350.00000000000006" x2="-28.831999999999994" y2="350.00000000000006" stroke="#ffffff" stroke-width="2" /></g>
+<g class="segment-labels"><text class="segment-label" fill="white" style="font-size: 24px"><textPath href="#segment-path-0-0" startOffset="50%" text-anchor="middle">North</textPath></text>
+<text class="segment-label" fill="white" style="font-size: 24px"><textPath href="#segment-path-1-0" startOffset="50%" text-anchor="middle">East</textPath></text>
+<text class="segment-label" fill="white" style="font-size: 24px"><textPath href="#segment-path-2-0" startOffset="50%" text-anchor="middle">South</textPath></text>
+<text class="segment-label" fill="white" style="font-size: 24px"><textPath href="#segment-path-3-0" startOffset="50%" text-anchor="middle">West</textPath></text></g>
+<g class="rings"><circle cx="350" cy="350" r="127" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="350" cy="350" r="174" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="350" cy="350" r="221" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="350" cy="350" r="268" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="350" cy="350" r="315" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" /></g>
+<g class="score-labels"><text x="350" y="246.5" font-family="Arial, sans-serif" font-size="14px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" stroke="#333333" stroke-width="3" paint-order="stroke">1</text>
+<text x="350" y="199.5" font-family="Arial, sans-serif" font-size="14px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" stroke="#333333" stroke-width="3" paint-order="stroke">2</text>
+<text x="350" y="152.5" font-family="Arial, sans-serif" font-size="14px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" stroke="#333333" stroke-width="3" paint-order="stroke">3</text>
+<text x="350" y="105.5" font-family="Arial, sans-serif" font-size="14px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" stroke="#333333" stroke-width="3" paint-order="stroke">4</text>
+<text x="350" y="58.5" font-family="Arial, sans-serif" font-size="14px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" stroke="#333333" stroke-width="3" paint-order="stroke">5</text></g>
+</svg>

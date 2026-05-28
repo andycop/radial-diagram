@@ -1,0 +1,64 @@
+{
+  "_comment": "Tier 07 — multi-line labels (center, segment, facet) via embedded \\n. Also tests ampersand escaping in labels.",
+  "size": 700,
+  "startAngle": -90,
+  "center": {
+    "label": "People\n& Process",
+    "radius": 90,
+    "color": "#333333"
+  },
+  "scale": {
+    "min": 1,
+    "max": 5,
+    "rings": 5
+  },
+  "segments": [
+    {
+      "name": "Talent\nAcquisition",
+      "color": "#4A90E2",
+      "facets": [
+        { "name": "Sourcing\n& Pipeline", "score": 3 },
+        { "name": "Interview\nLoop", "score": 4 }
+      ]
+    },
+    {
+      "name": "Org\nDesign",
+      "color": "#E27D60",
+      "facets": [
+        { "name": "Roles &\nLevels", "score": 2 },
+        { "name": "Span of\nControl", "score": 5 }
+      ]
+    },
+    {
+      "name": "Learning\n& Dev",
+      "color": "#41B883",
+      "facets": [
+        { "name": "Onboarding", "score": 4 },
+        { "name": "Career\nPaths", "score": 3 }
+      ]
+    },
+    {
+      "name": "Performance",
+      "color": "#C56CF0",
+      "facets": [
+        { "name": "Goals", "score": 1 },
+        { "name": "Reviews", "score": 5 }
+      ]
+    }
+  ],
+  "style": {
+    "showRings": true,
+    "showScoreLabels": true,
+    "showSegmentDividers": true,
+    "segmentDividerWidth": 2,
+    "segmentDividerColor": "#ffffff",
+    "showFacetPoints": true,
+    "facetPointStyle": "circle",
+    "facetOpacity": 1,
+    "fontFamily": "Arial, sans-serif",
+    "segmentFontSize": 22,
+    "facetFontSize": 10,
+    "facetFontColor": "#000000",
+    "segmentLabelPosition": "outer"
+  }
+}

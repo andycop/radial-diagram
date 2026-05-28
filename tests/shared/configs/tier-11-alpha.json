@@ -1,0 +1,44 @@
+{
+  "_comment": "Tier 11 — alpha / transparency. No backgroundColor (canvas stays transparent). Hub uses an 8-digit hex (#hexAA) for 50% alpha. facetOpacity at 0.7. Ensures: SVG output preserves alpha, the rasteriser keeps it through to PNG, and the cross-language diff catches any spurious opaque fill or dropped alpha.",
+  "size": 600,
+  "startAngle": -90,
+  "center": {
+    "label": "Glass",
+    "radius": 80,
+    "color": "#8B3A6280"
+  },
+  "scale": {
+    "min": 1,
+    "max": 5,
+    "rings": 5
+  },
+  "segments": [
+    {
+      "name": "Alpha",
+      "color": "#4A90E2",
+      "facets": [
+        { "name": "A1", "score": 3 }
+      ]
+    },
+    {
+      "name": "Beta",
+      "color": "#E27D60",
+      "facets": [
+        { "name": "B1", "score": 4 }
+      ]
+    }
+  ],
+  "style": {
+    "showRings": true,
+    "ringColor": "#cccccc",
+    "ringStyle": "dashed",
+    "showScoreLabels": false,
+    "showSegmentDividers": true,
+    "segmentDividerWidth": 2,
+    "segmentDividerColor": "#ffffff",
+    "showFacetPoints": false,
+    "facetOpacity": 0.7,
+    "fontFamily": "Arial, sans-serif",
+    "segmentLabelPosition": "outer"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "_comment": "Tier 01 — adds scores on facets, so score-fill wedges appear. Everything else identical to tier-00.",
+  "size": 600,
+  "startAngle": -90,
+  "center": {
+    "label": "Core",
+    "radius": 80,
+    "color": "#333333"
+  },
+  "scale": {
+    "min": 1,
+    "max": 5,
+    "rings": 5
+  },
+  "segments": [
+    {
+      "name": "Alpha",
+      "color": "#4A90E2",
+      "facets": [
+        { "name": "A1", "score": 3 }
+      ]
+    },
+    {
+      "name": "Beta",
+      "color": "#E27D60",
+      "facets": [
+        { "name": "B1", "score": 4 }
+      ]
+    }
+  ],
+  "style": {
+    "showRings": false,
+    "showScoreLabels": false,
+    "showSegmentDividers": false,
+    "showFacetPoints": false,
+    "facetOpacity": 1,
+    "fontFamily": "Arial, sans-serif",
+    "segmentDividerColor": "#ffffff"
+  }
+}

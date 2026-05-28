@@ -1,6 +1,6 @@
 {
   "name": "radial-diagram",
-  "version": "2.3.4",
+  "version": "2.4.0",
   "description": "Configurable circular/radial diagram generator",
   "type": "module",
   "main": "dist/index.js",
@@ -27,7 +27,9 @@
     "dev": "tsc --watch & live-server --port=3000 --host=0.0.0.0 --open=/demo/",
     "demo": "live-server --port=3000 --host=0.0.0.0 --open=/demo/",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "regenerate-goldens": "node tests/shared/regenerate-ts-goldens.mjs",
+    "test:equivalence": "node tests/shared/regenerate-ts-goldens.mjs && python/.venv/bin/python -m pytest python/tests/test_equivalence.py -v"
   },
   "keywords": [
     "diagram",
@@ -50,6 +52,7 @@
     "url": "https://github.com/andycop/radial-diagram/issues"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
     "live-server": "^1.2.2",
     "typescript": "^5.3.0",
     "vitest": "^4.0.16"

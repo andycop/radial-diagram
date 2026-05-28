@@ -1,0 +1,66 @@
+{
+  "_comment": "Tier 08 — flow arrows on inner boundaries (clockwise, no wrap-around).",
+  "size": 700,
+  "startAngle": -90,
+  "center": {
+    "label": "Flow",
+    "radius": 80,
+    "color": "#333333"
+  },
+  "scale": {
+    "min": 1,
+    "max": 5,
+    "rings": 5
+  },
+  "segments": [
+    {
+      "name": "Discover",
+      "color": "#4A90E2",
+      "facets": [
+        { "name": "Research", "score": 3 },
+        { "name": "Interview", "score": 4 }
+      ]
+    },
+    {
+      "name": "Design",
+      "color": "#E27D60",
+      "facets": [
+        { "name": "Sketch", "score": 2 },
+        { "name": "Prototype", "score": 5 }
+      ]
+    },
+    {
+      "name": "Build",
+      "color": "#41B883",
+      "facets": [
+        { "name": "Code", "score": 4 },
+        { "name": "Test", "score": 3 }
+      ]
+    },
+    {
+      "name": "Ship",
+      "color": "#C56CF0",
+      "facets": [
+        { "name": "Deploy", "score": 1 },
+        { "name": "Monitor", "score": 5 }
+      ]
+    }
+  ],
+  "style": {
+    "showRings": true,
+    "showScoreLabels": true,
+    "showSegmentDividers": true,
+    "segmentDividerWidth": 4,
+    "segmentDividerColor": "#ffffff",
+    "showFacetPoints": true,
+    "facetPointStyle": "circle",
+    "facetOpacity": 1,
+    "fontFamily": "Arial, sans-serif",
+    "segmentFontSize": 24,
+    "facetFontSize": 11,
+    "facetFontColor": "#000000",
+    "segmentLabelPosition": "outer",
+    "flowDirection": "clockwise",
+    "flowCloseLoop": false
+  }
+}

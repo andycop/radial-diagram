@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-70 -70 740 740" width="600" height="600">
+  <style>
+    .segment-label { font-family: Arial, sans-serif; font-weight: bold; font-size: 28px; fill: white; dominant-baseline: middle; }
+    .facet-label { font-family: Arial, sans-serif; font-size: 11px; font-style: italic; fill: #000000; }
+    .center-label { font-family: Arial, sans-serif; font-weight: bold; font-size: 14px; fill: #ffffff; text-anchor: middle; }
+    .ring-label { font-family: Arial, sans-serif; font-size: 10px; fill: #666; }
+  </style>
+  <g class="segment-backgrounds"><path d="M 300 30 A 270 270 0 0 1 300 570 L 300 380 A 80 80 0 0 0 300 220 Z" fill="#4A90E2" opacity="0.3" />
+<path d="M 300 570 A 270 270 0 0 1 299.99999999999994 30 L 300 220 A 80 80 0 0 0 300 380 Z" fill="#E27D60" opacity="0.3" /></g>
+<g class="score-fills"><path d="M 300 106 A 194 194 0 0 1 494 300 L 380 300 A 80 80 0 0 0 300 220 Z" fill="#4A90E2" opacity="1" />
+<path d="M 532 300 A 232 232 0 0 1 300 532 L 300 380 A 80 80 0 0 0 380 300 Z" fill="#4A90E2" opacity="1" />
+<path d="M 300 456 A 156 156 0 0 1 144 300 L 220 300 A 80 80 0 0 0 300 380 Z" fill="#E27D60" opacity="1" />
+<path d="M 30 300.00000000000006 A 270 270 0 0 1 299.99999999999994 30 L 300 220 A 80 80 0 0 0 220 300 Z" fill="#E27D60" opacity="1" /></g>
+<g class="segment-dividers"><line x1="300" y1="220" x2="300" y2="30" stroke="#ffffff" stroke-width="2" />
+<line x1="300" y1="380" x2="300" y2="570" stroke="#ffffff" stroke-width="2" /></g>
+<g class="facet-dividers"><line x1="380" y1="300" x2="570" y2="300" stroke="#ffffff" stroke-width="1" opacity="0.5" />
+<circle cx="476.7766952966369" cy="123.22330470336314" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<circle cx="476.7766952966369" cy="476.77669529663683" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<line x1="220" y1="300" x2="30" y2="300.00000000000006" stroke="#ffffff" stroke-width="1" opacity="0.5" />
+<circle cx="123.22330470336314" cy="476.7766952966369" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<circle cx="123.22330470336308" cy="123.22330470336314" r="6" fill="white" stroke="#ffffff" stroke-width="1" /></g>
+<g class="center-hub"><circle cx="300" cy="300" r="80" fill="#333333" />
+<text x="300" y="300" class="center-label" style="font-size: 53px" dominant-baseline="middle">Core</text></g>
+<g class="facet-labels"><text x="476.7766952966369" y="123.22330470336314" class="facet-label" text-anchor="end" dominant-baseline="middle" transform="rotate(-45, 476.7766952966369, 123.22330470336314)">A1</text>
+<text x="476.7766952966369" y="476.77669529663683" class="facet-label" text-anchor="end" dominant-baseline="middle" transform="rotate(45, 476.7766952966369, 476.77669529663683)">A2</text>
+<text x="123.22330470336314" y="476.7766952966369" class="facet-label" text-anchor="start" dominant-baseline="middle" transform="rotate(315, 123.22330470336314, 476.7766952966369)">B1</text>
+<text x="123.22330470336308" y="123.22330470336314" class="facet-label" text-anchor="start" dominant-baseline="middle" transform="rotate(405, 123.22330470336308, 123.22330470336314)">B2</text></g>
+<defs><path id="segment-path-0-0" d="M 316.10126161005417 -7.230373626314133 A 307.652 307.652 0 0 1 316.10126161005417 607.2303736263141" fill="none" />
+<path id="segment-path-1-0" d="M 283.8987383899459 607.2303736263141 A 307.652 307.652 0 0 1 283.8987383899457 -7.230373626314133" fill="none" /></defs>
+<circle cx="300" cy="300" r="270" fill="none" stroke="#ffffff" stroke-width="2" />
+<g class="segment-label-backgrounds"><path d="M 300 -44.303999999999974 A 344.304 344.304 0 0 1 300 644.304 L 300 571 A 271 271 0 0 0 300 29 Z" fill="#4A90E2" />
+<path d="M 300 644.304 A 344.304 344.304 0 0 1 299.99999999999994 -44.303999999999974 L 299.99999999999994 29 A 271 271 0 0 0 300 571 Z" fill="#E27D60" /></g>
+<g class="segment-label-dividers"><line x1="300" y1="29" x2="300" y2="-44.303999999999974" stroke="#ffffff" stroke-width="2" />
+<line x1="300" y1="571" x2="300" y2="644.304" stroke="#ffffff" stroke-width="2" /></g>
+<g class="segment-labels"><text class="segment-label" fill="white" style="font-size: 28px"><textPath href="#segment-path-0-0" startOffset="50%" text-anchor="middle">Alpha</textPath></text>
+<text class="segment-label" fill="white" style="font-size: 28px"><textPath href="#segment-path-1-0" startOffset="50%" text-anchor="middle">Beta</textPath></text></g>
+<g class="rings"><circle cx="300" cy="300" r="118" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="300" cy="300" r="156" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="300" cy="300" r="194" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="300" cy="300" r="232" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="300" cy="300" r="270" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" /></g>
+<g class="score-labels"><text x="300" y="201" font-family="Arial, sans-serif" font-size="14px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" stroke="#333333" stroke-width="3" paint-order="stroke">1</text>
+<text x="300" y="163" font-family="Arial, sans-serif" font-size="14px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" stroke="#333333" stroke-width="3" paint-order="stroke">2</text>
+<text x="300" y="125" font-family="Arial, sans-serif" font-size="14px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" stroke="#333333" stroke-width="3" paint-order="stroke">3</text>
+<text x="300" y="87" font-family="Arial, sans-serif" font-size="14px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" stroke="#333333" stroke-width="3" paint-order="stroke">4</text>
+<text x="300" y="49" font-family="Arial, sans-serif" font-size="14px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" stroke="#333333" stroke-width="3" paint-order="stroke">5</text></g>
+</svg>

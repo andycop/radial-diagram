@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-70 -70 840 840" width="700" height="700">
+  <style>
+    .segment-label { font-family: Arial, sans-serif; font-weight: bold; font-size: 24px; fill: white; dominant-baseline: middle; }
+    .facet-label { font-family: Arial, sans-serif; font-size: 11px; font-style: italic; fill: #000000; }
+    .center-label { font-family: Arial, sans-serif; font-weight: bold; font-size: 14px; fill: #ffffff; text-anchor: middle; }
+    .ring-label { font-family: Arial, sans-serif; font-size: 10px; fill: #666; }
+  </style>
+  <g class="segment-backgrounds"><path d="M 350 35 A 315 315 0 0 1 665 350 L 430 350 A 80 80 0 0 0 350 270 Z" fill="#4A90E2" opacity="0.3" />
+<path d="M 665 350 A 315 315 0 0 1 350 665 L 350 430 A 80 80 0 0 0 430 350 Z" fill="#E27D60" opacity="0.3" />
+<path d="M 350 665 A 315 315 0 0 1 35 350.00000000000006 L 270 350 A 80 80 0 0 0 350 430 Z" fill="#41B883" opacity="0.3" />
+<path d="M 35 350.00000000000006 A 315 315 0 0 1 349.99999999999994 35 L 350 270 A 80 80 0 0 0 270 350 Z" fill="#C56CF0" opacity="0.3" /></g>
+<g class="score-fills"><path d="M 350 129 A 221 221 0 0 1 506.270598642227 193.729401357773 L 406.5685424949238 293.4314575050762 A 80 80 0 0 0 350 270 Z" fill="#4A90E2" opacity="1" />
+<path d="M 539.5046173579948 160.49538264200527 A 268 268 0 0 1 618 350 L 430 350 A 80 80 0 0 0 406.5685424949238 293.4314575050762 Z" fill="#4A90E2" opacity="1" />
+<path d="M 524 350 A 174 174 0 0 1 473.0365799264593 473.03657992645924 L 406.5685424949238 406.5685424949238 A 80 80 0 0 0 430 350 Z" fill="#E27D60" opacity="1" />
+<path d="M 572.7386360737624 572.7386360737624 A 315 315 0 0 1 350 665 L 350 430 A 80 80 0 0 0 406.5685424949238 406.5685424949238 Z" fill="#E27D60" opacity="1" />
+<path d="M 350 618 A 268 268 0 0 1 160.49538264200527 539.5046173579948 L 293.4314575050762 406.5685424949238 A 80 80 0 0 0 350 430 Z" fill="#41B883" opacity="1" />
+<path d="M 193.729401357773 506.270598642227 A 221 221 0 0 1 129 350 L 270 350 A 80 80 0 0 0 293.4314575050762 406.5685424949238 Z" fill="#41B883" opacity="1" />
+<path d="M 223 350 A 127 127 0 0 1 260.1974387893084 260.1974387893085 L 293.4314575050762 293.4314575050762 A 80 80 0 0 0 270 350 Z" fill="#C56CF0" opacity="1" />
+<path d="M 127.2613639262375 127.26136392623755 A 315 315 0 0 1 349.99999999999994 35 L 350 270 A 80 80 0 0 0 293.4314575050762 293.4314575050762 Z" fill="#C56CF0" opacity="1" /></g>
+<g class="segment-dividers"></g>
+<g class="facet-dividers"><line x1="406.5685424949238" y1="293.4314575050762" x2="572.7386360737624" y2="127.26136392623755" stroke="#ffffff" stroke-width="1" opacity="0.5" />
+<circle cx="462.89161254770147" cy="77.4555379091704" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<circle cx="622.5444620908296" cy="237.10838745229853" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<line x1="406.5685424949238" y1="406.5685424949238" x2="572.7386360737624" y2="572.7386360737624" stroke="#ffffff" stroke-width="1" opacity="0.5" />
+<circle cx="622.5444620908296" cy="462.89161254770147" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<circle cx="462.89161254770147" cy="622.5444620908296" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<line x1="293.4314575050762" y1="406.5685424949238" x2="127.26136392623755" y2="572.7386360737624" stroke="#ffffff" stroke-width="1" opacity="0.5" />
+<circle cx="237.10838745229853" cy="622.5444620908296" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<circle cx="77.4555379091704" cy="462.8916125477015" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<line x1="293.4314575050762" y1="293.4314575050762" x2="127.2613639262375" y2="127.26136392623755" stroke="#ffffff" stroke-width="1" opacity="0.5" />
+<circle cx="77.45553790917035" cy="237.10838745229867" r="6" fill="white" stroke="#ffffff" stroke-width="1" />
+<circle cx="237.1083874522986" cy="77.4555379091704" r="6" fill="white" stroke="#ffffff" stroke-width="1" /></g>
+<g class="center-hub"><circle cx="350" cy="350" r="80" fill="#333333" />
+<text x="350" y="350" class="center-label" style="font-size: 42px" dominant-baseline="middle">Cycle</text></g>
+<g class="facet-labels"><text x="462.89161254770147" y="77.4555379091704" class="facet-label" text-anchor="end" dominant-baseline="middle" transform="rotate(-67.5, 462.89161254770147, 77.4555379091704)">P1</text>
+<text x="622.5444620908296" y="237.10838745229853" class="facet-label" text-anchor="end" dominant-baseline="middle" transform="rotate(-22.5, 622.5444620908296, 237.10838745229853)">P2</text>
+<text x="622.5444620908296" y="462.89161254770147" class="facet-label" text-anchor="end" dominant-baseline="middle" transform="rotate(22.5, 622.5444620908296, 462.89161254770147)">D1</text>
+<text x="462.89161254770147" y="622.5444620908296" class="facet-label" text-anchor="end" dominant-baseline="middle" transform="rotate(67.5, 462.89161254770147, 622.5444620908296)">D2</text>
+<text x="237.10838745229853" y="622.5444620908296" class="facet-label" text-anchor="start" dominant-baseline="middle" transform="rotate(292.5, 237.10838745229853, 622.5444620908296)">C1</text>
+<text x="77.4555379091704" y="462.8916125477015" class="facet-label" text-anchor="start" dominant-baseline="middle" transform="rotate(337.5, 77.4555379091704, 462.8916125477015)">C2</text>
+<text x="77.45553790917035" y="237.10838745229867" class="facet-label" text-anchor="start" dominant-baseline="middle" transform="rotate(382.5, 77.45553790917035, 237.10838745229867)">A1</text>
+<text x="237.1083874522986" y="77.4555379091704" class="facet-label" text-anchor="start" dominant-baseline="middle" transform="rotate(427.5, 237.1083874522986, 77.4555379091704)">A2</text></g>
+<defs><path id="segment-path-0-0" d="M 336.83015725000183 1.8329936683541632 A 348.416 348.416 0 0 1 694.883087617512 300.5089408942233" fill="none" />
+<path id="segment-path-1-0" d="M 399.4910591057767 694.883087617512 A 348.416 348.416 0 0 0 698.1670063316458 336.8301572500018" fill="none" />
+<path id="segment-path-2-0" d="M 5.116912382487897 399.49105910577657 A 348.416 348.416 0 0 0 363.1698427499982 698.1670063316458" fill="none" />
+<path id="segment-path-3-0" d="M 1.8329936683541632 363.1698427499984 A 348.416 348.416 0 0 1 300.50894089422326 5.116912382487953" fill="none" /></defs>
+<circle cx="350" cy="350" r="315" fill="none" stroke="#ffffff" stroke-width="4" />
+<g class="segment-label-backgrounds"><path d="M 350 -29.831999999999994 A 379.832 379.832 0 0 1 729.832 350 L 667 350 A 317 317 0 0 0 350 33 Z" fill="#4A90E2" />
+<path d="M 729.832 350 A 379.832 379.832 0 0 1 350 729.832 L 350 667 A 317 317 0 0 0 667 350 Z" fill="#E27D60" />
+<path d="M 350 729.832 A 379.832 379.832 0 0 1 -29.831999999999994 350.00000000000006 L 33 350.00000000000006 A 317 317 0 0 0 350 667 Z" fill="#41B883" />
+<path d="M -29.831999999999994 350.00000000000006 A 379.832 379.832 0 0 1 349.99999999999994 -29.831999999999994 L 349.99999999999994 33 A 317 317 0 0 0 33 350.00000000000006 Z" fill="#C56CF0" /></g>
+<g class="segment-label-dividers"></g>
+<g class="segment-labels"><text class="segment-label" fill="white" style="font-size: 24px"><textPath href="#segment-path-0-0" startOffset="50%" text-anchor="middle">Plan</textPath></text>
+<text class="segment-label" fill="white" style="font-size: 24px"><textPath href="#segment-path-1-0" startOffset="50%" text-anchor="middle">Do</textPath></text>
+<text class="segment-label" fill="white" style="font-size: 24px"><textPath href="#segment-path-2-0" startOffset="50%" text-anchor="middle">Check</textPath></text>
+<text class="segment-label" fill="white" style="font-size: 24px"><textPath href="#segment-path-3-0" startOffset="50%" text-anchor="middle">Act</textPath></text></g>
+<g class="rings"><circle cx="350" cy="350" r="127" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="350" cy="350" r="174" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="350" cy="350" r="221" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="350" cy="350" r="268" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="350" cy="350" r="315" fill="none" stroke="#cccccc" stroke-width="1" stroke-dasharray="4,4" /></g>
+<g class="score-labels"><text x="350" y="246.5" font-family="Arial, sans-serif" font-size="14px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" stroke="#333333" stroke-width="3" paint-order="stroke">1</text>
+<text x="350" y="199.5" font-family="Arial, sans-serif" font-size="14px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" stroke="#333333" stroke-width="3" paint-order="stroke">2</text>
+<text x="350" y="152.5" font-family="Arial, sans-serif" font-size="14px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" stroke="#333333" stroke-width="3" paint-order="stroke">3</text>
+<text x="350" y="105.5" font-family="Arial, sans-serif" font-size="14px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" stroke="#333333" stroke-width="3" paint-order="stroke">4</text>
+<text x="350" y="58.5" font-family="Arial, sans-serif" font-size="14px" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" stroke="#333333" stroke-width="3" paint-order="stroke">5</text></g>
+<g class="flow-arrows"><polygon points="692.77,287.51 667.00,350.00 729.83,350.00" fill="#4A90E2" />
+<polyline points="667.00,350.00 692.77,287.51 729.83,350.00" fill="none" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" />
+<polygon points="412.49,692.77 350.00,667.00 350.00,729.83" fill="#E27D60" />
+<polyline points="350.00,667.00 412.49,692.77 350.00,729.83" fill="none" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" />
+<polygon points="7.23,412.49 33.00,350.00 -29.83,350.00" fill="#41B883" />
+<polyline points="33.00,350.00 7.23,412.49 -29.83,350.00" fill="none" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" />
+<polygon points="287.51,7.23 350.00,33.00 350.00,-29.83" fill="#C56CF0" />
+<polyline points="350.00,33.00 287.51,7.23 350.00,-29.83" fill="none" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" /></g>
+</svg>

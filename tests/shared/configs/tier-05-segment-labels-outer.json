@@ -1,0 +1,64 @@
+{
+  "_comment": "Tier 05 — outer segment label band (the default for the TS renderer). 4 segments so we get labels at all four quadrants and exercise the top/bottom-half flip.",
+  "size": 700,
+  "startAngle": -90,
+  "center": {
+    "label": "Core",
+    "radius": 80,
+    "color": "#333333"
+  },
+  "scale": {
+    "min": 1,
+    "max": 5,
+    "rings": 5
+  },
+  "segments": [
+    {
+      "name": "North",
+      "color": "#4A90E2",
+      "facets": [
+        { "name": "N1", "score": 3 },
+        { "name": "N2", "score": 4 }
+      ]
+    },
+    {
+      "name": "East",
+      "color": "#E27D60",
+      "facets": [
+        { "name": "E1", "score": 2 },
+        { "name": "E2", "score": 5 }
+      ]
+    },
+    {
+      "name": "South",
+      "color": "#41B883",
+      "facets": [
+        { "name": "S1", "score": 4 },
+        { "name": "S2", "score": 3 }
+      ]
+    },
+    {
+      "name": "West",
+      "color": "#C56CF0",
+      "facets": [
+        { "name": "W1", "score": 1 },
+        { "name": "W2", "score": 5 }
+      ]
+    }
+  ],
+  "style": {
+    "showRings": true,
+    "showScoreLabels": true,
+    "showSegmentDividers": true,
+    "segmentDividerWidth": 2,
+    "segmentDividerColor": "#ffffff",
+    "showFacetPoints": true,
+    "facetPointStyle": "circle",
+    "facetOpacity": 1,
+    "fontFamily": "Arial, sans-serif",
+    "segmentFontSize": 24,
+    "facetFontSize": 11,
+    "facetFontColor": "#000000",
+    "segmentLabelPosition": "outer"
+  }
+}

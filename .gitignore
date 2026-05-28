@@ -18,3 +18,17 @@ Thumbs.db
 # Logs
 *.log
 npm-debug.log*
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Test harness output (regenerated locally — keep TS SVG goldens, ignore everything else)
+tests/shared/goldens/**/*.png
+tests/shared/goldens/**/diff/
+tests/shared/goldens/py/
+tests/shared/goldens/contact-sheet.html

@@ -1,0 +1,86 @@
+{
+  "_comment": "Tier 10 — everything on. Inner label band + flow arrows + close loop + multi-line labels + center border + labelColor overrides + background. The kitchen sink. If this passes, all features compose.",
+  "size": 800,
+  "startAngle": -90,
+  "center": {
+    "label": "Capability\nMaturity",
+    "radius": 100,
+    "color": "#1f2d3d",
+    "borderWidth": 4,
+    "borderColor": "#ffffff",
+    "fontSize": 16,
+    "fontColor": "#ffffff"
+  },
+  "scale": {
+    "min": 1,
+    "max": 5,
+    "rings": 5
+  },
+  "segments": [
+    {
+      "name": "Strategy\n& Vision",
+      "color": "#4A90E2",
+      "labelColor": "#2e6cb8",
+      "facets": [
+        { "name": "Direction", "score": 3 },
+        { "name": "Alignment", "score": 4 },
+        { "name": "Governance", "score": 2 }
+      ]
+    },
+    {
+      "name": "People\n& Org",
+      "color": "#E27D60",
+      "labelColor": "#b85c43",
+      "facets": [
+        { "name": "Talent", "score": 4 },
+        { "name": "Culture", "score": 3 },
+        { "name": "Skills", "score": 5 }
+      ]
+    },
+    {
+      "name": "Process",
+      "color": "#41B883",
+      "labelColor": "#2e8a61",
+      "facets": [
+        { "name": "Delivery", "score": 3 },
+        { "name": "Quality", "score": 4 },
+        { "name": "Improvement", "score": 2 }
+      ]
+    },
+    {
+      "name": "Tech &\nData",
+      "color": "#C56CF0",
+      "labelColor": "#9249bd",
+      "facets": [
+        { "name": "Platforms", "score": 5 },
+        { "name": "Data", "score": 3 },
+        { "name": "Security", "score": 4 }
+      ]
+    }
+  ],
+  "style": {
+    "showRings": true,
+    "ringColor": "#cccccc",
+    "ringWidth": 1,
+    "ringStyle": "dashed",
+    "showScoreLabels": true,
+    "scoreLabelFontSize": 14,
+    "scoreLabelColor": "#ffffff",
+    "scoreLabelStrokeColor": "#333333",
+    "showSegmentDividers": true,
+    "segmentDividerWidth": 4,
+    "segmentDividerColor": "#ffffff",
+    "showFacetPoints": true,
+    "facetPointStyle": "circle",
+    "facetOpacity": 1,
+    "backgroundColor": "#f5f5f0",
+    "fontFamily": "Arial, sans-serif",
+    "segmentFontSize": 22,
+    "facetFontSize": 11,
+    "facetFontColor": "#000000",
+    "segmentLabelPosition": "outer",
+    "flowDirection": "clockwise",
+    "flowCloseLoop": true,
+    "flowArrowSize": 20
+  }
+}

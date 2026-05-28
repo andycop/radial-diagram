@@ -12,6 +12,8 @@ A configurable circular/radial diagram generator that outputs SVG. Useful for ma
 npm install radial-diagram
 ```
 
+A Python port lives in [`python/`](python/) for server-side use (e.g. generating PDF reports). It accepts the same JSON config and produces visually identical SVG — see [python/README.md](python/README.md).
+
 ## Quick Start (Development)
 
 Clone the repository and run the interactive demo:
@@ -44,6 +46,18 @@ This runs automatically as part of `npm run build`.
 npm run dev    # watches src/, rebuilds on change, and serves demo
 npm test       # run unit tests
 ```
+
+### Cross-language test harness
+
+Each language implementation (TypeScript, Python, …) is held to producing the same image for the same config via a tier-based golden test harness. TypeScript is the canonical implementation; new features get built there first.
+
+```bash
+npm run regenerate-goldens                       # rebuild TS goldens + contact sheet
+open tests/shared/goldens/contact-sheet.html     # eyeball every tier side by side
+cd python && .venv/bin/python -m pytest tests/   # full Python suite incl. equivalence
+```
+
+See [tests/shared/README.md](tests/shared/README.md) for the tier ladder and the workflow when adding a new feature.
 
 ## Configuration
 
