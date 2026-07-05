@@ -21,6 +21,7 @@ export const DEFAULT_STYLE = {
     showFacetPoints: true,
     facetPointStyle: 'circle',
     facetOpacity: 1,
+    trackOpacity: 0.3,
     segmentDividerWidth: 2,
     fontFamily: 'Arial, sans-serif',
     segmentDividerColor: '#ffffff',

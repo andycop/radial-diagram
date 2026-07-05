@@ -71,6 +71,13 @@ export class SVGRenderer {
     // Facet labels
     elements.push(this.renderFacetLabels());
 
+    // Per-facet figures in a ring just outside the hub, opt-in: only pushed
+    // when at least one facet supplies a `figure`, so configs that don't use
+    // the feature keep byte-identical output.
+    if (this.config.segments.some((s) => s.facets.some((f) => f.figure))) {
+      elements.push(this.renderFacetFigures());
+    }
+
     // Segment labels (on outer ring)
     elements.push(this.renderSegmentLabels());
 
@@ -161,9 +168,10 @@ export class SVGRenderer {
   }
 
   private renderSegmentBackgrounds(): string {
-    const { segments, center, startAngle } = this.config;
+    const { segments, center, startAngle, style } = this.config;
     const segAngle = segmentAngle(segments.length);
     const elements: string[] = [];
+    const trackOpacity = style.trackOpacity ?? 0.3;
 
     segments.forEach((segment, i) => {
       const sStart = startAngle + i * segAngle;
@@ -179,7 +187,7 @@ export class SVGRenderer {
         sEnd
       );
       elements.push(
-        `<path d="${bgPath}" fill="${segment.color}" opacity="0.3" />`
+        `<path d="${bgPath}" fill="${segment.color}" opacity="${trackOpacity}" />`
       );
     });
 
@@ -433,6 +441,9 @@ export class SVGRenderer {
   }
 
   private renderFacetLabels(): string {
+    if (this.config.style.facetLabelPlacement === 'outer-edge') {
+      return this.renderFacetLabelsOuterEdge();
+    }
     const { segments, center, startAngle } = this.config;
     const segAngle = segmentAngle(segments.length);
     const elements: string[] = [];
@@ -486,6 +497,150 @@ export class SVGRenderer {
     return `<g class="facet-labels">${elements.join('\n')}</g>`;
   }
 
+  /**
+   * Split a facet label into at most two balanced lines. An explicit `\n`
+   * always wins. Otherwise a multi-word label is split at the point that makes
+   * the two lines' character counts as even as possible, with one rule: a lone
+   * "&" never starts the second line, so a trailing "&" stays with the word
+   * before it (e.g. "DIRECTION &" / "PURPOSE"). Single-word labels stay on one
+   * line.
+   */
+  private wrapFacetLabel(name: string): string[] {
+    if (name.includes('\n')) return name.split('\n');
+    const words = name.split(' ').filter((w) => w.length > 0);
+    if (words.length <= 1) return [name];
+
+    let bestSplit = -1;
+    let bestDiff = Infinity;
+    for (let k = 1; k < words.length; k++) {
+      if (words[k] === '&') continue; // "&" must not begin line two
+      const line1 = words.slice(0, k).join(' ');
+      const line2 = words.slice(k).join(' ');
+      const diff = Math.abs(line1.length - line2.length);
+      if (diff < bestDiff) {
+        bestDiff = diff;
+        bestSplit = k;
+      }
+    }
+    if (bestSplit === -1) return [name];
+    return [words.slice(0, bestSplit).join(' '), words.slice(bestSplit).join(' ')];
+  }
+
+  /**
+   * Facet labels read radially along the outer edge of each petal,
+   * right-aligned to the coloured band and kept upright on every side.
+   * Uppercase / weight / letter-spacing / two-line balanced wrap are all
+   * driven by `style.facetLabel*`. Triggered by
+   * `style.facetLabelPlacement === 'outer-edge'`.
+   */
+  private renderFacetLabelsOuterEdge(): string {
+    const { segments, startAngle, style } = this.config;
+    const segAngle = segmentAngle(segments.length);
+    const elements: string[] = [];
+
+    const gap = 10;
+    const labelRadius = this.outerRadius - gap;
+    const fontSize = style.facetFontSize || 11;
+    const fontFamily = style.fontFamily;
+    const color = style.facetFontColor || '#555555';
+    const weight = style.facetLabelWeight ?? 700;
+    const letterSpacing = style.facetLabelLetterSpacing ?? '0.04em';
+    const uppercase = style.facetLabelUppercase ?? true;
+    const wrap = style.facetLabelWrap ?? true;
+    const textStyle =
+      `font-family: ${fontFamily}; font-size: ${fontSize}px; ` +
+      `font-weight: ${weight}; letter-spacing: ${letterSpacing}; fill: ${color};`;
+
+    segments.forEach((segment, segIndex) => {
+      const segStart = startAngle + segIndex * segAngle;
+      const segEnd = segStart + segAngle;
+      const segMid = (segStart + segEnd) / 2;
+      const facetAngleData = facetAngles(segStart, segEnd, segment.facets.length);
+
+      const normalizedSegMid = ((segMid % 360) + 360) % 360;
+      const needsFlip = normalizedSegMid > 90 && normalizedSegMid <= 270;
+      const rotationOffset = needsFlip ? 180 : 0;
+      const isTopHalf = normalizedSegMid <= 90 || normalizedSegMid > 270;
+      const anchor = isTopHalf ? 'end' : 'start';
+
+      segment.facets.forEach((facet, facetIndex) => {
+        const { midAngle } = facetAngleData[facetIndex];
+        const rotation = midAngle + rotationOffset;
+        const pos = polarToCartesian(this.cx, this.cy, labelRadius, midAngle);
+
+        const displayName = uppercase ? facet.name.toUpperCase() : facet.name;
+        const lines = wrap
+          ? this.wrapFacetLabel(displayName)
+          : displayName.split('\n');
+        const safeLines = lines.map((l) => l.replace(/&/g, '&amp;'));
+
+        let inner: string;
+        if (safeLines.length === 1) {
+          inner = safeLines[0];
+        } else {
+          const firstDy = -((safeLines.length - 1) * 0.6);
+          inner = safeLines
+            .map((line, i) => {
+              const dy = i === 0 ? `${firstDy}em` : '1.2em';
+              return `<tspan x="${pos.x}" dy="${dy}">${line}</tspan>`;
+            })
+            .join('');
+        }
+
+        elements.push(
+          `<text x="${pos.x}" y="${pos.y}" style="${textStyle}" text-anchor="${anchor}" dominant-baseline="middle" transform="rotate(${rotation}, ${pos.x}, ${pos.y})">${inner}</text>`
+        );
+      });
+    });
+
+    return `<g class="facet-labels">${elements.join('\n')}</g>`;
+  }
+
+  /**
+   * Small figure per facet (raw score or percentage) in a tidy ring just
+   * outside the centre hub, at each facet's mid-angle. Regular weight, no
+   * circle/ring/background. Optionally rotated to follow the spoke.
+   * Only invoked when at least one facet supplies a `figure`.
+   */
+  private renderFacetFigures(): string {
+    const { segments, center, startAngle, style } = this.config;
+    const segAngle = segmentAngle(segments.length);
+    const elements: string[] = [];
+
+    const fontSize = style.facetFigureFontSize ?? 12;
+    const color = style.facetFigureColor ?? '#555555';
+    const fontFamily = style.fontFamily;
+    const gap = style.facetFigureGap ?? fontSize;
+    const figureRadius = center.radius + gap;
+    const rotate = style.facetFigureRotate ?? false;
+
+    segments.forEach((segment, segIndex) => {
+      const segStart = startAngle + segIndex * segAngle;
+      const segEnd = segStart + segAngle;
+      const facetAngleData = facetAngles(segStart, segEnd, segment.facets.length);
+
+      segment.facets.forEach((facet, facetIndex) => {
+        if (facet.figure === undefined || facet.figure === null || facet.figure === '') return;
+        const { midAngle } = facetAngleData[facetIndex];
+        const pos = polarToCartesian(this.cx, this.cy, figureRadius, midAngle);
+        const safe = String(facet.figure).replace(/&/g, '&amp;');
+
+        let transform = '';
+        if (rotate) {
+          const norm = ((midAngle % 360) + 360) % 360;
+          const rotation = midAngle + (norm > 90 && norm <= 270 ? 180 : 0);
+          transform = ` transform="rotate(${rotation}, ${pos.x}, ${pos.y})"`;
+        }
+
+        elements.push(
+          `<text x="${pos.x}" y="${pos.y}" style="font-family: ${fontFamily}; font-size: ${fontSize}px; font-weight: normal; fill: ${color};" text-anchor="middle" dominant-baseline="middle"${transform}>${safe}</text>`
+        );
+      });
+    });
+
+    return `<g class="facet-figures">${elements.join('\n')}</g>`;
+  }
+
   private renderSegmentLabels(): string {
     if ((this.config.style.segmentLabelPosition || 'outer') === 'inner') {
       return this.renderSegmentLabelsInner();
@@ -506,9 +661,14 @@ export class SVGRenderer {
     const baseFontSize = style.segmentFontSize || 28;
     const phi = 1.618;
     const maxLines = Math.max(...segments.map((s) => s.name.split('\n').length));
+    // When any segment carries a sub-label, reserve one sub-line-height of
+    // extra band so the name block plus sub-label stays inside the band.
+    const anySub = segments.some((s) => s.subLabel);
+    const subFontScale = style.segmentSubLabelFontScale ?? 0.62;
+    const subBand = anySub ? baseFontSize * subFontScale * 1.2 : 0;
     // Single-line band uses golden-ratio padding around the line.
     // Each extra line adds one line-height (1.2× fontSize).
-    const arcThickness = (baseFontSize * phi) + baseFontSize + (maxLines - 1) * baseFontSize * 1.2;
+    const arcThickness = (baseFontSize * phi) + baseFontSize + (maxLines - 1) * baseFontSize * 1.2 + subBand;
     const dividerWidth = style.segmentDividerWidth || 4;
 
     const innerLabelRadius = center.radius + (dividerWidth / 2);
@@ -516,6 +676,7 @@ export class SVGRenderer {
     const textRadius = innerLabelRadius + (arcThickness / 2);
 
     const scaledFontSize = this.scaleSegmentFontSize(segments, segAngle, textRadius, baseFontSize);
+    const subFontSize = anySub ? Math.floor(scaledFontSize * subFontScale) : 0;
     const flowShiftDeg = this.flowLabelShiftDeg(textRadius, segAngle, arcThickness);
 
     segments.forEach((segment, i) => {
@@ -543,7 +704,7 @@ export class SVGRenderer {
         );
       }
 
-      this.emitSegmentLabelLines(defs, texts, pathId, segStart, segEnd, midAngle, textRadius, scaledFontSize, segment.name, flowShiftDeg);
+      this.emitSegmentLabelLines(defs, texts, pathId, segStart, segEnd, midAngle, textRadius, scaledFontSize, segment.name, flowShiftDeg, segment.subLabel, subFontSize);
     });
 
     // Ring dividers on both edges of the inner band: one between the band and
@@ -590,12 +751,11 @@ export class SVGRenderer {
     textRadius: number,
     fontSize: number,
     rawName: string,
-    flowShiftDeg = 0
+    flowShiftDeg = 0,
+    subLabel?: string,
+    subFontSize = 0
   ): void {
     const segAngle = segEnd - segStart;
-    const safe = rawName.replace(/&/g, '&amp;');
-    const lines = safe.split('\n');
-    const lineHeight = fontSize * 1.2;
     const normalizedMid = ((midAngle % 360) + 360) % 360;
     const useClockwise = normalizedMid < 15 || normalizedMid > 165;
     // Top-half segments (clockwise arcs) read with the visually-first line at
@@ -608,8 +768,31 @@ export class SVGRenderer {
     const startAng = segStart + 3 + flowShiftDeg;
     const endAng = segEnd - 3 + flowShiftDeg;
 
-    lines.forEach((line, idx) => {
-      const offset = sign * (idx - (lines.length - 1) / 2) * lineHeight;
+    // Build the ordered rows: name lines first (reading top to bottom), then
+    // the optional sub-label directly below. Each row keeps its own font size.
+    const nameLines = rawName.replace(/&/g, '&amp;').split('\n');
+    const nameLineHeight = fontSize * 1.2;
+    const hasSub = subLabel !== undefined && subLabel !== null && subLabel !== '';
+    const rows: Array<{ text: string; size: number; isSub: boolean }> = nameLines.map(
+      (t) => ({ text: t, size: fontSize, isSub: false })
+    );
+    if (hasSub) {
+      rows.push({ text: String(subLabel).replace(/&/g, '&amp;'), size: subFontSize, isSub: true });
+    }
+
+    // Lay the rows out centred on textRadius. `u` runs in the reading-down
+    // direction; the (signed) radial offset keeps the block centred and
+    // reduces to the original single-name formula when there is no sub-label.
+    const totalHeight = nameLines.length * nameLineHeight + (hasSub ? subFontSize * 1.2 : 0);
+    const subColor = this.config.style.segmentSubLabelColor ?? '#ffffff';
+    const fontFamily = this.config.style.fontFamily;
+    let uCursor = 0;
+
+    rows.forEach((row, idx) => {
+      const rowHeight = row.size * 1.2;
+      const uCenter = uCursor + rowHeight / 2;
+      uCursor += rowHeight;
+      const offset = sign * (uCenter - totalHeight / 2);
       const lineRadius = textRadius + offset;
       const linePathId = `${pathIdBase}-${idx}`;
 
@@ -627,9 +810,15 @@ export class SVGRenderer {
         );
       }
 
-      texts.push(
-        `<text class="segment-label" fill="white" style="font-size: ${fontSize}px"><textPath href="#${linePathId}" startOffset="50%" text-anchor="middle">${line}</textPath></text>`
-      );
+      if (row.isSub) {
+        texts.push(
+          `<text fill="${subColor}" style="font-family: ${fontFamily}; font-weight: normal; font-size: ${row.size}px; dominant-baseline: middle;"><textPath href="#${linePathId}" startOffset="50%" text-anchor="middle">${row.text}</textPath></text>`
+        );
+      } else {
+        texts.push(
+          `<text class="segment-label" fill="white" style="font-size: ${row.size}px"><textPath href="#${linePathId}" startOffset="50%" text-anchor="middle">${row.text}</textPath></text>`
+        );
+      }
     });
   }
 
@@ -646,7 +835,12 @@ export class SVGRenderer {
     const baseFontSize = style.segmentFontSize || 28;
     const phi = 1.618;
     const maxLines = Math.max(...segments.map((s) => s.name.split('\n').length));
-    const arcThickness = (baseFontSize * phi) + baseFontSize + (maxLines - 1) * baseFontSize * 1.2;
+    // When any segment carries a sub-label, reserve one sub-line-height of
+    // extra band so the name block plus sub-label stays inside the band.
+    const anySub = segments.some((s) => s.subLabel);
+    const subFontScale = style.segmentSubLabelFontScale ?? 0.62;
+    const subBand = anySub ? baseFontSize * subFontScale * 1.2 : 0;
+    const arcThickness = (baseFontSize * phi) + baseFontSize + (maxLines - 1) * baseFontSize * 1.2 + subBand;
     const dividerWidth = style.segmentDividerWidth || 4;
 
     // Position arc with divider gap, vertically center text
@@ -655,6 +849,7 @@ export class SVGRenderer {
     const textRadius = innerLabelRadius + (arcThickness / 2); // Vertically centered
 
     const scaledFontSize = this.scaleSegmentFontSize(segments, segAngle, textRadius, baseFontSize);
+    const subFontSize = anySub ? Math.floor(scaledFontSize * subFontScale) : 0;
     const flowShiftDeg = this.flowLabelShiftDeg(textRadius, segAngle, arcThickness);
 
     segments.forEach((segment, i) => {
@@ -682,7 +877,7 @@ export class SVGRenderer {
         );
       }
 
-      this.emitSegmentLabelLines(defs, texts, pathId, segStart, segEnd, midAngle, textRadius, scaledFontSize, segment.name, flowShiftDeg);
+      this.emitSegmentLabelLines(defs, texts, pathId, segStart, segEnd, midAngle, textRadius, scaledFontSize, segment.name, flowShiftDeg, segment.subLabel, subFontSize);
     });
 
     // Add divider ring between main segments and label arc

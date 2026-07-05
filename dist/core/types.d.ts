@@ -15,6 +15,13 @@ export interface Facet {
     score?: number;
     /** Optional description for tooltips */
     description?: string;
+    /**
+     * Optional figure text (e.g. a raw score "3.7" or a percentage "74%")
+     * rendered in a tidy ring just outside the centre hub at this facet's
+     * mid-angle. The renderer prints the string verbatim, so the caller decides
+     * the format. Only drawn when set; see `style.facetFigure*` options.
+     */
+    figure?: string;
 }
 export interface Segment {
     /** Display name for the segment */
@@ -25,6 +32,14 @@ export interface Segment {
     labelColor?: string;
     /** Facets within this segment */
     facets: Facet[];
+    /**
+     * Optional secondary line rendered directly below the section name on the
+     * coloured label band (slightly smaller radius, same curve). Printed
+     * verbatim, so the caller supplies the string (e.g. a section average "3.7"
+     * or a percentage "74%"). Only drawn when set; styled via
+     * `style.segmentSubLabel*`.
+     */
+    subLabel?: string;
 }
 export interface CenterConfig {
     /** Label text for center hub */
@@ -79,6 +94,8 @@ export interface StyleConfig {
     facetPointStyle?: 'circle' | 'dot' | 'none';
     /** Opacity of facet score fill areas (0-1) */
     facetOpacity?: number;
+    /** Opacity of the unscored segment background track (0-1). Default 0.3. */
+    trackOpacity?: number;
     /** Width of segment divider lines */
     segmentDividerWidth?: number;
     /** Font family for labels */
@@ -99,6 +116,50 @@ export interface StyleConfig {
     facetFontSize?: number;
     /** Font color for facet labels */
     facetFontColor?: string;
+    /**
+     * How facet (subcategory) labels are placed:
+     * - `'default'` (or unset): the original italic labels sitting just inside
+     *   the outer edge (existing behaviour, unchanged).
+     * - `'outer-edge'`: labels read radially along the outer edge of each petal,
+     *   right-aligned to the coloured band, upright on every side, with the
+     *   styling knobs below. Use for the Team Effectiveness (Diagnostic) wheel.
+     */
+    facetLabelPlacement?: 'default' | 'outer-edge';
+    /** [`outer-edge` only] Uppercase facet label text. Default true in that mode. */
+    facetLabelUppercase?: boolean;
+    /** [`outer-edge` only] Facet label font weight. Default 700 in that mode. */
+    facetLabelWeight?: number | string;
+    /** [`outer-edge` only] Facet label CSS letter-spacing (e.g. '0.04em'). Default '0.04em' in that mode. */
+    facetLabelLetterSpacing?: string;
+    /**
+     * [`outer-edge` only] Auto-wrap multi-word facet labels onto two balanced
+     * lines, keeping a trailing '&' with the word before it (e.g. "DIRECTION &"
+     * / "PURPOSE"). An explicit '\n' in the name always wins. Default true in
+     * that mode.
+     */
+    facetLabelWrap?: boolean;
+    /** Font size for the per-facet figure ring (facet.figure). Default 12. */
+    facetFigureFontSize?: number;
+    /** Fill colour for the per-facet figure ring. Default '#555555'. */
+    facetFigureColor?: string;
+    /**
+     * Radial gap in pixels from the hub edge to the figure ring baseline; the
+     * ring radius is `center.radius + facetFigureGap`. Default = facetFigureFontSize.
+     */
+    facetFigureGap?: number;
+    /**
+     * When true, rotate each facet figure to follow the spoke/radial direction
+     * (upright-flipped on the bottom/left half). When false (default), figures
+     * are upright horizontal.
+     */
+    facetFigureRotate?: boolean;
+    /** Fill colour for the segment sub-label (segment.subLabel). Default '#ffffff'. */
+    segmentSubLabelColor?: string;
+    /**
+     * Segment sub-label font size as a fraction of the (auto-scaled) section-name
+     * font size. Default 0.62. The sub-label is rendered at regular weight.
+     */
+    segmentSubLabelFontScale?: number;
     /** Where to render segment (dimension) labels: 'outer' = curved arc band outside the wheel; 'inner' = curved arc on top of the wedge near the centre hub */
     segmentLabelPosition?: 'outer' | 'inner';
     /** Draw small directional arrows on each segment boundary indicating flow. Undefined = no arrows. */

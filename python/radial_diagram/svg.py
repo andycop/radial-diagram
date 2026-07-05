@@ -87,6 +87,13 @@ class SVGRenderer:
         elements.append(self._render_facet_dividers())
         elements.append(self._render_center_hub())
         elements.append(self._render_facet_labels())
+
+        # Per-facet figures, opt-in: only appended when at least one facet
+        # supplies a `figure`, so configs that don't use the feature keep
+        # byte-identical output.
+        if any(f.figure for s in self.config.segments for f in s.facets):
+            elements.append(self._render_facet_figures())
+
         elements.append(self._render_segment_labels())
 
         if style.showRings is not False:
@@ -225,7 +232,9 @@ class SVGRenderer:
         segments = self.config.segments
         center = self.config.center
         start_angle = self.config.startAngle
+        style = self.config.style
         seg_angle = segment_angle(len(segments))
+        track_opacity = style.trackOpacity if style.trackOpacity is not None else 0.3
 
         out: list[str] = []
         for i, segment in enumerate(segments):
@@ -234,7 +243,10 @@ class SVGRenderer:
             bg_path = segment_path(
                 self.cx, self.cy, center.radius, self.outer_radius, s_start, s_end
             )
-            out.append(f'<path d="{bg_path}" fill="{segment.color}" opacity="0.3" />')
+            out.append(
+                f'<path d="{bg_path}" fill="{segment.color}" '
+                f'opacity="{_fmt(track_opacity)}" />'
+            )
 
         return f'<g class="segment-backgrounds">{chr(10).join(out)}</g>'
 
@@ -374,6 +386,8 @@ class SVGRenderer:
         return f'<g class="center-hub">{chr(10).join(out)}</g>'
 
     def _render_facet_labels(self) -> str:
+        if self.config.style.facetLabelPlacement == "outer-edge":
+            return self._render_facet_labels_outer_edge()
         cfg = self.config
         segments = cfg.segments
         seg_angle = segment_angle(len(segments))
@@ -418,6 +432,157 @@ class SVGRenderer:
 
         return f'<g class="facet-labels">{chr(10).join(out)}</g>'
 
+    def _wrap_facet_label(self, name: str) -> list[str]:
+        """
+        Split a facet label into at most two balanced lines. Mirrors
+        wrapFacetLabel() in svg.ts: an explicit '\\n' wins; otherwise a
+        multi-word label is split where the two lines' character counts are
+        closest, with a lone '&' never starting the second line.
+        """
+        if "\n" in name:
+            return name.split("\n")
+        words = [w for w in name.split(" ") if w]
+        if len(words) <= 1:
+            return [name]
+
+        best_split = -1
+        best_diff = float("inf")
+        for k in range(1, len(words)):
+            if words[k] == "&":
+                continue
+            line1 = " ".join(words[:k])
+            line2 = " ".join(words[k:])
+            diff = abs(len(line1) - len(line2))
+            if diff < best_diff:
+                best_diff = diff
+                best_split = k
+        if best_split == -1:
+            return [name]
+        return [" ".join(words[:best_split]), " ".join(words[best_split:])]
+
+    def _render_facet_labels_outer_edge(self) -> str:
+        cfg = self.config
+        segments = cfg.segments
+        style = cfg.style
+        seg_angle = segment_angle(len(segments))
+        out: list[str] = []
+
+        gap = 10
+        label_radius = self.outer_radius - gap
+        font_size = style.facetFontSize or 11
+        font_family = style.fontFamily
+        color = style.facetFontColor or "#555555"
+        weight = style.facetLabelWeight if style.facetLabelWeight is not None else 700
+        letter_spacing = (
+            style.facetLabelLetterSpacing
+            if style.facetLabelLetterSpacing is not None
+            else "0.04em"
+        )
+        uppercase = (
+            style.facetLabelUppercase if style.facetLabelUppercase is not None else True
+        )
+        wrap = style.facetLabelWrap if style.facetLabelWrap is not None else True
+        weight_str = (
+            _fmt(weight)
+            if isinstance(weight, (int, float)) and not isinstance(weight, bool)
+            else str(weight)
+        )
+        text_style = (
+            f"font-family: {font_family}; font-size: {_fmt(font_size)}px; "
+            f"font-weight: {weight_str}; letter-spacing: {letter_spacing}; fill: {color};"
+        )
+
+        for seg_index, segment in enumerate(segments):
+            seg_start = cfg.startAngle + seg_index * seg_angle
+            seg_end = seg_start + seg_angle
+            seg_mid = (seg_start + seg_end) / 2
+            facet_data = facet_angles(seg_start, seg_end, len(segment.facets))
+
+            normalized_seg_mid = ((seg_mid % 360) + 360) % 360
+            needs_flip = 90 < normalized_seg_mid <= 270
+            rotation_offset = 180 if needs_flip else 0
+            is_top_half = normalized_seg_mid <= 90 or normalized_seg_mid > 270
+            anchor = "end" if is_top_half else "start"
+
+            for facet_index, facet in enumerate(segment.facets):
+                mid_angle = facet_data[facet_index].midAngle
+                rotation = mid_angle + rotation_offset
+                pos = polar_to_cartesian(self.cx, self.cy, label_radius, mid_angle)
+
+                display_name = facet.name.upper() if uppercase else facet.name
+                lines = (
+                    self._wrap_facet_label(display_name)
+                    if wrap
+                    else display_name.split("\n")
+                )
+                safe_lines = [line.replace("&", "&amp;") for line in lines]
+
+                if len(safe_lines) == 1:
+                    inner = safe_lines[0]
+                else:
+                    first_dy = -((len(safe_lines) - 1) * 0.6)
+                    tspans = []
+                    for i, line in enumerate(safe_lines):
+                        dy = f"{_fmt(first_dy)}em" if i == 0 else "1.2em"
+                        tspans.append(f'<tspan x="{_fmt(pos.x)}" dy="{dy}">{line}</tspan>')
+                    inner = "".join(tspans)
+
+                out.append(
+                    f'<text x="{_fmt(pos.x)}" y="{_fmt(pos.y)}" style="{text_style}" '
+                    f'text-anchor="{anchor}" dominant-baseline="middle" '
+                    f'transform="rotate({_fmt(rotation)}, {_fmt(pos.x)}, {_fmt(pos.y)})">'
+                    f"{inner}</text>"
+                )
+
+        return f'<g class="facet-labels">{chr(10).join(out)}</g>'
+
+    def _render_facet_figures(self) -> str:
+        cfg = self.config
+        segments = cfg.segments
+        center = cfg.center
+        style = cfg.style
+        seg_angle = segment_angle(len(segments))
+        out: list[str] = []
+
+        font_size = (
+            style.facetFigureFontSize if style.facetFigureFontSize is not None else 12
+        )
+        color = style.facetFigureColor if style.facetFigureColor is not None else "#555555"
+        font_family = style.fontFamily
+        gap = style.facetFigureGap if style.facetFigureGap is not None else font_size
+        figure_radius = center.radius + gap
+        rotate = bool(style.facetFigureRotate) if style.facetFigureRotate is not None else False
+
+        for seg_index, segment in enumerate(segments):
+            seg_start = cfg.startAngle + seg_index * seg_angle
+            seg_end = seg_start + seg_angle
+            facet_data = facet_angles(seg_start, seg_end, len(segment.facets))
+
+            for facet_index, facet in enumerate(segment.facets):
+                if facet.figure is None or facet.figure == "":
+                    continue
+                mid_angle = facet_data[facet_index].midAngle
+                pos = polar_to_cartesian(self.cx, self.cy, figure_radius, mid_angle)
+                safe = str(facet.figure).replace("&", "&amp;")
+
+                transform = ""
+                if rotate:
+                    norm = ((mid_angle % 360) + 360) % 360
+                    rotation = mid_angle + (180 if 90 < norm <= 270 else 0)
+                    transform = (
+                        f' transform="rotate({_fmt(rotation)}, '
+                        f'{_fmt(pos.x)}, {_fmt(pos.y)})"'
+                    )
+
+                out.append(
+                    f'<text x="{_fmt(pos.x)}" y="{_fmt(pos.y)}" '
+                    f'style="font-family: {font_family}; font-size: {_fmt(font_size)}px; '
+                    f'font-weight: normal; fill: {color};" '
+                    f'text-anchor="middle" dominant-baseline="middle"{transform}>{safe}</text>'
+                )
+
+        return f'<g class="facet-figures">{chr(10).join(out)}</g>'
+
     def _render_segment_labels(self) -> str:
         position = self.config.style.segmentLabelPosition or "outer"
         if position == "inner":
@@ -454,11 +619,10 @@ class SVGRenderer:
         font_size: float,
         raw_name: str,
         flow_shift_deg: float = 0,
+        sub_label: str | None = None,
+        sub_font_size: float = 0,
     ) -> None:
         seg_angle = seg_end - seg_start
-        safe = raw_name.replace("&", "&amp;")
-        lines = safe.split("\n")
-        line_height = font_size * 1.2
         normalized_mid = ((mid_angle % 360) + 360) % 360
         use_clockwise = normalized_mid < 15 or normalized_mid > 165
         sign = -1 if use_clockwise else 1
@@ -466,8 +630,40 @@ class SVGRenderer:
         start_ang = seg_start + 3 + flow_shift_deg
         end_ang = seg_end - 3 + flow_shift_deg
 
-        for idx, line in enumerate(lines):
-            offset = sign * (idx - (len(lines) - 1) / 2) * line_height
+        # Ordered rows: name lines first (top to bottom), then the optional
+        # sub-label directly below. Each row keeps its own font size.
+        name_lines = raw_name.replace("&", "&amp;").split("\n")
+        name_line_height = font_size * 1.2
+        has_sub = sub_label is not None and sub_label != ""
+        rows: list[dict[str, Any]] = [
+            {"text": t, "size": font_size, "is_sub": False} for t in name_lines
+        ]
+        if has_sub:
+            rows.append(
+                {
+                    "text": str(sub_label).replace("&", "&amp;"),
+                    "size": sub_font_size,
+                    "is_sub": True,
+                }
+            )
+
+        total_height = len(name_lines) * name_line_height + (
+            sub_font_size * 1.2 if has_sub else 0
+        )
+        style = self.config.style
+        sub_color = (
+            style.segmentSubLabelColor
+            if style.segmentSubLabelColor is not None
+            else "#ffffff"
+        )
+        font_family = style.fontFamily
+        u_cursor = 0.0
+
+        for idx, row in enumerate(rows):
+            row_height = row["size"] * 1.2
+            u_center = u_cursor + row_height / 2
+            u_cursor += row_height
+            offset = sign * (u_center - total_height / 2)
             line_radius = text_radius + offset
             line_path_id = f"{path_id_base}-{idx}"
 
@@ -488,12 +684,21 @@ class SVGRenderer:
                     f'{_fmt(e.x)} {_fmt(e.y)}" fill="none" />'
                 )
 
-            texts.append(
-                f'<text class="segment-label" fill="white" '
-                f'style="font-size: {_fmt(font_size)}px">'
-                f'<textPath href="#{line_path_id}" startOffset="50%" '
-                f'text-anchor="middle">{line}</textPath></text>'
-            )
+            if row["is_sub"]:
+                texts.append(
+                    f'<text fill="{sub_color}" style="font-family: {font_family}; '
+                    f'font-weight: normal; font-size: {_fmt(row["size"])}px; '
+                    f'dominant-baseline: middle;">'
+                    f'<textPath href="#{line_path_id}" startOffset="50%" '
+                    f'text-anchor="middle">{row["text"]}</textPath></text>'
+                )
+            else:
+                texts.append(
+                    f'<text class="segment-label" fill="white" '
+                    f'style="font-size: {_fmt(row["size"])}px">'
+                    f'<textPath href="#{line_path_id}" startOffset="50%" '
+                    f'text-anchor="middle">{row["text"]}</textPath></text>'
+                )
 
     def _render_segment_labels_inner(self) -> str:
         cfg = self.config
@@ -509,10 +714,20 @@ class SVGRenderer:
         base_font_size = style.segmentFontSize or 28
         phi = 1.618
         max_lines = max(len(s.name.split("\n")) for s in segments)
+        # When any segment carries a sub-label, reserve one sub-line-height of
+        # extra band so the name block plus sub-label stays inside the band.
+        any_sub = any(s.subLabel for s in segments)
+        sub_font_scale = (
+            style.segmentSubLabelFontScale
+            if style.segmentSubLabelFontScale is not None
+            else 0.62
+        )
+        sub_band = base_font_size * sub_font_scale * 1.2 if any_sub else 0
         arc_thickness = (
             (base_font_size * phi)
             + base_font_size
             + (max_lines - 1) * base_font_size * 1.2
+            + sub_band
         )
         divider_width = style.segmentDividerWidth or 4
 
@@ -523,6 +738,7 @@ class SVGRenderer:
         scaled_font_size = self._scale_segment_font_size(
             segments, seg_angle, text_radius, base_font_size
         )
+        sub_font_size = math.floor(scaled_font_size * sub_font_scale) if any_sub else 0
         flow_shift_deg = self._flow_label_shift_deg(text_radius, seg_angle, arc_thickness)
 
         for i, segment in enumerate(segments):
@@ -551,6 +767,7 @@ class SVGRenderer:
             self._emit_segment_label_lines(
                 defs, texts, path_id, seg_start, seg_end, mid_angle,
                 text_radius, scaled_font_size, segment.name, flow_shift_deg,
+                segment.subLabel, sub_font_size,
             )
 
         if style.showSegmentDividers:
@@ -586,10 +803,20 @@ class SVGRenderer:
         base_font_size = style.segmentFontSize or 28
         phi = 1.618
         max_lines = max(len(s.name.split("\n")) for s in segments)
+        # When any segment carries a sub-label, reserve one sub-line-height of
+        # extra band so the name block plus sub-label stays inside the band.
+        any_sub = any(s.subLabel for s in segments)
+        sub_font_scale = (
+            style.segmentSubLabelFontScale
+            if style.segmentSubLabelFontScale is not None
+            else 0.62
+        )
+        sub_band = base_font_size * sub_font_scale * 1.2 if any_sub else 0
         arc_thickness = (
             (base_font_size * phi)
             + base_font_size
             + (max_lines - 1) * base_font_size * 1.2
+            + sub_band
         )
         divider_width = style.segmentDividerWidth or 4
 
@@ -600,6 +827,7 @@ class SVGRenderer:
         scaled_font_size = self._scale_segment_font_size(
             segments, seg_angle, text_radius, base_font_size
         )
+        sub_font_size = math.floor(scaled_font_size * sub_font_scale) if any_sub else 0
         flow_shift_deg = self._flow_label_shift_deg(text_radius, seg_angle, arc_thickness)
 
         for i, segment in enumerate(segments):
@@ -628,6 +856,7 @@ class SVGRenderer:
             self._emit_segment_label_lines(
                 defs, texts, path_id, seg_start, seg_end, mid_angle,
                 text_radius, scaled_font_size, segment.name, flow_shift_deg,
+                segment.subLabel, sub_font_size,
             )
 
         if style.showSegmentDividers:
