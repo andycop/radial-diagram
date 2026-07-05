@@ -173,6 +173,51 @@ class TestWheelRedesignOptions:
         assert "DIRECTION &amp;</tspan>" in svg
         assert "PURPOSE</tspan>" in svg
 
+    def test_one_track_per_segment_without_padding(self):
+        svg = SVGRenderer(_valid_config()).render()
+        bg = svg.split('<g class="segment-backgrounds">')[1].split("</g>")[0]
+        assert bg.count("<path") == 2
+
+    def test_one_padded_track_per_facet_with_padding(self):
+        cfg = _valid_config()
+        cfg.style = replace(cfg.style, facetPadding="auto")
+        svg = SVGRenderer(cfg).render()
+        bg = svg.split('<g class="segment-backgrounds">')[1].split("</g>")[0]
+        assert bg.count("<path") == 3
+
+    def test_configured_facet_dividers(self):
+        cfg = _valid_config()
+        cfg.style = replace(
+            cfg.style,
+            showFacetDividers=True,
+            facetDividerColor="rgba(255,255,255,0.7)",
+            facetDividerWidth=1.4,
+        )
+        svg = SVGRenderer(cfg).render()
+        assert 'stroke="rgba(255,255,255,0.7)" stroke-width="1.4"' in svg
+
+    def test_facet_dividers_omitted_when_false(self):
+        cfg = _valid_config()
+        cfg.style = replace(cfg.style, showFacetDividers=False)
+        svg = SVGRenderer(cfg).render()
+        fd = svg.split('<g class="facet-dividers">')[1].split("</g>")[0]
+        assert "<line" not in fd
+
+    def test_font_family_split_and_letter_spacing(self):
+        cfg = _valid_config()
+        cfg.center = replace(cfg.center, fontFamily="Century Gothic")
+        cfg.style = replace(
+            cfg.style,
+            segmentFontFamily="Century Gothic",
+            segmentLetterSpacing="0.02em",
+            segmentUppercase=True,
+        )
+        svg = SVGRenderer(cfg).render()
+        assert ".segment-label { font-family: Century Gothic;" in svg
+        assert "dominant-baseline: middle; letter-spacing: 0.02em; }" in svg
+        assert ".center-label { font-family: Century Gothic;" in svg
+        assert ">SEGMENT ONE</textPath>" in svg
+
 
 class TestRenderDiagram:
     def test_returns_svg(self):

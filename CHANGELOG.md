@@ -42,6 +42,23 @@ existing config renders byte-identical unless one of these new options is used.
 - **Configurable unscored-track opacity.** `style.trackOpacity` (default
   `0.3`) sets the opacity of the unscored segment background track,
   independently of `style.facetOpacity` (the scored fill).
+- **Facet angular padding.** `style.facetPadding` (`number` degrees per side,
+  or `'auto'` for `min(0.9, facetStepDegrees * 0.06)`) insets each facet's
+  scored fill and unscored track so white gaps appear between sub-segments.
+  When set, the background track is drawn per facet (so the gaps show in the
+  track too); unset keeps the single per-segment track. Default off.
+- **Configurable facet dividers.** `style.showFacetDividers` draws a thin
+  radial separator at each internal facet boundary. `true` uses
+  `style.facetDividerColor` (default `rgba(255,255,255,0.7)`) and
+  `style.facetDividerWidth` (default `1.4`); `false` hides them; unset keeps
+  the original faint separators (width 1, opacity 0.5, `segmentDividerColor`)
+  for backward compatibility.
+- **Section-name typography controls.** `style.segmentFontFamily` (falls back
+  to `fontFamily`) and `center.fontFamily` (falls back to `fontFamily`) let the
+  curved section names and the hub label use a different face from the rest of
+  the wheel text. `style.segmentLetterSpacing` (e.g. `'0.02em'`) and
+  `style.segmentUppercase` (default `false`) tune the section names. All
+  default to the existing behaviour.
 
 ### Notes
 

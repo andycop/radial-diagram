@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="-70 -70 940 940" width="800" height="800">
   <style>
-    .segment-label { font-family: Arial, sans-serif; font-weight: bold; font-size: 22px; fill: white; dominant-baseline: middle; }
-    .facet-label { font-family: Arial, sans-serif; font-size: 11px; font-style: italic; fill: #000000; }
-    .center-label { font-family: Arial, sans-serif; font-weight: bold; font-size: 18px; fill: #ffffff; text-anchor: middle; }
-    .ring-label { font-family: Arial, sans-serif; font-size: 10px; fill: #666; }
+    .segment-label { font-family: 'Century Gothic', 'Open Sans', Arial, sans-serif; font-weight: bold; font-size: 22px; fill: white; dominant-baseline: middle; letter-spacing: 0.04em; }
+    .facet-label { font-family: 'Open Sans', Arial, sans-serif; font-size: 11px; font-style: italic; fill: #000000; }
+    .center-label { font-family: 'Century Gothic', 'Open Sans', Arial, sans-serif; font-weight: bold; font-size: 18px; fill: #ffffff; text-anchor: middle; }
+    .ring-label { font-family: 'Open Sans', Arial, sans-serif; font-size: 10px; fill: #666; }
   </style>
   <g class="segment-backgrounds"><path d="M 400 40 A 360 360 0 0 1 742.3803458662553 288.7538820250189 L 504.6162167924669 366.0081306187558 A 110 110 0 0 0 400 290 Z" fill="#8CB82B" opacity="0.13" />
 <path d="M 742.3803458662553 288.7538820250189 A 360 360 0 0 1 611.6026908252903 691.2461179749811 L 464.65637775217203 488.9918693812442 A 110 110 0 0 0 504.6162167924669 366.0081306187558 Z" fill="#CC3366" opacity="0.13" />
@@ -50,16 +50,16 @@
 <line x1="612.1904760775828" y1="692.055134969356" x2="655.6654244781432" y2="751.8932679413047" stroke="#ffffff" stroke-width="2" />
 <line x1="187.80952392241724" y1="692.055134969356" x2="144.33457552185678" y2="751.8932679413047" stroke="#ffffff" stroke-width="2" />
 <line x1="56.668597617449564" y1="288.4448650306439" x2="-13.675346553805184" y2="265.5887320586952" stroke="#ffffff" stroke-width="2" /></g>
-<g class="segment-labels"><text class="segment-label" fill="white" style="font-size: 22px"><textPath href="#segment-path-0-0" startOffset="50%" text-anchor="middle">Clarity</textPath></text>
-<text fill="#ffffff" style="font-family: Arial, sans-serif; font-weight: normal; font-size: 13px; dominant-baseline: middle;"><textPath href="#segment-path-0-1" startOffset="50%" text-anchor="middle">71%</textPath></text>
-<text class="segment-label" fill="white" style="font-size: 22px"><textPath href="#segment-path-1-0" startOffset="50%" text-anchor="middle">Decision Speed</textPath></text>
-<text fill="#ffffff" style="font-family: Arial, sans-serif; font-weight: normal; font-size: 13px; dominant-baseline: middle;"><textPath href="#segment-path-1-1" startOffset="50%" text-anchor="middle">64%</textPath></text>
-<text class="segment-label" fill="white" style="font-size: 22px"><textPath href="#segment-path-2-0" startOffset="50%" text-anchor="middle">Trust</textPath></text>
-<text fill="#ffffff" style="font-family: Arial, sans-serif; font-weight: normal; font-size: 13px; dominant-baseline: middle;"><textPath href="#segment-path-2-1" startOffset="50%" text-anchor="middle">79%</textPath></text>
-<text class="segment-label" fill="white" style="font-size: 22px"><textPath href="#segment-path-3-0" startOffset="50%" text-anchor="middle">Alignment</textPath></text>
-<text fill="#ffffff" style="font-family: Arial, sans-serif; font-weight: normal; font-size: 13px; dominant-baseline: middle;"><textPath href="#segment-path-3-1" startOffset="50%" text-anchor="middle">86%</textPath></text>
-<text class="segment-label" fill="white" style="font-size: 22px"><textPath href="#segment-path-4-0" startOffset="50%" text-anchor="middle">Focus</textPath></text>
-<text fill="#ffffff" style="font-family: Arial, sans-serif; font-weight: normal; font-size: 13px; dominant-baseline: middle;"><textPath href="#segment-path-4-1" startOffset="50%" text-anchor="middle">50%</textPath></text></g>
+<g class="segment-labels"><text class="segment-label" fill="white" style="font-size: 22px"><textPath href="#segment-path-0-0" startOffset="50%" text-anchor="middle">CLARITY</textPath></text>
+<text fill="#ffffff" style="font-family: 'Open Sans', Arial, sans-serif; font-weight: normal; font-size: 13px; dominant-baseline: middle;"><textPath href="#segment-path-0-1" startOffset="50%" text-anchor="middle">71%</textPath></text>
+<text class="segment-label" fill="white" style="font-size: 22px"><textPath href="#segment-path-1-0" startOffset="50%" text-anchor="middle">DECISION SPEED</textPath></text>
+<text fill="#ffffff" style="font-family: 'Open Sans', Arial, sans-serif; font-weight: normal; font-size: 13px; dominant-baseline: middle;"><textPath href="#segment-path-1-1" startOffset="50%" text-anchor="middle">64%</textPath></text>
+<text class="segment-label" fill="white" style="font-size: 22px"><textPath href="#segment-path-2-0" startOffset="50%" text-anchor="middle">TRUST</textPath></text>
+<text fill="#ffffff" style="font-family: 'Open Sans', Arial, sans-serif; font-weight: normal; font-size: 13px; dominant-baseline: middle;"><textPath href="#segment-path-2-1" startOffset="50%" text-anchor="middle">79%</textPath></text>
+<text class="segment-label" fill="white" style="font-size: 22px"><textPath href="#segment-path-3-0" startOffset="50%" text-anchor="middle">ALIGNMENT</textPath></text>
+<text fill="#ffffff" style="font-family: 'Open Sans', Arial, sans-serif; font-weight: normal; font-size: 13px; dominant-baseline: middle;"><textPath href="#segment-path-3-1" startOffset="50%" text-anchor="middle">86%</textPath></text>
+<text class="segment-label" fill="white" style="font-size: 22px"><textPath href="#segment-path-4-0" startOffset="50%" text-anchor="middle">FOCUS</textPath></text>
+<text fill="#ffffff" style="font-family: 'Open Sans', Arial, sans-serif; font-weight: normal; font-size: 13px; dominant-baseline: middle;"><textPath href="#segment-path-4-1" startOffset="50%" text-anchor="middle">50%</textPath></text></g>
 <g class="rings"><circle cx="400" cy="400" r="145.71428571428572" fill="none" stroke="#ffffff" stroke-width="1" stroke-dasharray="4,4" />
 <circle cx="400" cy="400" r="181.42857142857144" fill="none" stroke="#ffffff" stroke-width="1" stroke-dasharray="4,4" />
 <circle cx="400" cy="400" r="217.14285714285714" fill="none" stroke="#ffffff" stroke-width="1" stroke-dasharray="4,4" />

@@ -121,19 +121,26 @@ class SVGRenderer:
         facet_font_size = style.facetFontSize or 11
         facet_font_color = style.facetFontColor or "#000000"
         font_family = style.fontFamily
+        segment_font_family = style.segmentFontFamily or style.fontFamily
+        segment_letter_spacing = (
+            f" letter-spacing: {style.segmentLetterSpacing};"
+            if style.segmentLetterSpacing
+            else ""
+        )
+        hub_font_family = center.fontFamily or style.fontFamily
 
         return (
             f'<svg xmlns="http://www.w3.org/2000/svg" viewBox='
             f'"{-self.padding} {-self.padding} {_fmt(view_size)} {_fmt(view_size)}" '
             f'width="{_fmt(cfg.size)}" height="{_fmt(cfg.size)}">\n'
             f"  <style>\n"
-            f"    .segment-label {{ font-family: {font_family}; font-weight: bold; "
+            f"    .segment-label {{ font-family: {segment_font_family}; font-weight: bold; "
             f"font-size: {_fmt(segment_font_size)}px; fill: white; "
-            f"dominant-baseline: middle; }}\n"
+            f"dominant-baseline: middle;{segment_letter_spacing} }}\n"
             f"    .facet-label {{ font-family: {font_family}; "
             f"font-size: {_fmt(facet_font_size)}px; font-style: italic; "
             f"fill: {facet_font_color}; }}\n"
-            f"    .center-label {{ font-family: {font_family}; font-weight: bold; "
+            f"    .center-label {{ font-family: {hub_font_family}; font-weight: bold; "
             f"font-size: {_fmt(hub_font_size)}px; fill: {hub_font_color}; "
             f"text-anchor: middle; }}\n"
             f"    .ring-label {{ font-family: {font_family}; font-size: 10px; "
@@ -142,6 +149,18 @@ class SVGRenderer:
             f"  {content}\n"
             f"</svg>"
         )
+
+    def _facet_pad(self, step_degrees: float) -> float:
+        """
+        Angular inset (degrees per side) for a facet's fill/track, driven by
+        style.facetPadding. Mirrors facetPad() in svg.ts.
+        """
+        fp = self.config.style.facetPadding
+        if fp is None:
+            return 0
+        if fp == "auto":
+            return min(0.9, step_degrees * 0.06)
+        return fp
 
     def _has_flow_arrow_at(self, boundary_index: int, total_segments: int) -> bool:
         """
@@ -235,11 +254,31 @@ class SVGRenderer:
         style = self.config.style
         seg_angle = segment_angle(len(segments))
         track_opacity = style.trackOpacity if style.trackOpacity is not None else 0.3
+        padded = style.facetPadding is not None
 
         out: list[str] = []
         for i, segment in enumerate(segments):
             s_start = start_angle + i * seg_angle
             s_end = s_start + seg_angle
+
+            if padded:
+                # Per-facet track so the angular gaps show in the unscored area.
+                facet_data = facet_angles(s_start, s_end, len(segment.facets))
+                for fdata in facet_data:
+                    pad = self._facet_pad(fdata.endAngle - fdata.startAngle)
+                    a0 = fdata.startAngle + pad
+                    a1 = fdata.endAngle - pad
+                    if a1 <= a0:
+                        continue
+                    track_path = segment_path(
+                        self.cx, self.cy, center.radius, self.outer_radius, a0, a1
+                    )
+                    out.append(
+                        f'<path d="{track_path}" fill="{segment.color}" '
+                        f'opacity="{_fmt(track_opacity)}" />'
+                    )
+                continue
+
             bg_path = segment_path(
                 self.cx, self.cy, center.radius, self.outer_radius, s_start, s_end
             )
@@ -264,8 +303,13 @@ class SVGRenderer:
             for facet_index, facet in enumerate(segment.facets):
                 if facet.score is None:
                     continue
-                f_start = facet_data[facet_index].startAngle
-                f_end = facet_data[facet_index].endAngle
+                raw_start = facet_data[facet_index].startAngle
+                raw_end = facet_data[facet_index].endAngle
+                pad = self._facet_pad(raw_end - raw_start)
+                f_start = raw_start + pad
+                f_end = raw_end - pad
+                if f_end <= f_start:
+                    continue
                 score_radius = score_to_radius(
                     facet.score,
                     cfg.scale.min,
@@ -319,17 +363,38 @@ class SVGRenderer:
             seg_end = seg_start + seg_angle
             facet_data = facet_angles(seg_start, seg_end, len(segment.facets))
 
-            for facet_index, fdata in enumerate(facet_data):
-                if facet_index == 0:
-                    continue
-                inner = polar_to_cartesian(self.cx, self.cy, center.radius, fdata.startAngle)
-                outer = polar_to_cartesian(self.cx, self.cy, self.outer_radius, fdata.startAngle)
-                out.append(
-                    f'<line x1="{_fmt(inner.x)}" y1="{_fmt(inner.y)}" '
-                    f'x2="{_fmt(outer.x)}" y2="{_fmt(outer.y)}" '
-                    f'stroke="{style.segmentDividerColor}" '
-                    f'stroke-width="1" opacity="0.5" />'
-                )
+            # `showFacetDividers` opts into a configurable style; False hides
+            # them; unset keeps the original faint separators (backward compat).
+            if style.showFacetDividers is not False:
+                if style.showFacetDividers is True:
+                    divider_color = (
+                        style.facetDividerColor
+                        if style.facetDividerColor is not None
+                        else "rgba(255,255,255,0.7)"
+                    )
+                    divider_width = (
+                        style.facetDividerWidth
+                        if style.facetDividerWidth is not None
+                        else 1.4
+                    )
+                    divider_attrs = (
+                        f'stroke="{divider_color}" stroke-width="{_fmt(divider_width)}"'
+                    )
+                else:
+                    divider_attrs = (
+                        f'stroke="{style.segmentDividerColor}" '
+                        f'stroke-width="1" opacity="0.5"'
+                    )
+                for facet_index, fdata in enumerate(facet_data):
+                    if facet_index == 0:
+                        continue
+                    inner = polar_to_cartesian(self.cx, self.cy, center.radius, fdata.startAngle)
+                    outer = polar_to_cartesian(self.cx, self.cy, self.outer_radius, fdata.startAngle)
+                    out.append(
+                        f'<line x1="{_fmt(inner.x)}" y1="{_fmt(inner.y)}" '
+                        f'x2="{_fmt(outer.x)}" y2="{_fmt(outer.y)}" '
+                        f'{divider_attrs} />'
+                    )
 
             if style.showFacetPoints and style.facetPointStyle != "none":
                 for fdata in facet_data:
@@ -632,7 +697,10 @@ class SVGRenderer:
 
         # Ordered rows: name lines first (top to bottom), then the optional
         # sub-label directly below. Each row keeps its own font size.
-        name_lines = raw_name.replace("&", "&amp;").split("\n")
+        display_name = (
+            raw_name.upper() if self.config.style.segmentUppercase else raw_name
+        )
+        name_lines = display_name.replace("&", "&amp;").split("\n")
         name_line_height = font_size * 1.2
         has_sub = sub_label is not None and sub_label != ""
         rows: list[dict[str, Any]] = [

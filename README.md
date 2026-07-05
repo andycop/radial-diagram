@@ -84,6 +84,7 @@ The diagram is configured via JSON. See `demo/configs/example.json` for a comple
 | `borderWidth` | number  | 0          | Border stroke width                             |
 | `borderColor` | string  | `#ffffff`  | Border stroke color                             |
 | `visible`     | boolean | true       | Show/hide the center hub                        |
+| `fontFamily`  | string  |            | Font family for the hub label (overrides `style.fontFamily`) |
 
 ### Scale (`scale`)
 
@@ -223,6 +224,27 @@ Drawn for every `facet.figure` that is set (no circle, ring, or background).
 | `facetFigureColor`    | string  | `#555555`            | Figure fill colour                                                                   |
 | `facetFigureGap`      | number  | = `facetFigureFontSize` | Radial gap from the hub edge to the figure ring (`center.radius + facetFigureGap`) |
 | `facetFigureRotate`   | boolean | false                | Rotate figures to follow the spoke direction (upright-flipped on the bottom/left half) |
+
+##### Facet gaps and dividers
+
+| Property             | Type              | Default                | Description                                                                                              |
+| -------------------- | ----------------- | ---------------------- | ------------------------------------------------------------------------------------------------------- |
+| `facetPadding`       | number \| `'auto'` | (off)                  | Angular inset per side for each facet's fill and track, so white gaps appear between sub-segments. `'auto'` = `min(0.9, facetStepDegrees * 0.06)`. When set, the track is drawn per facet. |
+| `showFacetDividers`  | boolean           | (unset = faint legacy) | `true` draws configurable radial separators at each internal facet boundary; `false` hides them; unset keeps the original faint separators |
+| `facetDividerColor`  | string            | `rgba(255,255,255,0.7)`| Separator colour when `showFacetDividers` is true                                                        |
+| `facetDividerWidth`  | number            | 1.4                    | Separator width when `showFacetDividers` is true                                                         |
+
+##### Section-name and hub typography
+
+| Property               | Type    | Default          | Description                                                          |
+| ---------------------- | ------- | ---------------- | ------------------------------------------------------------------- |
+| `segmentFontFamily`    | string  | = `fontFamily`   | Font family for the curved section names                             |
+| `segmentLetterSpacing` | string  | (none)           | CSS letter-spacing for the curved section names (e.g. `0.02em`)      |
+| `segmentUppercase`     | boolean | false            | Uppercase the curved section names                                   |
+| `center.fontFamily`    | string  | = `fontFamily`   | Font family for the centre hub label (set on the `center` object)   |
+
+This lets a caller give the section names and hub one face (e.g. a display font)
+while the facet labels, figures, and sub-labels keep the body `fontFamily`.
 
 To hide the 1-5 scale axis numbers on the top spine, set `showScoreLabels: false`.
 

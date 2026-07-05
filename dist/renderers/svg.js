@@ -76,11 +76,14 @@ export class SVGRenderer {
         const segmentFontSize = style.segmentFontSize || 28;
         const facetFontSize = style.facetFontSize || 11;
         const facetFontColor = style.facetFontColor || '#000000';
+        const segmentFontFamily = style.segmentFontFamily || style.fontFamily;
+        const segmentLetterSpacing = style.segmentLetterSpacing ? ` letter-spacing: ${style.segmentLetterSpacing};` : '';
+        const hubFontFamily = center.fontFamily || style.fontFamily;
         return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${-this.padding} ${-this.padding} ${viewSize} ${viewSize}" width="${size}" height="${size}">
   <style>
-    .segment-label { font-family: ${style.fontFamily}; font-weight: bold; font-size: ${segmentFontSize}px; fill: white; dominant-baseline: middle; }
+    .segment-label { font-family: ${segmentFontFamily}; font-weight: bold; font-size: ${segmentFontSize}px; fill: white; dominant-baseline: middle;${segmentLetterSpacing} }
     .facet-label { font-family: ${style.fontFamily}; font-size: ${facetFontSize}px; font-style: italic; fill: ${facetFontColor}; }
-    .center-label { font-family: ${style.fontFamily}; font-weight: bold; font-size: ${hubFontSize}px; fill: ${hubFontColor}; text-anchor: middle; }
+    .center-label { font-family: ${hubFontFamily}; font-weight: bold; font-size: ${hubFontSize}px; fill: ${hubFontColor}; text-anchor: middle; }
     .ring-label { font-family: ${style.fontFamily}; font-size: 10px; fill: #666; }
   </style>
   ${content}
@@ -128,9 +131,24 @@ export class SVGRenderer {
         const segAngle = segmentAngle(segments.length);
         const elements = [];
         const trackOpacity = style.trackOpacity ?? 0.3;
+        const padded = style.facetPadding !== undefined && style.facetPadding !== null;
         segments.forEach((segment, i) => {
             const sStart = startAngle + i * segAngle;
             const sEnd = sStart + segAngle;
+            if (padded) {
+                // Per-facet track so the angular gaps show up in the unscored area too.
+                const facetAngleData = facetAngles(sStart, sEnd, segment.facets.length);
+                facetAngleData.forEach(({ startAngle: fStart, endAngle: fEnd }) => {
+                    const pad = this.facetPad(fEnd - fStart);
+                    const a0 = fStart + pad;
+                    const a1 = fEnd - pad;
+                    if (a1 <= a0)
+                        return;
+                    const trackPath = segmentPath(this.cx, this.cy, center.radius, this.outerRadius, a0, a1);
+                    elements.push(`<path d="${trackPath}" fill="${segment.color}" opacity="${trackOpacity}" />`);
+                });
+                return;
+            }
             // Full segment background (lighter shade)
             const bgPath = segmentPath(this.cx, this.cy, center.radius, this.outerRadius, sStart, sEnd);
             elements.push(`<path d="${bgPath}" fill="${segment.color}" opacity="${trackOpacity}" />`);
@@ -148,7 +166,12 @@ export class SVGRenderer {
             segment.facets.forEach((facet, facetIndex) => {
                 if (facet.score === undefined || facet.score === null)
                     return;
-                const { startAngle: fStart, endAngle: fEnd } = facetAngleData[facetIndex];
+                const { startAngle: rawStart, endAngle: rawEnd } = facetAngleData[facetIndex];
+                const pad = this.facetPad(rawEnd - rawStart);
+                const fStart = rawStart + pad;
+                const fEnd = rawEnd - pad;
+                if (fEnd <= fStart)
+                    return;
                 const scoreRadius = scoreToRadius(facet.score, scale.min, scale.max, center.radius, this.outerRadius);
                 const fillPath = segmentPath(this.cx, this.cy, center.radius, scoreRadius, fStart, fEnd);
                 elements.push(`<path d="${fillPath}" fill="${segment.color}" opacity="${style.facetOpacity}" />`);
@@ -179,6 +202,19 @@ export class SVGRenderer {
      * arrow there is opt-in via `style.flowCloseLoop`. Boundaries 1..n-1 are
      * the in-between divisions and always carry an arrow when flow is enabled.
      */
+    /**
+     * Angular inset (degrees per side) for a facet's fill/track, driven by
+     * `style.facetPadding`. Returns 0 when padding is off. `'auto'` mirrors the
+     * mockup formula `min(0.9, facetStepDegrees * 0.06)`; a number is used as-is.
+     */
+    facetPad(stepDegrees) {
+        const fp = this.config.style.facetPadding;
+        if (fp === undefined || fp === null)
+            return 0;
+        if (fp === 'auto')
+            return Math.min(0.9, stepDegrees * 0.06);
+        return fp;
+    }
     hasFlowArrowAt(boundaryIndex, totalSegments) {
         const style = this.config.style;
         if (!style.flowDirection)
@@ -269,14 +305,22 @@ export class SVGRenderer {
             const segStart = startAngle + segIndex * segAngle;
             const segEnd = segStart + segAngle;
             const facetAngleData = facetAngles(segStart, segEnd, segment.facets.length);
-            // Draw dividers between facets (skip first one which is segment divider)
-            facetAngleData.forEach((facet, facetIndex) => {
-                if (facetIndex === 0)
-                    return; // First facet starts at segment boundary
-                const inner = polarToCartesian(this.cx, this.cy, center.radius, facet.startAngle);
-                const outer = polarToCartesian(this.cx, this.cy, this.outerRadius, facet.startAngle);
-                elements.push(`<line x1="${inner.x}" y1="${inner.y}" x2="${outer.x}" y2="${outer.y}" stroke="${style.segmentDividerColor}" stroke-width="1" opacity="0.5" />`);
-            });
+            // Draw dividers between facets (skip first one which is segment divider).
+            // `showFacetDividers` opts into a configurable style; false hides them;
+            // unset keeps the original faint separators for backward compatibility.
+            if (style.showFacetDividers !== false) {
+                const useConfigured = style.showFacetDividers === true;
+                const dividerAttrs = useConfigured
+                    ? `stroke="${style.facetDividerColor ?? 'rgba(255,255,255,0.7)'}" stroke-width="${style.facetDividerWidth ?? 1.4}"`
+                    : `stroke="${style.segmentDividerColor}" stroke-width="1" opacity="0.5"`;
+                facetAngleData.forEach((facet, facetIndex) => {
+                    if (facetIndex === 0)
+                        return; // First facet starts at segment boundary
+                    const inner = polarToCartesian(this.cx, this.cy, center.radius, facet.startAngle);
+                    const outer = polarToCartesian(this.cx, this.cy, this.outerRadius, facet.startAngle);
+                    elements.push(`<line x1="${inner.x}" y1="${inner.y}" x2="${outer.x}" y2="${outer.y}" ${dividerAttrs} />`);
+                });
+            }
             // Draw facet points if enabled
             if (style.showFacetPoints && style.facetPointStyle !== 'none') {
                 facetAngleData.forEach((facetData) => {
@@ -585,7 +629,8 @@ export class SVGRenderer {
         const endAng = segEnd - 3 + flowShiftDeg;
         // Build the ordered rows: name lines first (reading top to bottom), then
         // the optional sub-label directly below. Each row keeps its own font size.
-        const nameLines = rawName.replace(/&/g, '&amp;').split('\n');
+        const displayName = this.config.style.segmentUppercase ? rawName.toUpperCase() : rawName;
+        const nameLines = displayName.replace(/&/g, '&amp;').split('\n');
         const nameLineHeight = fontSize * 1.2;
         const hasSub = subLabel !== undefined && subLabel !== null && subLabel !== '';
         const rows = nameLines.map((t) => ({ text: t, size: fontSize, isSub: false }));

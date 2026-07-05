@@ -40,6 +40,7 @@ class CenterConfig:
     visible: bool | None = None
     fontSize: float | None = None
     fontColor: str | None = None
+    fontFamily: str | None = None
 
 
 @dataclass
@@ -64,6 +65,10 @@ class StyleConfig:
     facetPointStyle: Literal["circle", "dot", "none"] | None = None
     facetOpacity: float | None = None
     trackOpacity: float | None = None
+    facetPadding: float | Literal["auto"] | None = None
+    showFacetDividers: bool | None = None
+    facetDividerColor: str | None = None
+    facetDividerWidth: float | None = None
     segmentDividerWidth: float | None = None
     fontFamily: str | None = None
     backgroundColor: str | None = None
@@ -72,6 +77,9 @@ class StyleConfig:
     hubFontSize: float | None = None
     hubFontColor: str | None = None
     segmentFontSize: float | None = None
+    segmentFontFamily: str | None = None
+    segmentLetterSpacing: str | None = None
+    segmentUppercase: bool | None = None
     facetFontSize: float | None = None
     facetFontColor: str | None = None
     facetLabelPlacement: Literal["default", "outer-edge"] | None = None

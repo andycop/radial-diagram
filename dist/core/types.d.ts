@@ -60,6 +60,8 @@ export interface CenterConfig {
     fontSize?: number;
     /** Font color for center hub label (overrides style.hubFontColor) */
     fontColor?: string;
+    /** Font family for center hub label (overrides style.fontFamily) */
+    fontFamily?: string;
 }
 export interface ScaleConfig {
     /** Minimum score value */
@@ -96,6 +98,25 @@ export interface StyleConfig {
     facetOpacity?: number;
     /** Opacity of the unscored segment background track (0-1). Default 0.3. */
     trackOpacity?: number;
+    /**
+     * Angular inset (in degrees, per side) applied to each facet's scored fill
+     * and unscored track, so white gaps appear between sub-segments. A number is
+     * used directly; `'auto'` applies `min(0.9, facetStepDegrees * 0.06)` per
+     * side. Unset = no padding (existing behaviour: the track is one arc per
+     * segment). When set, the track is drawn per facet so the gaps show in it too.
+     */
+    facetPadding?: number | 'auto';
+    /**
+     * Draw a thin radial separator at each internal facet boundary (hub edge to
+     * outer edge). When `true`, uses `facetDividerColor` / `facetDividerWidth`.
+     * When `false`, no facet separators are drawn. When unset, the original
+     * faint separators are drawn (width 1, opacity 0.5, `segmentDividerColor`).
+     */
+    showFacetDividers?: boolean;
+    /** Facet separator colour when `showFacetDividers` is true. Default `rgba(255,255,255,0.7)`. */
+    facetDividerColor?: string;
+    /** Facet separator width when `showFacetDividers` is true. Default 1.4. */
+    facetDividerWidth?: number;
     /** Width of segment divider lines */
     segmentDividerWidth?: number;
     /** Font family for labels */
@@ -112,6 +133,12 @@ export interface StyleConfig {
     hubFontColor?: string;
     /** Font size for segment labels */
     segmentFontSize?: number;
+    /** Font family for curved section (segment) names. Falls back to `fontFamily`. */
+    segmentFontFamily?: string;
+    /** CSS letter-spacing for curved section (segment) names (e.g. '0.02em'). Unset = none. */
+    segmentLetterSpacing?: string;
+    /** Uppercase the curved section (segment) names. Default false. */
+    segmentUppercase?: boolean;
     /** Font size for facet labels */
     facetFontSize?: number;
     /** Font color for facet labels */

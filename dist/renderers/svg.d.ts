@@ -33,6 +33,12 @@ export declare class SVGRenderer {
      * arrow there is opt-in via `style.flowCloseLoop`. Boundaries 1..n-1 are
      * the in-between divisions and always carry an arrow when flow is enabled.
      */
+    /**
+     * Angular inset (degrees per side) for a facet's fill/track, driven by
+     * `style.facetPadding`. Returns 0 when padding is off. `'auto'` mirrors the
+     * mockup formula `min(0.9, facetStepDegrees * 0.06)`; a number is used as-is.
+     */
+    private facetPad;
     private hasFlowArrowAt;
     /**
      * When flow arrows are enabled, each segment's label is shifted in the flow

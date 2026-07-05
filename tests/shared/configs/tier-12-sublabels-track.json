@@ -7,7 +7,8 @@
     "radius": 110,
     "color": "#702082",
     "fontColor": "#ffffff",
-    "fontSize": 18
+    "fontSize": 18,
+    "fontFamily": "'Century Gothic', 'Open Sans', Arial, sans-serif"
   },
   "scale": {
     "min": 1,
@@ -33,8 +34,11 @@
     "showFacetPoints": false,
     "facetOpacity": 0.42,
     "trackOpacity": 0.13,
-    "fontFamily": "Arial, sans-serif",
+    "fontFamily": "'Open Sans', Arial, sans-serif",
     "segmentFontSize": 22,
+    "segmentFontFamily": "'Century Gothic', 'Open Sans', Arial, sans-serif",
+    "segmentLetterSpacing": "0.04em",
+    "segmentUppercase": true,
     "segmentSubLabelColor": "#ffffff",
     "segmentSubLabelFontScale": 0.62,
     "segmentLabelPosition": "outer"

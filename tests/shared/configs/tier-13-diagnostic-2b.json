@@ -7,7 +7,8 @@
     "radius": 120,
     "color": "#702082",
     "fontColor": "#ffffff",
-    "fontSize": 17
+    "fontSize": 17,
+    "fontFamily": "'Century Gothic', 'Open Sans', Arial, sans-serif"
   },
   "scale": {
     "min": 1,
@@ -84,8 +85,14 @@
     "showFacetPoints": false,
     "facetOpacity": 0.34,
     "trackOpacity": 0.12,
-    "fontFamily": "Arial, sans-serif",
+    "facetPadding": "auto",
+    "showFacetDividers": true,
+    "facetDividerColor": "rgba(255,255,255,0.7)",
+    "facetDividerWidth": 1.4,
+    "fontFamily": "'Open Sans', Arial, sans-serif",
     "segmentFontSize": 24,
+    "segmentFontFamily": "'Century Gothic', 'Open Sans', Arial, sans-serif",
+    "segmentLetterSpacing": "0.02em",
     "segmentSubLabelColor": "#ffffff",
     "segmentSubLabelFontScale": 0.6,
     "facetFontSize": 13,

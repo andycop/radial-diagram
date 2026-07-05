@@ -224,6 +224,67 @@ describe('wheel-redesign options (2b)', () => {
     expect(svg).toContain('DIRECTION &amp;</tspan>');
     expect(svg).toContain('PURPOSE</tspan>');
   });
+
+  it('draws one background track per segment when facetPadding is off', () => {
+    const svg = new SVGRenderer(validConfig).render();
+    const bg = svg.split('<g class="segment-backgrounds">')[1].split('</g>')[0];
+    // 2 segments => 2 track paths
+    expect(bg.match(/<path/g)?.length).toBe(2);
+  });
+
+  it('draws one padded track per facet when facetPadding is set', () => {
+    const config = {
+      ...validConfig,
+      style: { ...DEFAULT_STYLE, facetPadding: 'auto' as const },
+    };
+    const svg = new SVGRenderer(config).render();
+    const bg = svg.split('<g class="segment-backgrounds">')[1].split('</g>')[0];
+    // 3 facets total across the 2 segments => 3 track paths
+    expect(bg.match(/<path/g)?.length).toBe(3);
+  });
+
+  it('applies configured facet dividers when showFacetDividers is true', () => {
+    const config = {
+      ...validConfig,
+      style: {
+        ...DEFAULT_STYLE,
+        showFacetDividers: true,
+        facetDividerColor: 'rgba(255,255,255,0.7)',
+        facetDividerWidth: 1.4,
+      },
+    };
+    const svg = new SVGRenderer(config).render();
+    expect(svg).toContain('stroke="rgba(255,255,255,0.7)" stroke-width="1.4"');
+  });
+
+  it('omits facet dividers when showFacetDividers is false', () => {
+    const config = {
+      ...validConfig,
+      style: { ...DEFAULT_STYLE, showFacetDividers: false },
+    };
+    const svg = new SVGRenderer(config).render();
+    const fd = svg.split('<g class="facet-dividers">')[1].split('</g>')[0];
+    expect(fd).not.toContain('<line');
+  });
+
+  it('splits section-name and hub font families and adds letter-spacing', () => {
+    const config = {
+      ...validConfig,
+      center: { ...validConfig.center, fontFamily: 'Century Gothic' },
+      style: {
+        ...DEFAULT_STYLE,
+        segmentFontFamily: 'Century Gothic',
+        segmentLetterSpacing: '0.02em',
+        segmentUppercase: true,
+      },
+    };
+    const svg = new SVGRenderer(config).render();
+    expect(svg).toContain('.segment-label { font-family: Century Gothic;');
+    expect(svg).toContain('dominant-baseline: middle; letter-spacing: 0.02em; }');
+    expect(svg).toContain('.center-label { font-family: Century Gothic;');
+    // uppercased section name is rendered on the textPath
+    expect(svg).toContain('>SEGMENT ONE</textPath>');
+  });
 });
 
 describe('renderDiagram', () => {
