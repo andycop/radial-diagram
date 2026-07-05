@@ -1,6 +1,6 @@
 [project]
 name = "radial-diagram"
-version = "2.4.0"
+version = "2.5.0"
 description = "Configurable circular/radial diagram generator (Python port)"
 readme = "README.md"
 requires-python = ">=3.10"

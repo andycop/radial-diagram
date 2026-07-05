@@ -162,6 +162,70 @@ describe('SVGRenderer', () => {
   });
 });
 
+describe('wheel-redesign options (2b)', () => {
+  it('keeps the unscored track opacity at 0.3 by default', () => {
+    const svg = new SVGRenderer(validConfig).render();
+    expect(svg).toContain('opacity="0.3"');
+  });
+
+  it('applies a configurable track opacity', () => {
+    const config = {
+      ...validConfig,
+      style: { ...DEFAULT_STYLE, trackOpacity: 0.12 },
+    };
+    const svg = new SVGRenderer(config).render();
+    expect(svg).toContain('opacity="0.12"');
+  });
+
+  it('renders a curved section sub-label when segment.subLabel is set', () => {
+    const config = {
+      ...validConfig,
+      segments: validConfig.segments.map((s, i) => ({ ...s, subLabel: `${i}9%` })),
+    };
+    const svg = new SVGRenderer(config).render();
+    expect(svg).toContain('>09%</textPath>');
+    expect(svg).toContain('font-weight: normal');
+  });
+
+  it('does not add a facet-figures layer when no facet has a figure', () => {
+    const svg = new SVGRenderer(validConfig).render();
+    expect(svg).not.toContain('class="facet-figures"');
+  });
+
+  it('renders per-facet figures with no background when facet.figure is set', () => {
+    const config = {
+      ...validConfig,
+      segments: [
+        {
+          name: 'Seg',
+          color: '#702082',
+          facets: [{ name: 'A', score: 3, figure: '74%' }],
+        },
+      ],
+    };
+    const svg = new SVGRenderer(config).render();
+    expect(svg).toContain('class="facet-figures"');
+    expect(svg).toContain('>74%</text>');
+  });
+
+  it('uppercases and wraps outer-edge facet labels keeping a trailing &', () => {
+    const config = {
+      ...validConfig,
+      style: { ...DEFAULT_STYLE, facetLabelPlacement: 'outer-edge' as const },
+      segments: [
+        {
+          name: 'Seg',
+          color: '#702082',
+          facets: [{ name: 'Direction & Purpose', score: 3 }],
+        },
+      ],
+    };
+    const svg = new SVGRenderer(config).render();
+    expect(svg).toContain('DIRECTION &amp;</tspan>');
+    expect(svg).toContain('PURPOSE</tspan>');
+  });
+});
+
 describe('renderDiagram', () => {
   it('is a convenience function that returns SVG', () => {
     const svg = renderDiagram(validConfig);

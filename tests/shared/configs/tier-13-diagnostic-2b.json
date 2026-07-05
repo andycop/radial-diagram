@@ -1,0 +1,103 @@
+{
+  "_comment": "Tier 13 — two-level Team Effectiveness (Diagnostic) wheel, variant 2b: outer-edge facet labels (uppercase, weight 700, letter-spacing, balanced two-line wrap keeping trailing '&'), per-facet percentage figures rotated to the spoke, curved section names with a percentage sub-label, lightened fills (0.34 / 0.12), axis numbers hidden.",
+  "size": 900,
+  "startAngle": -90,
+  "center": {
+    "label": "Team\nEffectiveness",
+    "radius": 120,
+    "color": "#702082",
+    "fontColor": "#ffffff",
+    "fontSize": 17
+  },
+  "scale": {
+    "min": 1,
+    "max": 5,
+    "rings": 5
+  },
+  "segments": [
+    {
+      "name": "Demands",
+      "color": "#702082",
+      "subLabel": "58%",
+      "facets": [
+        { "name": "Workload", "score": 3, "figure": "60%" },
+        { "name": "Pace", "score": 4, "figure": "80%" },
+        { "name": "Pressure & Recovery", "score": 2, "figure": "40%" }
+      ]
+    },
+    {
+      "name": "Essentials",
+      "color": "#CC3366",
+      "subLabel": "78%",
+      "facets": [
+        { "name": "Direction & Purpose", "score": 4, "figure": "80%" },
+        { "name": "Roles", "score": 5, "figure": "100%" }
+      ]
+    },
+    {
+      "name": "Capability",
+      "color": "#E5A220",
+      "subLabel": "62%",
+      "facets": [
+        { "name": "Skills", "score": 3, "figure": "60%" },
+        { "name": "Resources", "score": 4, "figure": "80%" },
+        { "name": "Tools", "score": 3, "figure": "60%" }
+      ]
+    },
+    {
+      "name": "Enablers",
+      "color": "#8CB82B",
+      "subLabel": "82%",
+      "facets": [
+        { "name": "Support", "score": 4, "figure": "80%" },
+        { "name": "Autonomy", "score": 5, "figure": "100%" }
+      ]
+    },
+    {
+      "name": "Task Output",
+      "color": "#00A3AD",
+      "subLabel": "72%",
+      "facets": [
+        { "name": "Quality", "score": 4, "figure": "80%" },
+        { "name": "Delivery", "score": 3, "figure": "60%" }
+      ]
+    },
+    {
+      "name": "Team Vitality",
+      "color": "#4A90E2",
+      "subLabel": "84%",
+      "facets": [
+        { "name": "Morale", "score": 5, "figure": "100%" },
+        { "name": "Cohesion", "score": 4, "figure": "80%" }
+      ]
+    }
+  ],
+  "style": {
+    "showRings": true,
+    "ringStyle": "dashed",
+    "ringColor": "#ffffff",
+    "ringWidth": 1,
+    "showScoreLabels": false,
+    "showSegmentDividers": true,
+    "segmentDividerWidth": 3,
+    "segmentDividerColor": "#ffffff",
+    "showFacetPoints": false,
+    "facetOpacity": 0.34,
+    "trackOpacity": 0.12,
+    "fontFamily": "Arial, sans-serif",
+    "segmentFontSize": 24,
+    "segmentSubLabelColor": "#ffffff",
+    "segmentSubLabelFontScale": 0.6,
+    "facetFontSize": 13,
+    "facetFontColor": "#555555",
+    "facetLabelPlacement": "outer-edge",
+    "facetLabelUppercase": true,
+    "facetLabelWeight": 700,
+    "facetLabelLetterSpacing": "0.04em",
+    "facetLabelWrap": true,
+    "facetFigureFontSize": 11,
+    "facetFigureColor": "#555555",
+    "facetFigureRotate": true,
+    "segmentLabelPosition": "outer"
+  }
+}

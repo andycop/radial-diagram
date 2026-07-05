@@ -101,6 +101,7 @@ The diagram is configured via JSON. See `demo/configs/example.json` for a comple
 | `color`      | string | Segment fill color                                                                   |
 | `labelColor` | string | Optional. Override fill for the dimension label band. Falls back to `color` if unset. |
 | `facets`     | array  | Facets within this segment                                                           |
+| `subLabel`   | string | Optional. Secondary curved line rendered directly below the section name on the coloured band (same curve, smaller radius, regular weight). Printed verbatim, e.g. a section average `"3.7"` or a percentage `"74%"`. Only drawn when set. |
 
 ### Facets (`segments[].facets[]`)
 
@@ -109,6 +110,7 @@ The diagram is configured via JSON. See `demo/configs/example.json` for a comple
 | `name`        | string | Facet label                             |
 | `score`       | number | Score value (within scale min-max range)|
 | `description` | string | Optional description for tooltips       |
+| `figure`      | string | Optional. Figure text (raw score or percentage) drawn in a ring just outside the centre hub at the facet's mid-angle, with no background. Printed verbatim. Only drawn when set. See the `facetFigure*` style options. |
 
 ### Style Options (`style`)
 
@@ -142,6 +144,7 @@ The diagram is configured via JSON. See `demo/configs/example.json` for a comple
 | Property       | Type   | Default | Description                       |
 | -------------- | ------ | ------- | --------------------------------- |
 | `facetOpacity` | number | 1       | Opacity of score fill areas (0-1) |
+| `trackOpacity` | number | 0.3     | Opacity of the unscored segment background track (0-1) |
 | `facetFontSize`| number | 11      | Facet label font size             |
 
 #### Segment Dividers
@@ -181,6 +184,47 @@ The diagram is configured via JSON. See `demo/configs/example.json` for a comple
 | ----------------- | ------ | ------------------- | ---------------------------------------- |
 | `fontFamily`      | string | `Arial, sans-serif` | Font family for all labels               |
 | `backgroundColor` | string |                     | Background color (transparent if not set)|
+
+#### Wheel redesign options (2b)
+
+These are all opt-in. When none are set (and no `segment.subLabel` / `facet.figure`
+is supplied), output is byte-identical to previous versions.
+
+##### Section sub-label (below the curved section name)
+
+| Property                    | Type   | Default   | Description                                                                 |
+| --------------------------- | ------ | --------- | --------------------------------------------------------------------------- |
+| `segmentSubLabelColor`      | string | `#ffffff` | Fill colour for the sub-label (`segment.subLabel`)                          |
+| `segmentSubLabelFontScale`  | number | 0.62      | Sub-label font size as a fraction of the auto-scaled section-name font size |
+
+##### Outer-edge facet labels
+
+Enabled with `facetLabelPlacement: 'outer-edge'`. The other options only take
+effect in that mode; their in-mode defaults are shown.
+
+| Property                   | Type            | Default (in mode) | Description                                                                                             |
+| -------------------------- | --------------- | ----------------- | ------------------------------------------------------------------------------------------------------- |
+| `facetLabelPlacement`      | string          | `default`         | `default` = original italic labels; `outer-edge` = radial labels along the outer petal edge, upright    |
+| `facetLabelUppercase`      | boolean         | true              | Uppercase the label text                                                                                 |
+| `facetLabelWeight`         | number\|string  | 700               | Font weight                                                                                              |
+| `facetLabelLetterSpacing`  | string          | `0.04em`          | CSS letter-spacing                                                                                       |
+| `facetLabelWrap`           | boolean         | true              | Auto-wrap multi-word labels onto two balanced lines, keeping a trailing `&` with the word before it. An explicit `\n` always wins. |
+
+In `outer-edge` mode the label colour comes from `facetFontColor` (defaulting to
+`#555555` when unset) and the size from `facetFontSize`.
+
+##### Per-facet figure ring
+
+Drawn for every `facet.figure` that is set (no circle, ring, or background).
+
+| Property              | Type    | Default              | Description                                                                          |
+| --------------------- | ------- | -------------------- | ------------------------------------------------------------------------------------ |
+| `facetFigureFontSize` | number  | 12                   | Figure font size                                                                     |
+| `facetFigureColor`    | string  | `#555555`            | Figure fill colour                                                                   |
+| `facetFigureGap`      | number  | = `facetFigureFontSize` | Radial gap from the hub edge to the figure ring (`center.radius + facetFigureGap`) |
+| `facetFigureRotate`   | boolean | false                | Rotate figures to follow the spoke direction (upright-flipped on the bottom/left half) |
+
+To hide the 1-5 scale axis numbers on the top spine, set `showScoreLabels: false`.
 
 ## Multi-line labels and label position
 

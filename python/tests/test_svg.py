@@ -126,6 +126,54 @@ class TestSVGRenderer:
         assert 'stroke-width="4"' in svg
 
 
+class TestWheelRedesignOptions:
+    """Mirrors the 'wheel-redesign options (2b)' block in svg.test.ts."""
+
+    def test_default_track_opacity_is_0_3(self):
+        svg = SVGRenderer(_valid_config()).render()
+        assert 'opacity="0.3"' in svg
+
+    def test_configurable_track_opacity(self):
+        cfg = _valid_config()
+        cfg.style = replace(cfg.style, trackOpacity=0.12)
+        svg = SVGRenderer(cfg).render()
+        assert 'opacity="0.12"' in svg
+
+    def test_segment_sub_label_is_rendered(self):
+        cfg = _valid_config()
+        cfg.segments = [replace(s, subLabel=f"{i}9%") for i, s in enumerate(cfg.segments)]
+        svg = SVGRenderer(cfg).render()
+        assert ">09%</textPath>" in svg
+        assert "font-weight: normal" in svg
+
+    def test_no_figures_layer_without_figures(self):
+        svg = SVGRenderer(_valid_config()).render()
+        assert 'class="facet-figures"' not in svg
+
+    def test_facet_figures_have_no_background(self):
+        cfg = _valid_config()
+        cfg.segments = [
+            Segment(name="Seg", color="#702082", facets=[Facet(name="A", score=3, figure="74%")])
+        ]
+        svg = SVGRenderer(cfg).render()
+        assert 'class="facet-figures"' in svg
+        assert ">74%</text>" in svg
+
+    def test_outer_edge_facet_labels_uppercase_and_wrap(self):
+        cfg = _valid_config()
+        cfg.style = replace(cfg.style, facetLabelPlacement="outer-edge")
+        cfg.segments = [
+            Segment(
+                name="Seg",
+                color="#702082",
+                facets=[Facet(name="Direction & Purpose", score=3)],
+            )
+        ]
+        svg = SVGRenderer(cfg).render()
+        assert "DIRECTION &amp;</tspan>" in svg
+        assert "PURPOSE</tspan>" in svg
+
+
 class TestRenderDiagram:
     def test_returns_svg(self):
         svg = render_diagram(_valid_config())
