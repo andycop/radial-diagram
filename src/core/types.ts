@@ -16,6 +16,13 @@ export interface Facet {
   score?: number;
   /** Optional description for tooltips */
   description?: string;
+  /**
+   * Optional figure text (e.g. a raw score "3.7" or a percentage "74%")
+   * rendered in a tidy ring just outside the centre hub at this facet's
+   * mid-angle. The renderer prints the string verbatim, so the caller decides
+   * the format. Only drawn when set; see `style.facetFigure*` options.
+   */
+  figure?: string;
 }
 
 export interface Segment {
@@ -27,6 +34,14 @@ export interface Segment {
   labelColor?: string;
   /** Facets within this segment */
   facets: Facet[];
+  /**
+   * Optional secondary line rendered directly below the section name on the
+   * coloured label band (slightly smaller radius, same curve). Printed
+   * verbatim, so the caller supplies the string (e.g. a section average "3.7"
+   * or a percentage "74%"). Only drawn when set; styled via
+   * `style.segmentSubLabel*`.
+   */
+  subLabel?: string;
 }
 
 export interface CenterConfig {
@@ -48,6 +63,8 @@ export interface CenterConfig {
   fontSize?: number;
   /** Font color for center hub label (overrides style.hubFontColor) */
   fontColor?: string;
+  /** Font family for center hub label (overrides style.fontFamily) */
+  fontFamily?: string;
 }
 
 export interface ScaleConfig {
@@ -84,6 +101,27 @@ export interface StyleConfig {
   facetPointStyle?: 'circle' | 'dot' | 'none';
   /** Opacity of facet score fill areas (0-1) */
   facetOpacity?: number;
+  /** Opacity of the unscored segment background track (0-1). Default 0.3. */
+  trackOpacity?: number;
+  /**
+   * Angular inset (in degrees, per side) applied to each facet's scored fill
+   * and unscored track, so white gaps appear between sub-segments. A number is
+   * used directly; `'auto'` applies `min(0.9, facetStepDegrees * 0.06)` per
+   * side. Unset = no padding (existing behaviour: the track is one arc per
+   * segment). When set, the track is drawn per facet so the gaps show in it too.
+   */
+  facetPadding?: number | 'auto';
+  /**
+   * Draw a thin radial separator at each internal facet boundary (hub edge to
+   * outer edge). When `true`, uses `facetDividerColor` / `facetDividerWidth`.
+   * When `false`, no facet separators are drawn. When unset, the original
+   * faint separators are drawn (width 1, opacity 0.5, `segmentDividerColor`).
+   */
+  showFacetDividers?: boolean;
+  /** Facet separator colour when `showFacetDividers` is true. Default `rgba(255,255,255,0.7)`. */
+  facetDividerColor?: string;
+  /** Facet separator width when `showFacetDividers` is true. Default 1.4. */
+  facetDividerWidth?: number;
   /** Width of segment divider lines */
   segmentDividerWidth?: number;
   /** Font family for labels */
@@ -100,10 +138,60 @@ export interface StyleConfig {
   hubFontColor?: string;
   /** Font size for segment labels */
   segmentFontSize?: number;
+  /** Font family for curved section (segment) names. Falls back to `fontFamily`. */
+  segmentFontFamily?: string;
+  /** CSS letter-spacing for curved section (segment) names (e.g. '0.02em'). Unset = none. */
+  segmentLetterSpacing?: string;
+  /** Uppercase the curved section (segment) names. Default false. */
+  segmentUppercase?: boolean;
   /** Font size for facet labels */
   facetFontSize?: number;
   /** Font color for facet labels */
   facetFontColor?: string;
+  /**
+   * How facet (subcategory) labels are placed:
+   * - `'default'` (or unset): the original italic labels sitting just inside
+   *   the outer edge (existing behaviour, unchanged).
+   * - `'outer-edge'`: labels read radially along the outer edge of each petal,
+   *   right-aligned to the coloured band, upright on every side, with the
+   *   styling knobs below. Use for the Team Effectiveness (Diagnostic) wheel.
+   */
+  facetLabelPlacement?: 'default' | 'outer-edge';
+  /** [`outer-edge` only] Uppercase facet label text. Default true in that mode. */
+  facetLabelUppercase?: boolean;
+  /** [`outer-edge` only] Facet label font weight. Default 700 in that mode. */
+  facetLabelWeight?: number | string;
+  /** [`outer-edge` only] Facet label CSS letter-spacing (e.g. '0.04em'). Default '0.04em' in that mode. */
+  facetLabelLetterSpacing?: string;
+  /**
+   * [`outer-edge` only] Auto-wrap multi-word facet labels onto two balanced
+   * lines, keeping a trailing '&' with the word before it (e.g. "DIRECTION &"
+   * / "PURPOSE"). An explicit '\n' in the name always wins. Default true in
+   * that mode.
+   */
+  facetLabelWrap?: boolean;
+  /** Font size for the per-facet figure ring (facet.figure). Default 12. */
+  facetFigureFontSize?: number;
+  /** Fill colour for the per-facet figure ring. Default '#555555'. */
+  facetFigureColor?: string;
+  /**
+   * Radial gap in pixels from the hub edge to the figure ring baseline; the
+   * ring radius is `center.radius + facetFigureGap`. Default = facetFigureFontSize.
+   */
+  facetFigureGap?: number;
+  /**
+   * When true, rotate each facet figure to follow the spoke/radial direction
+   * (upright-flipped on the bottom/left half). When false (default), figures
+   * are upright horizontal.
+   */
+  facetFigureRotate?: boolean;
+  /** Fill colour for the segment sub-label (segment.subLabel). Default '#ffffff'. */
+  segmentSubLabelColor?: string;
+  /**
+   * Segment sub-label font size as a fraction of the (auto-scaled) section-name
+   * font size. Default 0.62. The sub-label is rendered at regular weight.
+   */
+  segmentSubLabelFontScale?: number;
   /** Where to render segment (dimension) labels: 'outer' = curved arc band outside the wheel; 'inner' = curved arc on top of the wedge near the centre hub */
   segmentLabelPosition?: 'outer' | 'inner';
   /** Draw small directional arrows on each segment boundary indicating flow. Undefined = no arrows. */
@@ -144,6 +232,7 @@ export const DEFAULT_STYLE: StyleConfig = {
   showFacetPoints: true,
   facetPointStyle: 'circle',
   facetOpacity: 1,
+  trackOpacity: 0.3,
   segmentDividerWidth: 2,
   fontFamily: 'Arial, sans-serif',
   segmentDividerColor: '#ffffff',

@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-70 -70 940 940" width="800" height="800">
+  <style>
+    .segment-label { font-family: 'Century Gothic', 'Open Sans', Arial, sans-serif; font-weight: bold; font-size: 22px; fill: white; dominant-baseline: middle; letter-spacing: 0.04em; }
+    .facet-label { font-family: 'Open Sans', Arial, sans-serif; font-size: 11px; font-style: italic; fill: #000000; }
+    .center-label { font-family: 'Century Gothic', 'Open Sans', Arial, sans-serif; font-weight: bold; font-size: 18px; fill: #ffffff; text-anchor: middle; }
+    .ring-label { font-family: 'Open Sans', Arial, sans-serif; font-size: 10px; fill: #666; }
+  </style>
+  <g class="segment-backgrounds"><path d="M 400 40 A 360 360 0 0 1 742.3803458662553 288.7538820250189 L 504.6162167924669 366.0081306187558 A 110 110 0 0 0 400 290 Z" fill="#8CB82B" opacity="0.13" />
+<path d="M 742.3803458662553 288.7538820250189 A 360 360 0 0 1 611.6026908252903 691.2461179749811 L 464.65637775217203 488.9918693812442 A 110 110 0 0 0 504.6162167924669 366.0081306187558 Z" fill="#CC3366" opacity="0.13" />
+<path d="M 611.6026908252903 691.2461179749811 A 360 360 0 0 1 188.3973091747097 691.2461179749811 L 335.34362224782797 488.9918693812442 A 110 110 0 0 0 464.65637775217203 488.9918693812442 Z" fill="#E5A220" opacity="0.13" />
+<path d="M 188.3973091747097 691.2461179749811 A 360 360 0 0 1 57.619654133744746 288.7538820250188 L 295.3837832075331 366.00813061875573 A 110 110 0 0 0 335.34362224782797 488.9918693812442 Z" fill="#8CB82B" opacity="0.13" />
+<path d="M 57.619654133744746 288.7538820250188 A 360 360 0 0 1 399.99999999999994 40 L 400 290 A 110 110 0 0 0 295.3837832075331 366.00813061875573 Z" fill="#E5A220" opacity="0.13" /></g>
+<g class="score-fills"><path d="M 400 111.42857142857144 A 288.57142857142856 288.57142857142856 0 0 1 674.4477375594586 310.8265244803723 L 504.6162167924669 366.0081306187558 A 110 110 0 0 0 400 290 Z" fill="#8CB82B" opacity="0.42" />
+<path d="M 657.4645854827595 316.34468509421066 A 270.7142857142857 270.7142857142857 0 0 1 559.1218647277481 619.0124577629322 L 464.65637775217203 488.9918693812442 A 110 110 0 0 0 504.6162167924669 366.0081306187558 Z" fill="#CC3366" opacity="0.42" />
+<path d="M 580.1141951667651 647.9059218477518 A 306.42857142857144 306.42857142857144 0 0 1 219.88580483323503 647.9059218477518 L 335.34362224782797 488.9918693812442 A 110 110 0 0 0 464.65637775217203 488.9918693812442 Z" fill="#E5A220" opacity="0.42" />
+<path d="M 209.38963961372662 662.3526538901615 A 324.2857142857143 324.2857142857143 0 0 1 91.58595828714306 299.7902032526955 L 295.3837832075331 366.00813061875573 A 110 110 0 0 0 335.34362224782797 488.9918693812442 Z" fill="#8CB82B" opacity="0.42" />
+<path d="M 176.50171867063892 327.3810063218873 A 235 235 0 0 1 399.99999999999994 165 L 400 290 A 110 110 0 0 0 295.3837832075331 366.00813061875573 Z" fill="#E5A220" opacity="0.42" /></g>
+<g class="segment-dividers"><line x1="400" y1="290" x2="400" y2="40" stroke="#ffffff" stroke-width="2" />
+<line x1="504.6162167924669" y1="366.0081306187558" x2="742.3803458662553" y2="288.7538820250189" stroke="#ffffff" stroke-width="2" />
+<line x1="464.65637775217203" y1="488.9918693812442" x2="611.6026908252903" y2="691.2461179749811" stroke="#ffffff" stroke-width="2" />
+<line x1="335.34362224782797" y1="488.9918693812442" x2="188.3973091747097" y2="691.2461179749811" stroke="#ffffff" stroke-width="2" />
+<line x1="295.3837832075331" y1="366.00813061875573" x2="57.619654133744746" y2="288.7538820250188" stroke="#ffffff" stroke-width="2" /></g>
+<g class="facet-dividers"></g>
+<g class="center-hub"><circle cx="400" cy="400" r="110" fill="#702082" />
+<text x="400" y="356.2" class="center-label" style="font-size: 73px" dominant-baseline="middle">Team</text>
+<text x="400" y="443.79999999999995" class="center-label" style="font-size: 73px" dominant-baseline="middle">Scan</text></g>
+<g class="facet-labels"><text x="599.8469857794408" y="124.93422191251784" class="facet-label" text-anchor="end" dominant-baseline="middle" transform="rotate(-54, 599.8469857794408, 124.93422191251784)"></text>
+<text x="723.3592155403521" y="505.0657780874821" class="facet-label" text-anchor="end" dominant-baseline="middle" transform="rotate(18, 723.3592155403521, 505.0657780874821)"></text>
+<text x="400" y="740" class="facet-label" text-anchor="end" dominant-baseline="middle" transform="rotate(90, 400, 740)"></text>
+<text x="76.64078445964782" y="505.06577808748216" class="facet-label" text-anchor="start" dominant-baseline="middle" transform="rotate(342, 76.64078445964782, 505.06577808748216)"></text>
+<text x="200.1530142205591" y="124.9342219125179" class="facet-label" text-anchor="start" dominant-baseline="middle" transform="rotate(414, 200.1530142205591, 124.9342219125179)"></text></g>
+<defs><path id="segment-path-0-0" d="M 421.23698899617426 -5.225889871780453 A 405.782 405.782 0 0 1 778.8301326248875 254.58073669760898" fill="none" />
+<path id="segment-path-0-1" d="M 420.1379339150725 15.745330358065587 A 384.782 384.782 0 0 1 759.2249436684463 262.1064636380603" fill="none" />
+<path id="segment-path-1-0" d="M 645.5494888206076 703.2283655332037 A 390.18199999999996 390.18199999999996 0 0 0 776.8868707531212 299.01346734380826" fill="none" />
+<path id="segment-path-1-1" d="M 658.7652170326543 719.5484307238002 A 411.18199999999996 411.18199999999996 0 0 0 797.1713131051916 293.57826739665535" fill="none" />
+<path id="segment-path-2-0" d="M 187.49165203976673 727.2341595420814 A 390.18199999999996 390.18199999999996 0 0 0 612.5083479602333 727.2341595420814" fill="none" />
+<path id="segment-path-2-1" d="M 176.05423230445115 744.8462414689353 A 411.18199999999996 411.18199999999996 0 0 0 623.9457676955489 744.8462414689352" fill="none" />
+<path id="segment-path-3-0" d="M 23.11312924687877 299.01346734380843 A 390.18199999999996 390.18199999999996 0 0 0 154.4505111793924 703.2283655332038" fill="none" />
+<path id="segment-path-3-1" d="M 2.8286868948082997 293.5782673966555 A 411.18199999999996 411.18199999999996 0 0 0 141.23478296734584 719.5484307238003" fill="none" />
+<path id="segment-path-4-0" d="M 21.169867375112517 254.5807366976089 A 405.782 405.782 0 0 1 378.76301100382557 -5.225889871780453" fill="none" />
+<path id="segment-path-4-1" d="M 40.77505633155374 262.1064636380602 A 384.782 384.782 0 0 1 379.8620660849274 15.745330358065587" fill="none" /></defs>
+<circle cx="400" cy="400" r="360" fill="none" stroke="#ffffff" stroke-width="2" />
+<g class="segment-label-backgrounds"><path d="M 400 -34.964 A 434.964 434.964 0 0 1 813.6753465538052 265.58873205869537 L 743.3314023825504 288.444865030644 A 361 361 0 0 0 400 39 Z" fill="#8CB82B" />
+<path d="M 813.6753465538052 265.58873205869537 A 434.964 434.964 0 0 1 655.6654244781432 751.8932679413047 L 612.1904760775828 692.055134969356 A 361 361 0 0 0 743.3314023825504 288.444865030644 Z" fill="#CC3366" />
+<path d="M 655.6654244781432 751.8932679413047 A 434.964 434.964 0 0 1 144.33457552185678 751.8932679413047 L 187.80952392241724 692.055134969356 A 361 361 0 0 0 612.1904760775828 692.055134969356 Z" fill="#E5A220" />
+<path d="M 144.33457552185678 751.8932679413047 A 434.964 434.964 0 0 1 -13.675346553805184 265.5887320586952 L 56.668597617449564 288.4448650306439 A 361 361 0 0 0 187.80952392241724 692.055134969356 Z" fill="#8CB82B" />
+<path d="M -13.675346553805184 265.5887320586952 A 434.964 434.964 0 0 1 399.99999999999994 -34.964 L 399.99999999999994 39 A 361 361 0 0 0 56.668597617449564 288.4448650306439 Z" fill="#E5A220" /></g>
+<g class="segment-label-dividers"><line x1="400" y1="39" x2="400" y2="-34.964" stroke="#ffffff" stroke-width="2" />
+<line x1="743.3314023825504" y1="288.444865030644" x2="813.6753465538052" y2="265.58873205869537" stroke="#ffffff" stroke-width="2" />
+<line x1="612.1904760775828" y1="692.055134969356" x2="655.6654244781432" y2="751.8932679413047" stroke="#ffffff" stroke-width="2" />
+<line x1="187.80952392241724" y1="692.055134969356" x2="144.33457552185678" y2="751.8932679413047" stroke="#ffffff" stroke-width="2" />
+<line x1="56.668597617449564" y1="288.4448650306439" x2="-13.675346553805184" y2="265.5887320586952" stroke="#ffffff" stroke-width="2" /></g>
+<g class="segment-labels"><text class="segment-label" fill="white" style="font-size: 22px"><textPath href="#segment-path-0-0" startOffset="50%" text-anchor="middle">CLARITY</textPath></text>
+<text fill="#ffffff" style="font-family: 'Open Sans', Arial, sans-serif; font-weight: normal; font-size: 13px; dominant-baseline: middle;"><textPath href="#segment-path-0-1" startOffset="50%" text-anchor="middle">71%</textPath></text>
+<text class="segment-label" fill="white" style="font-size: 22px"><textPath href="#segment-path-1-0" startOffset="50%" text-anchor="middle">DECISION SPEED</textPath></text>
+<text fill="#ffffff" style="font-family: 'Open Sans', Arial, sans-serif; font-weight: normal; font-size: 13px; dominant-baseline: middle;"><textPath href="#segment-path-1-1" startOffset="50%" text-anchor="middle">64%</textPath></text>
+<text class="segment-label" fill="white" style="font-size: 22px"><textPath href="#segment-path-2-0" startOffset="50%" text-anchor="middle">TRUST</textPath></text>
+<text fill="#ffffff" style="font-family: 'Open Sans', Arial, sans-serif; font-weight: normal; font-size: 13px; dominant-baseline: middle;"><textPath href="#segment-path-2-1" startOffset="50%" text-anchor="middle">79%</textPath></text>
+<text class="segment-label" fill="white" style="font-size: 22px"><textPath href="#segment-path-3-0" startOffset="50%" text-anchor="middle">ALIGNMENT</textPath></text>
+<text fill="#ffffff" style="font-family: 'Open Sans', Arial, sans-serif; font-weight: normal; font-size: 13px; dominant-baseline: middle;"><textPath href="#segment-path-3-1" startOffset="50%" text-anchor="middle">86%</textPath></text>
+<text class="segment-label" fill="white" style="font-size: 22px"><textPath href="#segment-path-4-0" startOffset="50%" text-anchor="middle">FOCUS</textPath></text>
+<text fill="#ffffff" style="font-family: 'Open Sans', Arial, sans-serif; font-weight: normal; font-size: 13px; dominant-baseline: middle;"><textPath href="#segment-path-4-1" startOffset="50%" text-anchor="middle">50%</textPath></text></g>
+<g class="rings"><circle cx="400" cy="400" r="145.71428571428572" fill="none" stroke="#ffffff" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="400" cy="400" r="181.42857142857144" fill="none" stroke="#ffffff" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="400" cy="400" r="217.14285714285714" fill="none" stroke="#ffffff" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="400" cy="400" r="252.85714285714286" fill="none" stroke="#ffffff" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="400" cy="400" r="288.57142857142856" fill="none" stroke="#ffffff" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="400" cy="400" r="324.2857142857143" fill="none" stroke="#ffffff" stroke-width="1" stroke-dasharray="4,4" />
+<circle cx="400" cy="400" r="360" fill="none" stroke="#ffffff" stroke-width="1" stroke-dasharray="4,4" /></g>
+</svg>

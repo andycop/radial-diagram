@@ -44,6 +44,9 @@ Each `tier-NN-<name>.json` config turns on **one additional feature** on top of 
 | 08   | Flow arrows on inner boundaries (clockwise, no wrap)           |
 | 09   | Flow arrows with wrap-around (close-loop, counterclockwise)    |
 | 10   | Kitchen sink — everything + background + center border + labelColor overrides |
+| 11   | Alpha (transparent-channel export case)                                        |
+| 12   | Single-ring wheel: curved section sub-labels + configurable track opacity      |
+| 13   | Two-level diagnostic (variant 2b): outer-edge facet labels (uppercase, weight, wrap), rotated per-facet figures, section sub-labels, lightened fills |
 
 ## Workflow when building a new feature
 

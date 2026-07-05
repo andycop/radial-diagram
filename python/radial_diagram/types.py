@@ -17,6 +17,7 @@ class Facet:
     name: str
     score: float | None = None
     description: str | None = None
+    figure: str | None = None
 
 
 @dataclass
@@ -25,6 +26,7 @@ class Segment:
     color: str
     facets: list[Facet] = field(default_factory=list)
     labelColor: str | None = None
+    subLabel: str | None = None
 
 
 @dataclass
@@ -38,6 +40,7 @@ class CenterConfig:
     visible: bool | None = None
     fontSize: float | None = None
     fontColor: str | None = None
+    fontFamily: str | None = None
 
 
 @dataclass
@@ -61,6 +64,11 @@ class StyleConfig:
     showFacetPoints: bool | None = None
     facetPointStyle: Literal["circle", "dot", "none"] | None = None
     facetOpacity: float | None = None
+    trackOpacity: float | None = None
+    facetPadding: float | Literal["auto"] | None = None
+    showFacetDividers: bool | None = None
+    facetDividerColor: str | None = None
+    facetDividerWidth: float | None = None
     segmentDividerWidth: float | None = None
     fontFamily: str | None = None
     backgroundColor: str | None = None
@@ -69,8 +77,22 @@ class StyleConfig:
     hubFontSize: float | None = None
     hubFontColor: str | None = None
     segmentFontSize: float | None = None
+    segmentFontFamily: str | None = None
+    segmentLetterSpacing: str | None = None
+    segmentUppercase: bool | None = None
     facetFontSize: float | None = None
     facetFontColor: str | None = None
+    facetLabelPlacement: Literal["default", "outer-edge"] | None = None
+    facetLabelUppercase: bool | None = None
+    facetLabelWeight: float | str | None = None
+    facetLabelLetterSpacing: str | None = None
+    facetLabelWrap: bool | None = None
+    facetFigureFontSize: float | None = None
+    facetFigureColor: str | None = None
+    facetFigureGap: float | None = None
+    facetFigureRotate: bool | None = None
+    segmentSubLabelColor: str | None = None
+    segmentSubLabelFontScale: float | None = None
     segmentLabelPosition: Literal["outer", "inner"] | None = None
     flowDirection: Literal["clockwise", "counterclockwise"] | None = None
     flowCloseLoop: bool | None = None
@@ -106,6 +128,7 @@ DEFAULT_STYLE = StyleConfig(
     showFacetPoints=True,
     facetPointStyle="circle",
     facetOpacity=1,
+    trackOpacity=0.3,
     segmentDividerWidth=2,
     fontFamily="Arial, sans-serif",
     segmentDividerColor="#ffffff",

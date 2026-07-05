@@ -162,6 +162,131 @@ describe('SVGRenderer', () => {
   });
 });
 
+describe('wheel-redesign options (2b)', () => {
+  it('keeps the unscored track opacity at 0.3 by default', () => {
+    const svg = new SVGRenderer(validConfig).render();
+    expect(svg).toContain('opacity="0.3"');
+  });
+
+  it('applies a configurable track opacity', () => {
+    const config = {
+      ...validConfig,
+      style: { ...DEFAULT_STYLE, trackOpacity: 0.12 },
+    };
+    const svg = new SVGRenderer(config).render();
+    expect(svg).toContain('opacity="0.12"');
+  });
+
+  it('renders a curved section sub-label when segment.subLabel is set', () => {
+    const config = {
+      ...validConfig,
+      segments: validConfig.segments.map((s, i) => ({ ...s, subLabel: `${i}9%` })),
+    };
+    const svg = new SVGRenderer(config).render();
+    expect(svg).toContain('>09%</textPath>');
+    expect(svg).toContain('font-weight: normal');
+  });
+
+  it('does not add a facet-figures layer when no facet has a figure', () => {
+    const svg = new SVGRenderer(validConfig).render();
+    expect(svg).not.toContain('class="facet-figures"');
+  });
+
+  it('renders per-facet figures with no background when facet.figure is set', () => {
+    const config = {
+      ...validConfig,
+      segments: [
+        {
+          name: 'Seg',
+          color: '#702082',
+          facets: [{ name: 'A', score: 3, figure: '74%' }],
+        },
+      ],
+    };
+    const svg = new SVGRenderer(config).render();
+    expect(svg).toContain('class="facet-figures"');
+    expect(svg).toContain('>74%</text>');
+  });
+
+  it('uppercases and wraps outer-edge facet labels keeping a trailing &', () => {
+    const config = {
+      ...validConfig,
+      style: { ...DEFAULT_STYLE, facetLabelPlacement: 'outer-edge' as const },
+      segments: [
+        {
+          name: 'Seg',
+          color: '#702082',
+          facets: [{ name: 'Direction & Purpose', score: 3 }],
+        },
+      ],
+    };
+    const svg = new SVGRenderer(config).render();
+    expect(svg).toContain('DIRECTION &amp;</tspan>');
+    expect(svg).toContain('PURPOSE</tspan>');
+  });
+
+  it('draws one background track per segment when facetPadding is off', () => {
+    const svg = new SVGRenderer(validConfig).render();
+    const bg = svg.split('<g class="segment-backgrounds">')[1].split('</g>')[0];
+    // 2 segments => 2 track paths
+    expect(bg.match(/<path/g)?.length).toBe(2);
+  });
+
+  it('draws one padded track per facet when facetPadding is set', () => {
+    const config = {
+      ...validConfig,
+      style: { ...DEFAULT_STYLE, facetPadding: 'auto' as const },
+    };
+    const svg = new SVGRenderer(config).render();
+    const bg = svg.split('<g class="segment-backgrounds">')[1].split('</g>')[0];
+    // 3 facets total across the 2 segments => 3 track paths
+    expect(bg.match(/<path/g)?.length).toBe(3);
+  });
+
+  it('applies configured facet dividers when showFacetDividers is true', () => {
+    const config = {
+      ...validConfig,
+      style: {
+        ...DEFAULT_STYLE,
+        showFacetDividers: true,
+        facetDividerColor: 'rgba(255,255,255,0.7)',
+        facetDividerWidth: 1.4,
+      },
+    };
+    const svg = new SVGRenderer(config).render();
+    expect(svg).toContain('stroke="rgba(255,255,255,0.7)" stroke-width="1.4"');
+  });
+
+  it('omits facet dividers when showFacetDividers is false', () => {
+    const config = {
+      ...validConfig,
+      style: { ...DEFAULT_STYLE, showFacetDividers: false },
+    };
+    const svg = new SVGRenderer(config).render();
+    const fd = svg.split('<g class="facet-dividers">')[1].split('</g>')[0];
+    expect(fd).not.toContain('<line');
+  });
+
+  it('splits section-name and hub font families and adds letter-spacing', () => {
+    const config = {
+      ...validConfig,
+      center: { ...validConfig.center, fontFamily: 'Century Gothic' },
+      style: {
+        ...DEFAULT_STYLE,
+        segmentFontFamily: 'Century Gothic',
+        segmentLetterSpacing: '0.02em',
+        segmentUppercase: true,
+      },
+    };
+    const svg = new SVGRenderer(config).render();
+    expect(svg).toContain('.segment-label { font-family: Century Gothic;');
+    expect(svg).toContain('dominant-baseline: middle; letter-spacing: 0.02em; }');
+    expect(svg).toContain('.center-label { font-family: Century Gothic;');
+    // uppercased section name is rendered on the textPath
+    expect(svg).toContain('>SEGMENT ONE</textPath>');
+  });
+});
+
 describe('renderDiagram', () => {
   it('is a convenience function that returns SVG', () => {
     const svg = renderDiagram(validConfig);

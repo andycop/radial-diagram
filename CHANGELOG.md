@@ -4,6 +4,69 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.5.0
+
+### Added
+
+Opt-in rendering options for the CGA "wheel redesign" (variant 2b). Every
+existing config renders byte-identical unless one of these new options is used.
+
+- **Curved section sub-label.** `segment.subLabel` (string) renders a second
+  curved line directly below the section name on the coloured band (slightly
+  smaller radius, same curve), at regular weight. The renderer prints the
+  string verbatim, so the caller supplies e.g. a section average `"3.7"` or a
+  percentage `"74%"`. Styled with `style.segmentSubLabelColor` (default
+  `#ffffff`) and `style.segmentSubLabelFontScale` (default `0.62`, a fraction
+  of the auto-scaled section-name size). The label band grows by one
+  sub-line-height only when a sub-label is present.
+- **Outer-edge facet labels.** `style.facetLabelPlacement: 'outer-edge'`
+  switches facet labels to read radially along the outer edge of each petal,
+  right-aligned to the coloured band and kept upright on every side. In that
+  mode: `style.facetLabelUppercase` (default `true`),
+  `style.facetLabelWeight` (default `700`), `style.facetLabelLetterSpacing`
+  (default `'0.04em'`), and `style.facetLabelWrap` (default `true`,
+  auto-wraps multi-word labels onto two balanced lines and keeps a trailing
+  `&` with the word before it, e.g. `"DIRECTION &"` / `"PURPOSE"`; an explicit
+  `\n` still wins). Colour comes from `style.facetFontColor` (defaults to
+  `#555555` in this mode). The default `'default'` placement is the original
+  italic behaviour, unchanged.
+- **Per-facet figure ring.** `facet.figure` (string) draws a small figure
+  (raw score or percentage) in a tidy ring just outside the centre hub at the
+  facet's mid-angle, with no circle/ring/background. Options:
+  `style.facetFigureFontSize` (default `12`), `style.facetFigureColor`
+  (default `#555555`), `style.facetFigureGap` (radial gap from the hub edge,
+  default = the figure font size), and `style.facetFigureRotate` (default
+  `false`; when `true`, figures follow the spoke direction, upright-flipped on
+  the bottom/left half). The figure layer is only emitted when at least one
+  facet supplies a `figure`.
+- **Configurable unscored-track opacity.** `style.trackOpacity` (default
+  `0.3`) sets the opacity of the unscored segment background track,
+  independently of `style.facetOpacity` (the scored fill).
+- **Facet angular padding.** `style.facetPadding` (`number` degrees per side,
+  or `'auto'` for `min(0.9, facetStepDegrees * 0.06)`) insets each facet's
+  scored fill and unscored track so white gaps appear between sub-segments.
+  When set, the background track is drawn per facet (so the gaps show in the
+  track too); unset keeps the single per-segment track. Default off.
+- **Configurable facet dividers.** `style.showFacetDividers` draws a thin
+  radial separator at each internal facet boundary. `true` uses
+  `style.facetDividerColor` (default `rgba(255,255,255,0.7)`) and
+  `style.facetDividerWidth` (default `1.4`); `false` hides them; unset keeps
+  the original faint separators (width 1, opacity 0.5, `segmentDividerColor`)
+  for backward compatibility.
+- **Section-name typography controls.** `style.segmentFontFamily` (falls back
+  to `fontFamily`) and `center.fontFamily` (falls back to `fontFamily`) let the
+  curved section names and the hub label use a different face from the rest of
+  the wheel text. `style.segmentLetterSpacing` (e.g. `'0.02em'`) and
+  `style.segmentUppercase` (default `false`) tune the section names. All
+  default to the existing behaviour.
+
+### Notes
+
+- Hiding the 1-5 scale axis numbers on the top spine needs no new option:
+  set the existing `style.showScoreLabels` to `false`.
+- Per-segment band colouring by score band is done caller-side by passing the
+  desired `segment.color` / `segment.labelColor`; no renderer change needed.
+
 ## 2.4.0
 
 ### Added

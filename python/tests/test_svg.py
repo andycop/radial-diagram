@@ -126,6 +126,99 @@ class TestSVGRenderer:
         assert 'stroke-width="4"' in svg
 
 
+class TestWheelRedesignOptions:
+    """Mirrors the 'wheel-redesign options (2b)' block in svg.test.ts."""
+
+    def test_default_track_opacity_is_0_3(self):
+        svg = SVGRenderer(_valid_config()).render()
+        assert 'opacity="0.3"' in svg
+
+    def test_configurable_track_opacity(self):
+        cfg = _valid_config()
+        cfg.style = replace(cfg.style, trackOpacity=0.12)
+        svg = SVGRenderer(cfg).render()
+        assert 'opacity="0.12"' in svg
+
+    def test_segment_sub_label_is_rendered(self):
+        cfg = _valid_config()
+        cfg.segments = [replace(s, subLabel=f"{i}9%") for i, s in enumerate(cfg.segments)]
+        svg = SVGRenderer(cfg).render()
+        assert ">09%</textPath>" in svg
+        assert "font-weight: normal" in svg
+
+    def test_no_figures_layer_without_figures(self):
+        svg = SVGRenderer(_valid_config()).render()
+        assert 'class="facet-figures"' not in svg
+
+    def test_facet_figures_have_no_background(self):
+        cfg = _valid_config()
+        cfg.segments = [
+            Segment(name="Seg", color="#702082", facets=[Facet(name="A", score=3, figure="74%")])
+        ]
+        svg = SVGRenderer(cfg).render()
+        assert 'class="facet-figures"' in svg
+        assert ">74%</text>" in svg
+
+    def test_outer_edge_facet_labels_uppercase_and_wrap(self):
+        cfg = _valid_config()
+        cfg.style = replace(cfg.style, facetLabelPlacement="outer-edge")
+        cfg.segments = [
+            Segment(
+                name="Seg",
+                color="#702082",
+                facets=[Facet(name="Direction & Purpose", score=3)],
+            )
+        ]
+        svg = SVGRenderer(cfg).render()
+        assert "DIRECTION &amp;</tspan>" in svg
+        assert "PURPOSE</tspan>" in svg
+
+    def test_one_track_per_segment_without_padding(self):
+        svg = SVGRenderer(_valid_config()).render()
+        bg = svg.split('<g class="segment-backgrounds">')[1].split("</g>")[0]
+        assert bg.count("<path") == 2
+
+    def test_one_padded_track_per_facet_with_padding(self):
+        cfg = _valid_config()
+        cfg.style = replace(cfg.style, facetPadding="auto")
+        svg = SVGRenderer(cfg).render()
+        bg = svg.split('<g class="segment-backgrounds">')[1].split("</g>")[0]
+        assert bg.count("<path") == 3
+
+    def test_configured_facet_dividers(self):
+        cfg = _valid_config()
+        cfg.style = replace(
+            cfg.style,
+            showFacetDividers=True,
+            facetDividerColor="rgba(255,255,255,0.7)",
+            facetDividerWidth=1.4,
+        )
+        svg = SVGRenderer(cfg).render()
+        assert 'stroke="rgba(255,255,255,0.7)" stroke-width="1.4"' in svg
+
+    def test_facet_dividers_omitted_when_false(self):
+        cfg = _valid_config()
+        cfg.style = replace(cfg.style, showFacetDividers=False)
+        svg = SVGRenderer(cfg).render()
+        fd = svg.split('<g class="facet-dividers">')[1].split("</g>")[0]
+        assert "<line" not in fd
+
+    def test_font_family_split_and_letter_spacing(self):
+        cfg = _valid_config()
+        cfg.center = replace(cfg.center, fontFamily="Century Gothic")
+        cfg.style = replace(
+            cfg.style,
+            segmentFontFamily="Century Gothic",
+            segmentLetterSpacing="0.02em",
+            segmentUppercase=True,
+        )
+        svg = SVGRenderer(cfg).render()
+        assert ".segment-label { font-family: Century Gothic;" in svg
+        assert "dominant-baseline: middle; letter-spacing: 0.02em; }" in svg
+        assert ".center-label { font-family: Century Gothic;" in svg
+        assert ">SEGMENT ONE</textPath>" in svg
+
+
 class TestRenderDiagram:
     def test_returns_svg(self):
         svg = render_diagram(_valid_config())

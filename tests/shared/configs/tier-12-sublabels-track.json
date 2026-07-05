@@ -1,0 +1,46 @@
+{
+  "_comment": "Tier 12 — single-ring wheel (Team Scan / Pulse shape): curved section sub-labels below each section name + configurable unscored track opacity. One facet per section; facet names blank so only the band label shows.",
+  "size": 800,
+  "startAngle": -90,
+  "center": {
+    "label": "Team\nScan",
+    "radius": 110,
+    "color": "#702082",
+    "fontColor": "#ffffff",
+    "fontSize": 18,
+    "fontFamily": "'Century Gothic', 'Open Sans', Arial, sans-serif"
+  },
+  "scale": {
+    "min": 1,
+    "max": 7,
+    "rings": 7
+  },
+  "segments": [
+    { "name": "Clarity", "color": "#8CB82B", "subLabel": "71%", "facets": [{ "name": "", "score": 5 }] },
+    { "name": "Decision Speed", "color": "#CC3366", "subLabel": "64%", "facets": [{ "name": "", "score": 4.5 }] },
+    { "name": "Trust", "color": "#E5A220", "subLabel": "79%", "facets": [{ "name": "", "score": 5.5 }] },
+    { "name": "Alignment", "color": "#8CB82B", "subLabel": "86%", "facets": [{ "name": "", "score": 6 }] },
+    { "name": "Focus", "color": "#E5A220", "subLabel": "50%", "facets": [{ "name": "", "score": 3.5 }] }
+  ],
+  "style": {
+    "showRings": true,
+    "ringStyle": "dashed",
+    "ringColor": "#ffffff",
+    "ringWidth": 1,
+    "showScoreLabels": false,
+    "showSegmentDividers": true,
+    "segmentDividerWidth": 2,
+    "segmentDividerColor": "#ffffff",
+    "showFacetPoints": false,
+    "facetOpacity": 0.42,
+    "trackOpacity": 0.13,
+    "fontFamily": "'Open Sans', Arial, sans-serif",
+    "segmentFontSize": 22,
+    "segmentFontFamily": "'Century Gothic', 'Open Sans', Arial, sans-serif",
+    "segmentLetterSpacing": "0.04em",
+    "segmentUppercase": true,
+    "segmentSubLabelColor": "#ffffff",
+    "segmentSubLabelFontScale": 0.62,
+    "segmentLabelPosition": "outer"
+  }
+}
